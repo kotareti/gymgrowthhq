@@ -1,172 +1,26 @@
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-scroll-behavior:smooth;
-}
+// Gym Growth HQ V1
 
-body{
-background:#0d0d0d;
-color:#fff;
-}
+document.addEventListener("DOMContentLoaded", () => {
 
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:20px 8%;
-background:#111;
-position:sticky;
-top:0;
-z-index:1000;
-}
+    const form = document.querySelector("form");
 
-.logo{
-font-size:28px;
-font-weight:800;
-color:#fff;
-}
+    form.addEventListener("submit", function(e){
 
-.logo span{
-color:#ff7a00;
-}
+        e.preventDefault();
 
-nav a{
-text-decoration:none;
-color:#fff;
-margin-left:25px;
-font-weight:500;
-transition:.3s;
-}
+        alert(
+`🎉 Thank you!
 
-nav a:hover{
-color:#ff7a00;
-}
+Your order has been received.
 
-.hero{
-height:90vh;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-text-align:center;
-padding:20px;
-background:linear-gradient(135deg,#0d0d0d,#1a1a1a);
-}
+Next Step:
+Complete the payment and upload your videos.
 
-.hero h1{
-font-size:58px;
-max-width:900px;
-line-height:1.2;
-margin-bottom:20px;
-}
+Team Gym Growth HQ`
+        );
 
-.hero p{
-font-size:20px;
-color:#cfcfcf;
-max-width:700px;
-margin-bottom:35px;
-}
+        form.reset();
 
-.btn{
-display:inline-block;
-padding:16px 34px;
-background:#ff7a00;
-color:#fff;
-text-decoration:none;
-border-radius:10px;
-font-weight:700;
-transition:.3s;
-}
+    });
 
-.btn:hover{
-background:#ff9500;
-transform:translateY(-3px);
-}
-
-section{
-padding:90px 8%;
-}
-
-section h2{
-text-align:center;
-font-size:42px;
-margin-bottom:50px;
-}
-
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:30px;
-}
-
-.card{
-background:#1a1a1a;
-padding:35px;
-border-radius:18px;
-text-align:center;
-transition:.3s;
-border:1px solid #2a2a2a;
-}
-
-.card:hover{
-transform:translateY(-8px);
-border-color:#ff7a00;
-}
-
-.card h3{
-font-size:28px;
-margin-bottom:15px;
-}
-
-.card h1{
-font-size:48px;
-color:#ff7a00;
-margin:15px 0;
-}
-
-.card p{
-color:#cfcfcf;
-}
-
-#contact{
-text-align:center;
-}
-
-footer{
-padding:35px;
-text-align:center;
-background:#111;
-color:#999;
-margin-top:40px;
-}
-
-@media(max-width:768px){
-
-header{
-flex-direction:column;
-}
-
-nav{
-margin-top:15px;
-}
-
-nav a{
-display:inline-block;
-margin:10px;
-}
-
-.hero h1{
-font-size:36px;
-}
-
-.hero p{
-font-size:17px;
-}
-
-section h2{
-font-size:32px;
-}
-
-  }
+});
