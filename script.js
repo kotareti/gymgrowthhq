@@ -1,11 +1,20 @@
 /* =========================================================
    GYM GROWTH HQ
-   SCRIPT.JS — PART 1/5
+   CLEAN SCRIPT.JS
+   =========================================================
 
-   APP CORE
-   SCREEN NAVIGATION
-   BACK BUTTON
-   MOBILE APP BEHAVIOUR
+   MAIN SYSTEM
+   - Home
+   - Services
+   - Pricing
+   - Service Details
+   - Plan Details
+   - Order Flow
+   - Support
+   - Swipe Navigation
+   - Back Navigation
+   - Modal
+   - Toast
    ========================================================= */
 
 
@@ -23,7 +32,9 @@ const AppState = {
 
     selectedService: null,
 
-    selectedPlan: null,
+    currentOrderStep: 1,
+
+    orderData: {},
 
     modalOpen: false,
 
@@ -33,55 +44,173 @@ const AppState = {
 
 
 /* =========================================================
-   2. DOM HELPERS
+   2. HELPERS
    ========================================================= */
 
-function getElement(selector) {
+function $(selector) {
 
     return document.querySelector(selector);
 
 }
 
 
-function getAllElements(selector) {
+function $all(selector) {
 
-    return document.querySelectorAll(selector);
-
-}
-
-
-/* =========================================================
-   3. SCREEN FINDER
-   ========================================================= */
-
-function getScreen(screenName) {
-
-    return document.querySelector(
-        `[data-screen="${screenName}"]`
+    return Array.from(
+        document.querySelectorAll(selector)
     );
 
 }
 
 
 /* =========================================================
-   4. HIDE ALL SCREENS
+   3. SERVICE DATA
+   ========================================================= */
+
+const serviceData = {
+
+    "reel-editing": {
+
+        name: "Reel Editing",
+
+        icon: "🎬",
+
+        price: "₹199 / reel"
+
+    },
+
+    "transformation": {
+
+        name: "Transformation Reel",
+
+        icon: "🔥",
+
+        price: "₹299 / reel"
+
+    },
+
+    "gym-promotion": {
+
+        name: "Gym Promotion",
+
+        icon: "📈",
+
+        price: "₹499 / video"
+
+    }
+
+};
+
+
+/* =========================================================
+   4. GET SCREEN
+   ========================================================= */
+
+function getScreen(name) {
+
+    const direct =
+        document.getElementById(name);
+
+    if (direct) {
+
+        return direct;
+
+    }
+
+
+    return document.querySelector(
+        `[data-screen-section="${name}"]`
+    );
+
+}
+
+
+/* =========================================================
+   5. GET DETAIL SCREEN
+   ========================================================= */
+
+function getDetailScreen(name) {
+
+    return document.querySelector(
+        `[data-detail-section="${name}"]`
+    );
+
+}
+
+
+/* =========================================================
+   6. GET PLAN DETAIL SCREEN
+   ========================================================= */
+
+function getPlanDetailScreen(name) {
+
+    return document.querySelector(
+        `[data-plan-detail-section="${name}"]`
+    );
+
+}
+
+
+/* =========================================================
+   7. RESOLVE TARGET
+   ========================================================= */
+
+function resolveTarget(name) {
+
+    if (!name) {
+
+        return null;
+
+    }
+
+
+    const normalScreen =
+        getScreen(name);
+
+    if (normalScreen) {
+
+        return normalScreen;
+
+    }
+
+
+    const detailScreen =
+        getDetailScreen(name);
+
+    if (detailScreen) {
+
+        return detailScreen;
+
+    }
+
+
+    const planScreen =
+        getPlanDetailScreen(name);
+
+    if (planScreen) {
+
+        return planScreen;
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   8. HIDE EVERYTHING
    ========================================================= */
 
 function hideAllScreens() {
 
-    const screens =
-        getAllElements(
-            ".app-screen"
-        );
-
-
-    screens.forEach(
+    $all(".app-screen").forEach(
         screen => {
 
             screen.classList.remove(
                 "active-screen"
             );
-
 
             screen.setAttribute(
                 "aria-hidden",
@@ -95,22 +224,74 @@ function hideAllScreens() {
 
 
 /* =========================================================
-   5. SHOW SCREEN
+   9. UPDATE BOTTOM NAV
+   ========================================================= */
+
+function updateBottomNavigation(
+    screenName
+) {
+
+    $all(".nav-item").forEach(
+        item => {
+
+            const target =
+                item.dataset.screen;
+
+            item.classList.toggle(
+                "active-nav",
+                target === screenName
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   10. UPDATE FLOATING HOME
+   ========================================================= */
+
+function updateFloatingHome(
+    screenName
+) {
+
+    const button =
+        $("#floatingHomeButton");
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.classList.toggle(
+        "visible",
+        screenName !== "home"
+    );
+
+}
+
+
+/* =========================================================
+   11. SHOW SCREEN
    ========================================================= */
 
 function showScreen(
     screenName,
-    addToHistory = true
+    addHistory = true
 ) {
 
-    const targetScreen =
-        getScreen(screenName);
+    const target =
+        resolveTarget(screenName);
 
 
-    if (!targetScreen) {
+    if (!target) {
 
         console.warn(
-            `Screen "${screenName}" not found.`
+            "Gym Growth HQ: Screen not found:",
+            screenName
         );
 
         return;
@@ -118,10 +299,14 @@ function showScreen(
     }
 
 
+    const actualName =
+        target.id || screenName;
+
+
     if (
-        AppState.currentScreen === screenName
-        &&
-        targetScreen.classList.contains(
+        AppState.currentScreen ===
+            actualName &&
+        target.classList.contains(
             "active-screen"
         )
     ) {
@@ -132,11 +317,9 @@ function showScreen(
 
 
     if (
-        addToHistory
-        &&
-        AppState.currentScreen
-        &&
-        AppState.currentScreen !== screenName
+        addHistory &&
+        AppState.currentScreen &&
+        AppState.currentScreen !== actualName
     ) {
 
         AppState.screenHistory.push(
@@ -151,75 +334,73 @@ function showScreen(
 
 
     AppState.currentScreen =
-        screenName;
+        actualName;
 
 
     hideAllScreens();
 
 
-    targetScreen.classList.add(
+    target.classList.add(
         "active-screen"
     );
 
 
-    targetScreen.setAttribute(
+    target.setAttribute(
         "aria-hidden",
         "false"
     );
 
 
-    updateNavigation(
-        screenName
+    updateBottomNavigation(
+        actualName
     );
 
 
-    updateFloatingHomeButton(
-        screenName
+    updateFloatingHome(
+        actualName
     );
-
-
-    window.scrollTo({
-
-        top: 0,
-
-        behavior: "smooth"
-
-    });
 
 
     document.body.dataset.screen =
-        screenName;
+        actualName;
+
+
+    window.scrollTo(
+        0,
+        0
+    );
 
 }
 
 
 /* =========================================================
-   6. GO BACK
+   12. GO BACK
    ========================================================= */
 
 function goBack() {
 
     if (
         AppState.screenHistory.length
-        === 0
+        > 0
     ) {
 
+        const previous =
+            AppState.screenHistory.pop();
+
+
         showScreen(
-            "home",
+            previous,
             false
         );
+
 
         return;
 
     }
 
 
-    const previous =
-        AppState.screenHistory.pop();
-
-
     showScreen(
-        previous,
+        "home",
         false
     );
 
@@ -227,147 +408,62 @@ function goBack() {
 
 
 /* =========================================================
-   7. CLEAR HISTORY
-   ========================================================= */
+   13. NAVIGATION BUTTONS
+   =========================================================
 
-function clearScreenHistory() {
+   IMPORTANT:
+   ONE EVENT SYSTEM ONLY.
 
-    AppState.screenHistory = [];
-
-}
-
-
-/* =========================================================
-   8. NAVIGATION UPDATE
-   ========================================================= */
-
-function updateNavigation(
-    screenName
-) {
-
-    const navItems =
-        getAllElements(
-            ".nav-item"
-        );
-
-
-    navItems.forEach(
-        item => {
-
-            const target =
-                item.dataset.screen;
-
-
-            const isActive =
-                target === screenName;
-
-
-            item.classList.toggle(
-                "active-nav",
-                isActive
-            );
-
-
-            item.setAttribute(
-                "aria-current",
-                isActive
-                    ? "page"
-                    : "false"
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   9. FLOATING HOME BUTTON
-   ========================================================= */
-
-function updateFloatingHomeButton(
-    screenName
-) {
-
-    const button =
-        getElement(
-            "#floatingHomeButton"
-        );
-
-
-    if (!button) {
-
-        return;
-
-    }
-
-
-    if (
-        screenName === "home"
-    ) {
-
-        button.classList.remove(
-            "visible"
-        );
-
-        return;
-
-    }
-
-
-    button.classList.add(
-        "visible"
-    );
-
-}
-
-
-/* =========================================================
-   10. NAV ITEM EVENTS
+   This prevents duplicate click handlers.
    ========================================================= */
 
 function setupNavigation() {
 
-    const navItems =
-        getAllElements(
-            ".nav-item"
-        );
+    document.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    "[data-screen]"
+                );
 
 
-    navItems.forEach(
-        item => {
+            if (!button) {
 
-            item.addEventListener(
-                "click",
-                () => {
+                return;
 
-                    const screenName =
-                        item.dataset.screen;
+            }
 
 
-                    if (!screenName) {
+            if (
+                button.classList.contains(
+                    "nav-item"
+                )
+            ) {
 
-                        return;
+                event.preventDefault();
 
-                    }
+                showScreen(
+                    button.dataset.screen
+                );
 
+                return;
 
-                    if (
-                        screenName ===
-                        AppState.currentScreen
-                    ) {
-
-                        return;
-
-                    }
+            }
 
 
-                    showScreen(
-                        screenName
-                    );
+            if (
+                button.dataset.screen
+            ) {
 
-                }
-            );
+                event.preventDefault();
+
+                handleScreenButton(
+                    button
+                );
+
+            }
 
         }
     );
@@ -376,40 +472,97 @@ function setupNavigation() {
 
 
 /* =========================================================
-   11. GENERIC SCREEN BUTTONS
+   14. SCREEN BUTTON HANDLER
    ========================================================= */
 
-function setupScreenButtons() {
+function handleScreenButton(
+    button
+) {
 
-    const buttons =
-        getAllElements(
-            "[data-go-screen]"
+    const target =
+        button.dataset.screen;
+
+
+    if (!target) {
+
+        return;
+
+    }
+
+
+    const selectedPlan =
+        button.dataset.plan;
+
+
+    if (
+        target === "order" &&
+        selectedPlan
+    ) {
+
+        selectService(
+            selectedPlan
         );
 
-
-    buttons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const targetScreen =
-                        button.dataset.goScreen;
+    }
 
 
-                    if (!targetScreen) {
+    showScreen(
+        target
+    );
 
-                        return;
-
-                    }
+}
 
 
-                    showScreen(
-                        targetScreen
-                    );
+/* =========================================================
+   15. SERVICE DETAIL BUTTONS
+   ========================================================= */
 
-                }
+function setupServiceDetails() {
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    "[data-detail]"
+                );
+
+
+            if (!button) {
+
+                return;
+
+            }
+
+
+            event.preventDefault();
+
+
+            const service =
+                button.dataset.detail;
+
+
+            const target =
+                getDetailScreen(
+                    service
+                );
+
+
+            if (!target) {
+
+                console.warn(
+                    "Service detail not found:",
+                    service
+                );
+
+                return;
+
+            }
+
+
+            showScreen(
+                target.id
             );
 
         }
@@ -419,23 +572,117 @@ function setupScreenButtons() {
 
 
 /* =========================================================
-   12. BACK BUTTONS
+   16. PRICING PLAN DETAILS
+   ========================================================= */
+
+function setupPlanDetails() {
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    "[data-plan-detail]"
+                );
+
+
+            if (!button) {
+
+                return;
+
+            }
+
+
+            event.preventDefault();
+
+
+            const plan =
+                button.dataset.planDetail;
+
+
+            let target =
+                getPlanDetailScreen(
+                    plan
+                );
+
+
+            /*
+             * Gym Promotion currently has
+             * no separate plan-detail section
+             * in the HTML.
+             *
+             * Therefore use its service detail.
+             */
+
+            if (
+                !target &&
+                plan === "gym-promotion"
+            ) {
+
+                target =
+                    getDetailScreen(
+                        "gym-promotion"
+                    );
+
+            }
+
+
+            if (!target) {
+
+                console.warn(
+                    "Plan detail not found:",
+                    plan
+                );
+
+                return;
+
+            }
+
+
+            showScreen(
+                target.id
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   17. BACK BUTTONS
    ========================================================= */
 
 function setupBackButtons() {
 
-    const buttons =
-        getAllElements(
-            "[data-go-back]"
-        );
+    document.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    "[data-back]"
+                );
 
 
-    buttons.forEach(
-        button => {
+            if (!button) {
 
-            button.addEventListener(
-                "click",
-                goBack
+                return;
+
+            }
+
+
+            event.preventDefault();
+
+
+            const target =
+                button.dataset.back;
+
+
+            showScreen(
+                target,
+                false
             );
 
         }
@@ -445,15 +692,13 @@ function setupBackButtons() {
 
 
 /* =========================================================
-   13. FLOATING HOME BUTTON EVENT
+   18. FLOATING HOME BUTTON
    ========================================================= */
 
 function setupFloatingHomeButton() {
 
     const button =
-        getElement(
-            "#floatingHomeButton"
-        );
+        $("#floatingHomeButton");
 
 
     if (!button) {
@@ -465,9 +710,13 @@ function setupFloatingHomeButton() {
 
     button.addEventListener(
         "click",
-        () => {
+        event => {
 
-            clearScreenHistory();
+            event.preventDefault();
+
+
+            AppState.screenHistory =
+                [];
 
 
             showScreen(
@@ -482,452 +731,42 @@ function setupFloatingHomeButton() {
 
 
 /* =========================================================
-   14. BROWSER BACK BUTTON
+   19. SELECT SERVICE
    ========================================================= */
 
-function setupBrowserBackButton() {
-
-    window.addEventListener(
-        "popstate",
-        () => {
-
-            goBack();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   15. SCREEN HISTORY STATE
-   ========================================================= */
-
-function pushBrowserState(
-    screenName
+function selectService(
+    serviceKey
 ) {
 
-    try {
-
-        window.history.pushState(
-            {
-                screen:
-                    screenName
-            },
-            "",
-            `#${screenName}`
-        );
-
-    }
-
-    catch (error) {
-
-        console.warn(
-            "Browser history unavailable.",
-            error
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   16. HANDLE HASH
-   ========================================================= */
-
-function loadHashScreen() {
-
-    const hash =
-        window.location.hash
-            .replace(
-                "#",
-                ""
-            )
-            .trim();
-
-
-    if (!hash) {
-
-        showScreen(
-            "home",
-            false
-        );
+    if (
+        !serviceData[serviceKey]
+    ) {
 
         return;
 
     }
 
 
-    const targetScreen =
-        getScreen(hash);
+    AppState.selectedService =
+        serviceKey;
 
 
-    if (targetScreen) {
-
-        showScreen(
-            hash,
-            false
-        );
-
-    }
-
-    else {
-
-        showScreen(
-            "home",
-            false
-        );
-
-    }
+    updateSelectedServiceUI();
 
 }
 
 
 /* =========================================================
-   17. BODY LOCK
+   20. UPDATE SELECTED SERVICE UI
    ========================================================= */
 
-function lockBodyScroll() {
+function updateSelectedServiceUI() {
 
-    document.body.classList.add(
-        "modal-active"
-    );
+    const service =
+        serviceData[
+            AppState.selectedService
+        ];
 
-}
-
-
-function unlockBodyScroll() {
-
-    document.body.classList.remove(
-        "modal-active"
-    );
-
-}
-
-
-/* =========================================================
-   18. DEVICE CHECK
-   ========================================================= */
-
-function isMobileDevice() {
-
-    return window.matchMedia(
-        "(max-width: 699px)"
-    ).matches;
-
-}
-
-
-/* =========================================================
-   19. SAFE CLICK
-   ========================================================= */
-
-function safeClick(
-    element,
-    callback
-) {
-
-    if (!element) {
-
-        return;
-
-    }
-
-
-    element.addEventListener(
-        "click",
-        event => {
-
-            event.preventDefault();
-
-            callback(event);
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   20. INITIALIZE APP
-   ========================================================= */
-
-function initializeApp() {
-
-    setupNavigation();
-
-    setupScreenButtons();
-
-    setupBackButtons();
-
-    setupFloatingHomeButton();
-
-    setupBrowserBackButton();
-
-    loadHashScreen();
-
-
-    console.log(
-        "Gym Growth HQ App initialized."
-    );
-
-}
-
-
-/* =========================================================
-   21. DOM READY
-   ========================================================= */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeApp
-    );
-
-}
-
-else {
-
-    initializeApp();
-
-}
-
-
-/* =========================================================
-   END OF SCRIPT.JS — PART 1/5
-   ========================================================= */
-
-
-/* =========================================================
-   GYM GROWTH HQ
-   SCRIPT.JS — PART 2/5
-
-   SERVICES
-   PRICING
-   SERVICE DETAILS
-   PLAN DETAILS
-   ========================================================= */
-
-
-/* =========================================================
-   22. SERVICE DATA
-   ========================================================= */
-
-const serviceData = {
-
-    reelEditing: {
-
-        title:
-            "Reel Editing",
-
-        icon:
-            "🎬",
-
-        short:
-            "Professional short-form video editing.",
-
-        description:
-            "We turn your gym footage into clean, engaging and high-converting reels designed for Instagram.",
-
-        includes: [
-
-            "Instagram Reels",
-
-            "Short-form videos",
-
-            "Promotional reels",
-
-            "Clean cuts and pacing",
-
-            "Music and basic sound design",
-
-            "Text and captions"
-
-        ],
-
-        delivery:
-            "Delivery time is confirmed after we receive your footage and requirements.",
-
-        revisions:
-            "Revision support is available based on the selected service."
-
-    },
-
-
-    transformation: {
-
-        title:
-            "Transformation Reels",
-
-        icon:
-            "🔥",
-
-        short:
-            "Before & after transformation content.",
-
-        description:
-            "Show your members' progress with powerful before-and-after transformation reels that communicate the result clearly.",
-
-        includes: [
-
-            "Before & after edits",
-
-            "Weight-loss transformations",
-
-            "Muscle-gain transformations",
-
-            "Progress-focused storytelling",
-
-            "Music synchronization",
-
-            "Text highlights"
-
-        ],
-
-        delivery:
-            "Delivery time is confirmed after we receive the footage and transformation details.",
-
-        revisions:
-            "Revision support is available based on the selected service."
-
-    },
-
-
-    gymPromotion: {
-
-        title:
-            "Gym Promotion",
-
-        icon:
-            "📈",
-
-        short:
-            "Promotional reels for gym offers.",
-
-        description:
-            "Create promotional content that clearly presents your gym, offer, atmosphere and call-to-action.",
-
-        includes: [
-
-            "Offer promotion",
-
-            "Gym introduction",
-
-            "Membership campaigns",
-
-            "Promotional text",
-
-            "Call-to-action",
-
-            "Instagram-ready format"
-
-        ],
-
-        delivery:
-            "Delivery time is confirmed according to the project requirements.",
-
-        revisions:
-            "Revision support is available based on the selected service."
-
-    }
-
-};
-
-
-/* =========================================================
-   23. PRICING DATA
-   ========================================================= */
-
-const pricingData = {
-
-    reelBasic: {
-
-        title:
-            "Reel Editing",
-
-        price:
-            "₹199",
-
-        unit:
-            "1 Reel",
-
-        description:
-            "A clean and professional edit for one short-form reel.",
-
-        includes: [
-
-            "1 Instagram Reel",
-
-            "Clean cuts",
-
-            "Music synchronization",
-
-            "Basic text",
-
-            "Vertical 9:16 format"
-
-        ],
-
-        delivery:
-            "Delivery time will be confirmed before the order starts.",
-
-        revisions:
-            "Revision details will be confirmed with the order."
-
-    },
-
-
-    transformationBasic: {
-
-        title:
-            "Transformation Reel",
-
-        price:
-            "₹299",
-
-        unit:
-            "1 Reel",
-
-        description:
-            "A transformation-focused reel designed to highlight progress and results.",
-
-        includes: [
-
-            "1 Transformation Reel",
-
-            "Before & after structure",
-
-            "Music synchronization",
-
-            "Text highlights",
-
-            "Vertical 9:16 format"
-
-        ],
-
-        delivery:
-            "Delivery time will be confirmed before the order starts.",
-
-        revisions:
-            "Revision details will be confirmed with the order."
-
-    }
-
-};
-
-
-/* =========================================================
-   24. CREATE SERVICE DETAILS
-   ========================================================= */
-
-function createServiceDetails(
-    service
-) {
 
     if (!service) {
 
@@ -936,54 +775,20 @@ function createServiceDetails(
     }
 
 
-    const title =
-        getElement(
-            "#serviceDetailTitle"
-        );
+    const name =
+        $("#selectedServiceName");
+
+
+    if (name) {
+
+        name.textContent =
+            service.name;
+
+    }
 
 
     const icon =
-        getElement(
-            "#serviceDetailIcon"
-        );
-
-
-    const short =
-        getElement(
-            "#serviceDetailShort"
-        );
-
-
-    const description =
-        getElement(
-            "#serviceDetailDescription"
-        );
-
-
-    const includes =
-        getElement(
-            "#serviceDetailIncludes"
-        );
-
-
-    const delivery =
-        getElement(
-            "#serviceDetailDelivery"
-        );
-
-
-    const revisions =
-        getElement(
-            "#serviceDetailRevisions"
-        );
-
-
-    if (title) {
-
-        title.textContent =
-            service.title;
-
-    }
+        $(".selected-service-icon");
 
 
     if (icon) {
@@ -993,902 +798,200 @@ function createServiceDetails(
 
     }
 
-
-    if (short) {
-
-        short.textContent =
-            service.short;
-
-    }
+}
 
 
-    if (description) {
+/* =========================================================
+   21. ORDER SERVICE SELECTION
+   ========================================================= */
 
-        description.textContent =
-            service.description;
+function setupOrderServiceSelection() {
 
-    }
+    document.addEventListener(
+        "click",
+        event => {
 
-
-    if (includes) {
-
-        includes.innerHTML = "";
-
-
-        service.includes.forEach(
-            item => {
-
-                const li =
-                    document.createElement(
-                        "li"
-                    );
-
-
-                li.textContent =
-                    item;
-
-
-                includes.appendChild(
-                    li
+            const button =
+                event.target.closest(
+                    "[data-order-service]"
                 );
+
+
+            if (!button) {
+
+                return;
 
             }
-        );
-
-    }
 
 
-    if (delivery) {
-
-        delivery.textContent =
-            service.delivery;
-
-    }
+            event.preventDefault();
 
 
-    if (revisions) {
+            const service =
+                button.dataset.orderService;
 
-        revisions.textContent =
-            service.revisions;
 
-    }
+            selectService(
+                service
+            );
+
+
+            setOrderStep(
+                2
+            );
+
+        }
+    );
 
 }
+
+
 /* =========================================================
-   25. CREATE PRICING DETAILS
+   22. ORDER STEPS
    ========================================================= */
 
-function createPricingDetails(
-    plan
+function setOrderStep(
+    step
 ) {
 
-    if (!plan) {
+    const number =
+        Number(step);
+
+
+    if (
+        ![1, 2, 3].includes(number)
+    ) {
 
         return;
 
     }
 
 
-    const title =
-        getElement(
-            "#pricingDetailTitle"
-        );
+    AppState.currentOrderStep =
+        number;
 
 
-    const price =
-        getElement(
-            "#pricingDetailPrice"
-        );
+    $all(
+        "[data-order-step]"
+    ).forEach(
+        element => {
 
-
-    const unit =
-        getElement(
-            "#pricingDetailUnit"
-        );
-
-
-    const description =
-        getElement(
-            "#pricingDetailDescription"
-        );
-
-
-    const includes =
-        getElement(
-            "#pricingDetailIncludes"
-        );
-
-
-    const delivery =
-        getElement(
-            "#pricingDetailDelivery"
-        );
-
-
-    const revisions =
-        getElement(
-            "#pricingDetailRevisions"
-        );
-
-
-    if (title) {
-
-        title.textContent =
-            plan.title;
-
-    }
-
-
-    if (price) {
-
-        price.textContent =
-            plan.price;
-
-    }
-
-
-    if (unit) {
-
-        unit.textContent =
-            plan.unit;
-
-    }
-
-
-    if (description) {
-
-        description.textContent =
-            plan.description;
-
-    }
-
-
-    if (includes) {
-
-        includes.innerHTML = "";
-
-
-        plan.includes.forEach(
-            item => {
-
-                const li =
-                    document.createElement(
-                        "li"
-                    );
-
-
-                li.textContent =
-                    item;
-
-
-                includes.appendChild(
-                    li
+            const elementStep =
+                Number(
+                    element.dataset.orderStep
                 );
+
+
+            element.classList.toggle(
+                "active-order-step",
+                elementStep === number
+            );
+
+        }
+    );
+
+
+    $all(
+        "[data-progress-step]"
+    ).forEach(
+        element => {
+
+            const progressStep =
+                Number(
+                    element.dataset.progressStep
+                );
+
+
+            element.classList.toggle(
+                "active-progress",
+                progressStep === number
+            );
+
+
+            element.classList.toggle(
+                "completed-progress",
+                progressStep < number
+            );
+
+        }
+    );
+
+
+    updateSelectedServiceUI();
+
+
+    const orderScreen =
+        getScreen("order");
+
+
+    if (orderScreen) {
+
+        orderScreen.scrollTop =
+            0;
+
+    }
+
+
+    window.scrollTo(
+        0,
+        0
+    );
+
+}
+
+
+/* =========================================================
+   23. ORDER NEXT BUTTON
+   ========================================================= */
+
+function setupOrderNextButtons() {
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    "[data-order-next]"
+                );
+
+
+            if (!button) {
+
+                return;
 
             }
-        );
 
-    }
 
+            event.preventDefault();
 
-    if (delivery) {
 
-        delivery.textContent =
-            plan.delivery;
-
-    }
-
-
-    if (revisions) {
-
-        revisions.textContent =
-            plan.revisions;
-
-    }
-
-}
-
-
-/* =========================================================
-   26. SERVICE BUTTONS
-   ========================================================= */
-
-function setupServiceButtons() {
-
-    const buttons =
-        getAllElements(
-            "[data-service]"
-        );
-
-
-    buttons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const serviceKey =
-                        button.dataset.service;
-
-
-                    const service =
-                        serviceData[
-                            serviceKey
-                        ];
-
-
-                    if (!service) {
-
-                        console.warn(
-                            "Service not found:",
-                            serviceKey
-                        );
-
-                        return;
-
-                    }
-
-
-                    AppState.selectedService =
-                        serviceKey;
-
-
-                    createServiceDetails(
-                        service
-                    );
-
-
-                    showScreen(
-                        "service-detail"
-                    );
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   27. PRICING BUTTONS
-   ========================================================= */
-
-function setupPricingButtons() {
-
-    const buttons =
-        getAllElements(
-            "[data-plan]"
-        );
-
-
-    buttons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const planKey =
-                        button.dataset.plan;
-
-
-                    const plan =
-                        pricingData[
-                            planKey
-                        ];
-
-
-                    if (!plan) {
-
-                        console.warn(
-                            "Plan not found:",
-                            planKey
-                        );
-
-                        return;
-
-                    }
-
-
-                    AppState.selectedPlan =
-                        planKey;
-
-
-                    createPricingDetails(
-                        plan
-                    );
-
-
-                    showScreen(
-                        "pricing-detail"
-                    );
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   28. ORDER FROM SERVICE
-   ========================================================= */
-
-function setupServiceOrderButtons() {
-
-    const buttons =
-        getAllElements(
-            "[data-order-service]"
-        );
-
-
-    buttons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const serviceKey =
-                        button.dataset.orderService;
-
-
-                    if (
-                        serviceData[
-                            serviceKey
-                        ]
-                    ) {
-
-                        AppState.selectedService =
-                            serviceKey;
-
-                    }
-
-
-                    prepareOrderForm();
-
-
-                    showScreen(
-                        "order"
-                    );
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   29. ORDER FROM PLAN
-   ========================================================= */
-
-function setupPlanOrderButtons() {
-
-    const buttons =
-        getAllElements(
-            "[data-order-plan]"
-        );
-
-
-    buttons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const planKey =
-                        button.dataset.orderPlan;
-
-
-                    if (
-                        pricingData[
-                            planKey
-                        ]
-                    ) {
-
-                        AppState.selectedPlan =
-                            planKey;
-
-                    }
-
-
-                    prepareOrderForm();
-
-
-                    showScreen(
-                        "order"
-                    );
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   30. PREPARE ORDER FORM
-   ========================================================= */
-
-function prepareOrderForm() {
-
-    const serviceSelect =
-        getElement(
-            "#serviceSelect"
-        );
-
-
-    if (!serviceSelect) {
-
-        return;
-
-    }
-
-
-    if (
-        AppState.selectedService
-        &&
-        serviceData[
-            AppState.selectedService
-        ]
-    ) {
-
-        const service =
-            serviceData[
-                AppState.selectedService
-            ];
-
-
-        const matchingOption =
-            Array.from(
-                serviceSelect.options
-            ).find(
-                option =>
-                    option.value ===
-                    AppState.selectedService
-            );
-
-
-        if (matchingOption) {
-
-            serviceSelect.value =
-                matchingOption.value;
-
-        }
-
-        else {
-
-            const option =
-                document.createElement(
-                    "option"
+            const nextStep =
+                Number(
+                    button.dataset.orderNext
                 );
 
 
-            option.value =
-                AppState.selectedService;
+            if (
+                nextStep === 3
+            ) {
 
+                if (
+                    !validateProjectDetails()
+                ) {
 
-            option.textContent =
-                service.title;
+                    return;
 
+                }
 
-            serviceSelect.appendChild(
-                option
-            );
+            }
 
 
-            serviceSelect.value =
-                AppState.selectedService;
+            collectOrderDetails();
 
-        }
 
-    }
-
-
-    if (
-        AppState.selectedPlan
-        &&
-        pricingData[
-            AppState.selectedPlan
-        ]
-    ) {
-
-        const plan =
-            pricingData[
-                AppState.selectedPlan
-            ];
-
-
-        const planPrice =
-            getElement(
-                "#orderPlanPrice"
-            );
-
-
-        if (planPrice) {
-
-            planPrice.textContent =
-                plan.price;
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   31. SETUP SERVICE + PRICING SYSTEM
-   ========================================================= */
-
-function initializeCommerce() {
-
-    setupServiceButtons();
-
-    setupPricingButtons();
-
-    setupServiceOrderButtons();
-
-    setupPlanOrderButtons();
-
-}
-
-
-/* =========================================================
-   32. INITIALIZE AFTER APP CORE
-   ========================================================= */
-
-const previousInitializeApp =
-    initializeApp;
-
-
-initializeApp = function() {
-
-    previousInitializeApp();
-
-    initializeCommerce();
-
-};
-
-
-/* =========================================================
-   END OF SCRIPT.JS — PART 2/5
-   ========================================================= */
-
-
-/* =========================================================
-   GYM GROWTH HQ
-   SCRIPT.JS — PART 3/5
-
-   ORDER FORM
-   SERVICE SELECTION
-   CLIENT DETAILS
-   VALIDATION
-   ORDER SUMMARY
-   ========================================================= */
-
-
-/* =========================================================
-   33. ORDER FORM ELEMENTS
-   ========================================================= */
-
-function getOrderForm() {
-
-    return getElement(
-        "#orderForm"
-    );
-
-}
-
-
-function getOrderInput(
-    id
-) {
-
-    return getElement(
-        `#${id}`
-    );
-
-}
-
-
-/* =========================================================
-   34. UPDATE ORDER SUMMARY
-   ========================================================= */
-
-function updateOrderSummary() {
-
-    const serviceSelect =
-        getElement(
-            "#serviceSelect"
-        );
-
-
-    const summary =
-        getElement(
-            "#orderSummary"
-        );
-
-
-    const summaryName =
-        getElement(
-            "#orderSummaryName"
-        );
-
-
-    const summaryPrice =
-        getElement(
-            "#orderSummaryPrice"
-        );
-
-
-    if (
-        !serviceSelect ||
-        !summary
-    ) {
-
-        return;
-
-    }
-
-
-    const selectedValue =
-        serviceSelect.value;
-
-
-    if (!selectedValue) {
-
-        summary.classList.remove(
-            "visible"
-        );
-
-        return;
-
-    }
-
-
-    let title =
-        "";
-
-
-    let price =
-        "";
-
-
-    if (
-        serviceData[
-            selectedValue
-        ]
-    ) {
-
-        title =
-            serviceData[
-                selectedValue
-            ].title;
-
-    }
-
-
-    if (
-        pricingData[
-            selectedValue
-        ]
-    ) {
-
-        title =
-            pricingData[
-                selectedValue
-            ].title;
-
-
-        price =
-            pricingData[
-                selectedValue
-            ].price;
-
-    }
-
-
-    if (summaryName) {
-
-        summaryName.textContent =
-            title;
-
-    }
-
-
-    if (summaryPrice) {
-
-        summaryPrice.textContent =
-            price ||
-            "Price confirmed";
-
-    }
-
-
-    summary.classList.add(
-        "visible"
-    );
-
-}
-
-
-/* =========================================================
-   35. SERVICE SELECT CHANGE
-   ========================================================= */
-
-function setupServiceSelect() {
-
-    const select =
-        getElement(
-            "#serviceSelect"
-        );
-
-
-    if (!select) {
-
-        return;
-
-    }
-
-
-    select.addEventListener(
-        "change",
-        () => {
-
-            const value =
-                select.value;
-
-
-            AppState.selectedService =
-                value ||
-                null;
-
-
-            updateOrderSummary();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   36. FORM FIELD ERROR
-   ========================================================= */
-
-function showFieldError(
-    input,
-    message
-) {
-
-    if (!input) {
-
-        return;
-
-    }
-
-
-    const group =
-        input.closest(
-            ".form-group"
-        );
-
-
-    if (!group) {
-
-        return;
-
-    }
-
-
-    group.classList.add(
-        "has-error"
-    );
-
-
-    const error =
-        group.querySelector(
-            ".form-error"
-        );
-
-
-    if (error) {
-
-        error.textContent =
-            message;
-
-    }
-
-}
-
-
-/* =========================================================
-   37. CLEAR FIELD ERROR
-   ========================================================= */
-
-function clearFieldError(
-    input
-) {
-
-    if (!input) {
-
-        return;
-
-    }
-
-
-    const group =
-        input.closest(
-            ".form-group"
-        );
-
-
-    if (!group) {
-
-        return;
-
-    }
-
-
-    group.classList.remove(
-        "has-error"
-    );
-
-
-    const error =
-        group.querySelector(
-            ".form-error"
-        );
-
-
-    if (error) {
-
-        error.textContent =
-            "";
-
-    }
-
-}
-
-
-/* =========================================================
-   38. CLEAR ALL FORM ERRORS
-   ========================================================= */
-
-function clearFormErrors(
-    form
-) {
-
-    if (!form) {
-
-        return;
-
-    }
-
-
-    const groups =
-        form.querySelectorAll(
-            ".form-group"
-        );
-
-
-    groups.forEach(
-        group => {
-
-            group.classList.remove(
-                "has-error"
+            setOrderStep(
+                nextStep
             );
 
         }
@@ -1898,41 +1001,69 @@ function clearFormErrors(
 
 
 /* =========================================================
-   39. REQUIRED FIELD CHECK
+   24. ORDER STEP BACK
    ========================================================= */
 
-function validateRequiredField(
-    input,
-    message
-) {
+function setupOrderStepBack() {
 
-    if (!input) {
+    document.addEventListener(
+        "click",
+        event => {
 
-        return true;
-
-    }
-
-
-    const value =
-        input.value.trim();
+            const button =
+                event.target.closest(
+                    "[data-order-go-step]"
+                );
 
 
-    if (!value) {
+            if (!button) {
 
-        showFieldError(
-            input,
-            message
-        );
+                return;
 
-
-        return false;
-
-    }
+            }
 
 
-    clearFieldError(
-        input
+            event.preventDefault();
+
+
+            const step =
+                Number(
+                    button.dataset.orderGoStep
+                );
+
+
+            setOrderStep(
+                step
+            );
+
+        }
     );
+
+}
+
+
+/* =========================================================
+   25. VALIDATE PROJECT DETAILS
+   ========================================================= */
+
+function validateProjectDetails() {
+
+    const goal =
+        $("#projectGoal");
+
+
+    /*
+     * Goal is optional for now.
+     * We allow the user to continue
+     * even if they don't select it.
+     */
+
+    if (goal) {
+
+        AppState.orderData.projectGoal =
+            goal.value;
+
+    }
 
 
     return true;
@@ -1941,315 +1072,72 @@ function validateRequiredField(
 
 
 /* =========================================================
-   40. INSTAGRAM USERNAME CHECK
+   26. COLLECT ORDER DETAILS
    ========================================================= */
 
-function validateInstagram(
-    input
-) {
+function collectOrderDetails() {
 
-    if (!input) {
-
-        return true;
-
-    }
+    const goal =
+        $("#projectGoal");
 
 
-    const value =
-        input.value.trim();
+    const notes =
+        $("#projectNotes");
 
 
-    if (!value) {
+    if (goal) {
 
-        showFieldError(
-            input,
-            "Please enter your Instagram username."
-        );
-
-
-        return false;
+        AppState.orderData.projectGoal =
+            goal.value;
 
     }
 
 
-    clearFieldError(
-        input
-    );
+    if (notes) {
 
-
-    return true;
-
-}
-
-
-/* =========================================================
-   41. SERVICE VALIDATION
-   ========================================================= */
-
-function validateService(
-    select
-) {
-
-    if (!select) {
-
-        return true;
+        AppState.orderData.projectNotes =
+            notes.value.trim();
 
     }
 
 
-    if (!select.value) {
-
-        showFieldError(
-            select,
-            "Please select a service."
-        );
-
-
-        return false;
-
-    }
-
-
-    clearFieldError(
-        select
-    );
-
-
-    return true;
-
-}
-
-
-/* =========================================================
-   42. COLLECT CLIENT DATA
-   ========================================================= */
-
-function collectOrderData() {
-
-    const name =
-        getOrderInput(
-            "clientName"
-        );
+    const clientName =
+        $("#clientName");
 
 
     const gymName =
-        getOrderInput(
-            "gymName"
-        );
+        $("#gymName");
 
 
     const instagram =
-        getOrderInput(
-            "instagramUsername"
-        );
+        $("#instagramHandle");
 
 
-    const service =
-        getOrderInput(
-            "serviceSelect"
-        );
+    /*
+     * Phone is intentionally NOT required.
+     * We don't collect it here.
+     */
 
+    if (clientName) {
 
-    const message =
-        getOrderInput(
-            "orderMessage"
-        );
-
-
-    return {
-
-        clientName:
-            name
-                ? name.value.trim()
-                : "",
-
-
-        gymName:
-            gymName
-                ? gymName.value.trim()
-                : "",
-
-
-        instagramUsername:
-            instagram
-                ? instagram.value.trim()
-                : "",
-
-
-        service:
-            service
-                ? service.value
-                : "",
-
-
-        message:
-            message
-                ? message.value.trim()
-                : ""
-
-    };
-
-    }
-/* =========================================================
-   43. VALIDATE ORDER
-   ========================================================= */
-
-function validateOrder(
-    data
-) {
-
-    const form =
-        getOrderForm();
-
-
-    if (!form) {
-
-        return false;
+        AppState.orderData.clientName =
+            clientName.value.trim();
 
     }
 
 
-    clearFormErrors(
-        form
-    );
+    if (gymName) {
 
-
-    let valid =
-        true;
-
-
-    const name =
-        getOrderInput(
-            "clientName"
-        );
-
-
-    const gymName =
-        getOrderInput(
-            "gymName"
-        );
-
-
-    const instagram =
-        getOrderInput(
-            "instagramUsername"
-        );
-
-
-    const service =
-        getOrderInput(
-            "serviceSelect"
-        );
-
-
-    const nameValid =
-        validateRequiredField(
-            name,
-            "Please enter your name."
-        );
-
-
-    const gymValid =
-        validateRequiredField(
-            gymName,
-            "Please enter your gym name."
-        );
-
-
-    const instagramValid =
-        validateInstagram(
-            instagram
-        );
-
-
-    const serviceValid =
-        validateService(
-            service
-        );
-
-
-    if (!nameValid) {
-
-        valid =
-            false;
+        AppState.orderData.gymName =
+            gymName.value.trim();
 
     }
 
 
-    if (!gymValid) {
+    if (instagram) {
 
-        valid =
-            false;
-
-    }
-
-
-    if (!instagramValid) {
-
-        valid =
-            false;
-
-    }
-
-
-    if (!serviceValid) {
-
-        valid =
-            false;
-
-    }
-
-
-    return valid;
-
-}
-
-
-/* =========================================================
-   44. SHOW FORM SUCCESS
-   ========================================================= */
-
-function showFormSuccess(
-    data
-) {
-
-    const form =
-        getOrderForm();
-
-
-    const success =
-        getElement(
-            "#formSuccess"
-        );
-
-
-    const successName =
-        getElement(
-            "#successClientName"
-        );
-
-
-    if (form) {
-
-        form.style.display =
-            "none";
-
-    }
-
-
-    if (successName) {
-
-        successName.textContent =
-            data.clientName;
-
-    }
-
-
-    if (success) {
-
-        success.classList.add(
-            "visible"
-        );
+        AppState.orderData.instagram =
+            instagram.value.trim();
 
     }
 
@@ -2257,110 +1145,132 @@ function showFormSuccess(
 
 
 /* =========================================================
-   45. RESET FORM
+   27. SUBMIT ORDER
    ========================================================= */
 
-function resetOrderForm() {
+function setupOrderSubmit() {
 
-    const form =
-        getOrderForm();
+    const button =
+        $("#submitOrderButton");
 
 
-    if (!form) {
+    if (!button) {
 
         return;
 
     }
 
 
-    form.reset();
+    button.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
 
 
-    clearFormErrors(
-        form
+            collectOrderDetails();
+
+
+            if (
+                !validateContactDetails()
+            ) {
+
+                return;
+
+            }
+
+
+            submitOrder();
+
+        }
     );
-
-
-    const summary =
-        getElement(
-            "#orderSummary"
-        );
-
-
-    if (summary) {
-
-        summary.classList.remove(
-            "visible"
-        );
-
-    }
-
-
-    const success =
-        getElement(
-            "#formSuccess"
-        );
-
-
-    if (success) {
-
-        success.classList.remove(
-            "visible"
-        );
-
-    }
-
-
-    form.style.display =
-        "";
-
-
-    AppState.selectedService =
-        null;
-
-
-    AppState.selectedPlan =
-        null;
 
 }
 
 
 /* =========================================================
-   46. ORDER SUBMIT
+   28. VALIDATE CONTACT DETAILS
    ========================================================= */
 
-function handleOrderSubmit(
-    event
-) {
+function validateContactDetails() {
 
-    event.preventDefault();
-
-
-    const data =
-        collectOrderData();
+    const gymName =
+        $("#gymName");
 
 
-    const valid =
-        validateOrder(
-            data
-        );
+    const instagram =
+        $("#instagramHandle");
 
 
-    if (!valid) {
+    const gym =
+        gymName
+            ? gymName.value.trim()
+            : "";
+
+
+    const insta =
+        instagram
+            ? instagram.value.trim()
+            : "";
+
+
+    /*
+     * Only Gym Name + Instagram
+     * are needed.
+     *
+     * Phone number is NOT required.
+     */
+
+    if (!gym) {
 
         showToast(
-            "Please complete the required details."
+            "Please enter your gym name.",
+            "!"
         );
 
 
-        return;
+        if (gymName) {
+
+            gymName.focus();
+
+        }
+
+
+        return false;
 
     }
 
 
-    AppState.isLoading =
-        true;
+    if (!insta) {
 
+        showToast(
+            "Please enter your Instagram.",
+            "!"
+        );
+
+
+        if (instagram) {
+
+            instagram.focus();
+
+        }
+
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   29. SUBMIT ORDER
+   ========================================================= */
+
+function submitOrder() {
 
     showLoading(
         "Preparing your order..."
@@ -2370,139 +1280,179 @@ function handleOrderSubmit(
     setTimeout(
         () => {
 
-            AppState.isLoading =
-                false;
-
-
             hideLoading();
 
 
-            showFormSuccess(
-                data
+            const success =
+                $("#orderSuccess");
+
+
+            $all(
+                ".order-step"
+            ).forEach(
+                step => {
+
+                    step.classList.remove(
+                        "active-order-step"
+                    );
+
+                }
             );
+
+
+            if (success) {
+
+                success.classList.add(
+                    "visible"
+                );
+
+
+                success.setAttribute(
+                    "aria-hidden",
+                    "false"
+                );
+
+            }
 
 
             showToast(
-                "Order details received."
+                "Order request prepared.",
+                "✓"
             );
 
-
         },
-        700
+        500
     );
 
 }
 
 
 /* =========================================================
-   47. ORDER FORM SETUP
+   30. RESET ORDER
    ========================================================= */
 
-function setupOrderForm() {
+function resetOrderForm() {
 
-    const form =
-        getOrderForm();
+    AppState.selectedService =
+        null;
 
 
-    if (!form) {
+    AppState.currentOrderStep =
+        1;
 
-        return;
+
+    AppState.orderData =
+        {};
+
+
+    const formFields =
+        [
+            "#projectGoal",
+            "#projectNotes",
+            "#clientName",
+            "#gymName",
+            "#instagramHandle",
+            "#contactNumber"
+        ];
+
+
+    formFields.forEach(
+        selector => {
+
+            const field =
+                $(selector);
+
+
+            if (!field) {
+
+                return;
+
+            }
+
+
+            field.value =
+                "";
+
+        }
+    );
+
+
+    const success =
+        $("#orderSuccess");
+
+
+    if (success) {
+
+        success.classList.remove(
+            "visible"
+        );
+
+
+        success.setAttribute(
+            "aria-hidden",
+            "true"
+        );
 
     }
 
 
-    form.addEventListener(
-        "submit",
-        handleOrderSubmit
-    );
-
-
-    setupServiceSelect();
-
-
-    const inputs =
-        form.querySelectorAll(
-            "input, select, textarea"
-        );
-
-
-    inputs.forEach(
-        input => {
-
-            input.addEventListener(
-                "input",
-                () => {
-
-                    clearFieldError(
-                        input
-                    );
-
-                }
-            );
-
-
-            input.addEventListener(
-                "change",
-                () => {
-
-                    clearFieldError(
-                        input
-                    );
-
-                }
-            );
-
-        }
+    setOrderStep(
+        1
     );
 
 }
 
 
 /* =========================================================
-   48. ORDER BUTTONS
+   31. SUPPORT
    ========================================================= */
 
-function setupOrderNavigation() {
+function setupSupport() {
 
-    const orderButtons =
-        getAllElements(
-            "[data-open-order]"
-        );
+    document.addEventListener(
+        "click",
+        event => {
 
-
-    orderButtons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const service =
-                        button.dataset
-                            .openOrder;
+            const button =
+                event.target.closest(
+                    "[data-support]"
+                );
 
 
-                    if (
-                        service &&
-                        serviceData[
-                            service
-                        ]
-                    ) {
+            if (!button) {
 
-                        AppState.selectedService =
-                            service;
+                return;
 
-                    }
+            }
 
 
-                    prepareOrderForm();
+            event.preventDefault();
 
 
-                    showScreen(
-                        "order"
-                    );
+            const type =
+                button.dataset.support;
 
-                }
+
+            const target =
+                document.getElementById(
+                    `support-${type}`
+                );
+
+
+            if (!target) {
+
+                console.warn(
+                    "Support screen not found:",
+                    type
+                );
+
+                return;
+
+            }
+
+
+            showScreen(
+                target.id
             );
 
         }
@@ -2512,172 +1462,15 @@ function setupOrderNavigation() {
 
 
 /* =========================================================
-   49. ORDER BACK / CANCEL
+   32. MODAL
    ========================================================= */
 
-function setupOrderCancel() {
-
-    const buttons =
-        getAllElements(
-            "[data-cancel-order]"
-        );
-
-
-    buttons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    resetOrderForm();
-
-
-                    goBack();
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   50. FORM SUCCESS CLOSE
-   ========================================================= */
-
-function setupSuccessClose() {
-
-    const buttons =
-        getAllElements(
-            "[data-success-close]"
-        );
-
-
-    buttons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    resetOrderForm();
-
-
-                    showScreen(
-                        "home"
-                    );
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   51. ORDER SYSTEM INITIALIZER
-   ========================================================= */
-
-function initializeOrderSystem() {
-
-    setupOrderForm();
-
-    setupOrderNavigation();
-
-    setupOrderCancel();
-
-    setupSuccessClose();
-
-}
-
-
-/* =========================================================
-   52. INITIALIZE ORDER SYSTEM
-   ========================================================= */
-
-const previousCommerceInitialize =
-    initializeApp;
-
-
-initializeApp = function() {
-
-    previousCommerceInitialize();
-
-    initializeOrderSystem();
-
-};
-
-
-/* =========================================================
-   END OF SCRIPT.JS — PART 3/5
-   ========================================================= */
-/* =========================================================
-   52. EXTEND APP INITIALIZATION
-   ========================================================= */
-
-const commerceInitialize =
-    initializeApp;
-
-
-initializeApp = function() {
-
-    commerceInitialize();
-
-    initializeOrderSystem();
-
-};
-
-
-/* =========================================================
-   END OF SCRIPT.JS — PART 3/5
-   ========================================================= */
-
-
-/* =========================================================
-   GYM GROWTH HQ
-   SCRIPT.JS — PART 4/5
-
-   MODAL
-   TOAST
-   LOADING
-   SUPPORT
-   MICRO INTERACTIONS
-   ========================================================= */
-
-
-/* =========================================================
-   53. MODAL ELEMENTS
-   ========================================================= */
-
-function getInfoModal() {
-
-    return getElement(
-        "#infoModal"
-    );
-
-}
-
-
-/* =========================================================
-   54. OPEN MODAL
-   ========================================================= */
-
-function openInfoModal({
-    title = "Information",
-    text = "",
-    icon = "✦",
-    eyebrow = "INFORMATION",
-    actionText = "Continue",
-    action = null
-} = {}) {
+function openInfoModal(
+    options = {}
+) {
 
     const modal =
-        getInfoModal();
+        $("#infoModal");
 
 
     if (!modal) {
@@ -2687,102 +1480,59 @@ function openInfoModal({
     }
 
 
-    const modalIcon =
-        getElement(
-            "#modalIcon"
-        );
+    const icon =
+        $("#modalIcon");
 
 
-    const modalEyebrow =
-        getElement(
-            "#modalEyebrow"
-        );
+    const eyebrow =
+        $("#modalEyebrow");
 
 
-    const modalTitle =
-        getElement(
-            "#modalTitle"
-        );
+    const title =
+        $("#modalTitle");
 
 
-    const modalText =
-        getElement(
-            "#modalText"
-        );
+    const text =
+        $("#modalText");
 
 
-    const modalAction =
-        getElement(
-            "#modalActionButton"
-        );
+    if (icon && options.icon) {
 
-
-    if (modalIcon) {
-
-        modalIcon.textContent =
-            icon;
+        icon.textContent =
+            options.icon;
 
     }
 
 
-    if (modalEyebrow) {
+    if (
+        eyebrow &&
+        options.eyebrow
+    ) {
 
-        modalEyebrow.textContent =
-            eyebrow;
-
-    }
-
-
-    if (modalTitle) {
-
-        modalTitle.textContent =
-            title;
+        eyebrow.textContent =
+            options.eyebrow;
 
     }
 
 
-    if (modalText) {
+    if (
+        title &&
+        options.title
+    ) {
 
-        modalText.textContent =
-            text;
+        title.textContent =
+            options.title;
 
     }
 
 
-    if (modalAction) {
+    if (
+        text &&
+        options.text
+    ) {
 
-        modalAction.textContent =
-            actionText;
-
-
-        modalAction.innerHTML =
-            `
-                ${actionText}
-                <span class="button-arrow">
-                    →
-                </span>
-            `;
-
-
-        modalAction.onclick =
-            () => {
-
-                if (
-                    typeof action ===
-                    "function"
-                ) {
-
-                    action();
-
-                }
-
-                else {
-
-                    closeInfoModal();
-
-                }
-
-            };
+        text.textContent =
+            options.text;
 
     }
 
@@ -2801,20 +1551,17 @@ function openInfoModal({
     AppState.modalOpen =
         true;
 
-
-    lockBodyScroll();
-
 }
 
 
 /* =========================================================
-   55. CLOSE MODAL
+   33. CLOSE MODAL
    ========================================================= */
 
 function closeInfoModal() {
 
     const modal =
-        getInfoModal();
+        $("#infoModal");
 
 
     if (!modal) {
@@ -2838,38 +1585,22 @@ function closeInfoModal() {
     AppState.modalOpen =
         false;
 
-
-    unlockBodyScroll();
-
 }
 
 
 /* =========================================================
-   56. MODAL EVENTS
+   34. MODAL EVENTS
    ========================================================= */
 
 function setupModal() {
 
-    const modal =
-        getInfoModal();
+    const close =
+        $("#modalClose");
 
 
-    if (!modal) {
+    if (close) {
 
-        return;
-
-    }
-
-
-    const closeButton =
-        getElement(
-            "#modalClose"
-        );
-
-
-    if (closeButton) {
-
-        closeButton.addEventListener(
+        close.addEventListener(
             "click",
             closeInfoModal
         );
@@ -2877,46 +1608,47 @@ function setupModal() {
     }
 
 
-    const backdrop =
-        modal.querySelector(
-            "[data-modal-close]"
-        );
+    document.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target.matches(
+                    "[data-modal-close]"
+                )
+            ) {
+
+                closeInfoModal();
+
+            }
+
+        }
+    );
 
 
-    if (backdrop) {
+    const action =
+        $("#modalActionButton");
 
-        backdrop.addEventListener(
+
+    if (action) {
+
+        action.addEventListener(
             "click",
             closeInfoModal
         );
 
     }
 
-}
-
-
-/* =========================================================
-   57. ESCAPE KEY
-   ========================================================= */
-
-function setupEscapeKey() {
 
     document.addEventListener(
         "keydown",
         event => {
 
             if (
-                event.key ===
-                "Escape"
+                event.key === "Escape"
             ) {
 
-                if (
-                    AppState.modalOpen
-                ) {
-
-                    closeInfoModal();
-
-                }
+                closeInfoModal();
 
             }
 
@@ -2927,7 +1659,7 @@ function setupEscapeKey() {
 
 
 /* =========================================================
-   58. TOAST
+   35. TOAST
    ========================================================= */
 
 let toastTimer = null;
@@ -2939,21 +1671,7 @@ function showToast(
 ) {
 
     const toast =
-        getElement(
-            "#toast"
-        );
-
-
-    const toastMessage =
-        getElement(
-            "#toastMessage"
-        );
-
-
-    const toastIcon =
-        getElement(
-            "#toastIcon"
-        );
+        $("#toast");
 
 
     if (!toast) {
@@ -2963,17 +1681,25 @@ function showToast(
     }
 
 
-    if (toastMessage) {
+    const messageElement =
+        $("#toastMessage");
 
-        toastMessage.textContent =
+
+    const iconElement =
+        $("#toastIcon");
+
+
+    if (messageElement) {
+
+        messageElement.textContent =
             message;
 
     }
 
 
-    if (toastIcon) {
+    if (iconElement) {
 
-        toastIcon.textContent =
+        iconElement.textContent =
             icon;
 
     }
@@ -2990,38 +1716,28 @@ function showToast(
     );
 
 
-    if (toastTimer) {
-
-        clearTimeout(
-            toastTimer
-        );
-
-    }
+    clearTimeout(
+        toastTimer
+    );
 
 
     toastTimer =
         setTimeout(
-            () => {
-
-                hideToast();
-
-            },
-            2800
+            hideToast,
+            2500
         );
 
 }
 
 
 /* =========================================================
-   59. HIDE TOAST
+   36. HIDE TOAST
    ========================================================= */
 
 function hideToast() {
 
     const toast =
-        getElement(
-            "#toast"
-        );
+        $("#toast");
 
 
     if (!toast) {
@@ -3045,7 +1761,7 @@ function hideToast() {
 
 
 /* =========================================================
-   60. LOADING
+   37. LOADING
    ========================================================= */
 
 function showLoading(
@@ -3053,15 +1769,7 @@ function showLoading(
 ) {
 
     const overlay =
-        getElement(
-            "#loadingOverlay"
-        );
-
-
-    const text =
-        getElement(
-            "#loadingText"
-        );
+        $("#loadingOverlay");
 
 
     if (!overlay) {
@@ -3069,6 +1777,10 @@ function showLoading(
         return;
 
     }
+
+
+    const text =
+        $("#loadingText");
 
 
     if (text) {
@@ -3093,22 +1805,17 @@ function showLoading(
     AppState.isLoading =
         true;
 
-
-    lockBodyScroll();
-
 }
 
 
 /* =========================================================
-   61. HIDE LOADING
+   38. HIDE LOADING
    ========================================================= */
 
 function hideLoading() {
 
     const overlay =
-        getElement(
-            "#loadingOverlay"
-        );
+        $("#loadingOverlay");
 
 
     if (!overlay) {
@@ -3132,558 +1839,20 @@ function hideLoading() {
     AppState.isLoading =
         false;
 
-
-    if (!AppState.modalOpen) {
-
-        unlockBodyScroll();
-
-    }
-
 }
 
 
 /* =========================================================
-   62. SUPPORT DATA
-   ========================================================= */
-
-const supportData = {
-
-    contact: {
-
-        title:
-            "Contact Us",
-
-        eyebrow:
-            "CONTACT",
-
-        icon:
-            "💬",
-
-        text:
-            "Have a question about a service, price or order? You can contact us directly and we'll help you with the next step."
-
-    },
-
-
-    delivery: {
-
-        title:
-            "Delivery Information",
-
-        eyebrow:
-            "DELIVERY",
-
-        icon:
-            "⏱",
-
-        text:
-            "Delivery time depends on the service, footage and requirements. The expected timeline will be confirmed before the project starts."
-
-    },
-
-
-    revisions: {
-
-        title:
-            "Revisions",
-
-        eyebrow:
-            "REVISIONS",
-
-        icon:
-            "↻",
-
-        text:
-            "If something needs to be adjusted, send clear feedback about the changes you need. We'll review the request and guide you through the revision process."
-
-    },
-
-
-    requirements: {
-
-        title:
-            "What We Need From You",
-
-        eyebrow:
-            "REQUIREMENTS",
-
-        icon:
-            "📋",
-
-        text:
-            "Usually we need your footage, the purpose of the reel and any important instructions or references you want us to follow."
-
-    }
-
-};
-
-
-/* =========================================================
-   63. SUPPORT CARDS
-   ========================================================= */
-
-function setupSupportCards() {
-
-    const cards =
-        getAllElements(
-            "[data-support]"
-        );
-
-
-    cards.forEach(
-        card => {
-
-            card.addEventListener(
-                "click",
-                () => {
-
-                    const key =
-                        card.dataset.support;
-
-
-                    const data =
-                        supportData[
-                            key
-                        ];
-
-
-                    if (!data) {
-
-                        return;
-
-                    }
-
-
-                    openInfoModal({
-
-                        title:
-                            data.title,
-
-                        text:
-                            data.text,
-
-                        icon:
-                            data.icon,
-
-                        eyebrow:
-                            data.eyebrow,
-
-                        actionText:
-                            "Got it"
-
-                    });
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   64. CONTACT BUTTONS
-   ========================================================= */
-
-function setupContactButtons() {
-
-    const whatsapp =
-        getElement(
-            "#whatsappContact"
-        );
-
-
-    const instagram =
-        getElement(
-            "#instagramContact"
-        );
-
-
-    if (whatsapp) {
-
-        whatsapp.addEventListener(
-            "click",
-            event => {
-
-                if (
-                    whatsapp.getAttribute(
-                        "href"
-                    ) === "#"
-                ) {
-
-                    event.preventDefault();
-
-
-                    openInfoModal({
-
-                        title:
-                            "WhatsApp",
-
-                        text:
-                            "WhatsApp contact will be connected here. Add the final business WhatsApp number before launch.",
-
-                        icon:
-                            "💬",
-
-                        eyebrow:
-                            "CONTACT",
-
-                        actionText:
-                            "Close"
-
-                    });
-
-                }
-
-            }
-        );
-
-    }
-
-
-    if (instagram) {
-
-        instagram.addEventListener(
-            "click",
-            event => {
-
-                if (
-                    instagram.getAttribute(
-                        "href"
-                    ) === "#"
-                ) {
-
-                    event.preventDefault();
-
-
-                    openInfoModal({
-
-                        title:
-                            "Instagram",
-
-                        text:
-                            "Your official Instagram profile link will be connected here before launch.",
-
-                        icon:
-                            "◎",
-
-                        eyebrow:
-                            "SOCIAL",
-
-                        actionText:
-                            "Close"
-
-                    });
-
-                }
-
-            }
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   65. DELIVERY INFORMATION
-   ========================================================= */
-
-function setupDeliveryInformation() {
-
-    const deliveryBlocks =
-        getAllElements(
-            "[data-delivery-info]"
-        );
-
-
-    deliveryBlocks.forEach(
-        block => {
-
-            block.addEventListener(
-                "click",
-                () => {
-
-                    openInfoModal({
-
-                        title:
-                            "Delivery",
-
-                        text:
-                            "Your exact delivery timeline is confirmed according to the selected service and the material received.",
-
-                        icon:
-                            "⏱",
-
-                        eyebrow:
-                            "DELIVERY",
-
-                        actionText:
-                            "Understood"
-
-                    });
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   66. SWIPE HINT
-   ========================================================= */
-
-function showSwipeHint() {
-
-    const hint =
-        getElement(
-            "#swipeHint"
-        );
-
-
-    if (!hint) {
-
-        return;
-
-    }
-
-
-    if (
-        !isMobileDevice()
-    ) {
-
-        return;
-
-    }
-
-
-    hint.classList.remove(
-        "visible"
-    );
-
-
-    void hint.offsetWidth;
-
-
-    hint.classList.add(
-        "visible"
-    );
-
-}
-
-
-/* =========================================================
-   67. FIRST VISIT HINT
-   ========================================================= */
-
-function setupFirstVisitHint() {
-
-    let hasSeenHint =
-        false;
-
-
-    try {
-
-        hasSeenHint =
-            localStorage.getItem(
-                "gghq_swipe_hint"
-            ) ===
-            "true";
-
-    }
-
-    catch (error) {
-
-        hasSeenHint =
-            false;
-
-    }
-
-
-    if (hasSeenHint) {
-
-        return;
-
-    }
-
-
-    setTimeout(
-        () => {
-
-            showSwipeHint();
-
-
-            try {
-
-                localStorage.setItem(
-                    "gghq_swipe_hint",
-                    "true"
-                );
-
-            }
-
-            catch (error) {
-
-                /* Ignore storage errors */
-
-            }
-
-        },
-        1400
-    );
-
-}
-
-
-/* =========================================================
-   68. SCREEN CHANGE FEEDBACK
-   ========================================================= */
-
-function showScreenFeedback(
-    screenName
-) {
-
-    const messages = {
-
-        home:
-            "Home",
-
-        services:
-            "Services",
-
-        pricing:
-            "Pricing",
-
-        order:
-            "Start your order",
-
-        support:
-            "Support",
-
-        about:
-            "About"
-
-    };
-
-
-    if (
-        messages[
-            screenName
-        ]
-    ) {
-
-        showToast(
-            messages[
-                screenName
-            ]
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   69. FINAL SUPPORT INITIALIZER
-   ========================================================= */
-
-function initializeSupportSystem() {
-
-    setupModal();
-
-    setupEscapeKey();
-
-    setupSupportCards();
-
-    setupContactButtons();
-
-    setupDeliveryInformation();
-
-    setupFirstVisitHint();
-
-}
-
-
-/* =========================================================
-   70. EXTEND INITIALIZATION
-   ========================================================= */
-const orderInitialize =
-    initializeApp;
-
-
-initializeApp = function() {
-
-    orderInitialize();
-
-    initializeSupportSystem();
-
-};
-
-
-/* =========================================================
-   END OF SCRIPT.JS — PART 4/5
-   ========================================================= */
-
-
-/* =========================================================
-   GYM GROWTH HQ
-   SCRIPT.JS — PART 5/5
-
-   FINAL APP POLISH
-   SWIPE NAVIGATION
-   PAGE TRANSITIONS
-   YEAR
-   ACCESSIBILITY
-   FINAL INITIALIZATION
-   ========================================================= */
-
-
-/* =========================================================
-   71. CURRENT YEAR
-   ========================================================= */
-
-function setCurrentYear() {
-
-    const yearElement =
-        getElement(
-            "#currentYear"
-        );
-
-
-    if (!yearElement) {
-
-        return;
-
-    }
-
-
-    yearElement.textContent =
-        new Date().getFullYear();
-
-}
-
-
-/* =========================================================
-   72. SWIPE NAVIGATION
+   39. SWIPE NAVIGATION
    ========================================================= */
 
 function setupSwipeNavigation() {
 
-    let startX = 0;
+    let startX =
+        0;
 
-    let startY = 0;
-
-    let endX = 0;
-
-    let endY = 0;
-
-
-    const minimumSwipe =
-        65;
+    let startY =
+        0;
 
 
     document.addEventListener(
@@ -3726,11 +1895,11 @@ function setupSwipeNavigation() {
             }
 
 
-            endX =
+            const endX =
                 event.changedTouches[0].clientX;
 
 
-            endY =
+            const endY =
                 event.changedTouches[0].clientY;
 
 
@@ -3744,7 +1913,7 @@ function setupSwipeNavigation() {
 
             if (
                 Math.abs(deltaX) <
-                Math.abs(deltaY)
+                70
             ) {
 
                 return;
@@ -3754,7 +1923,7 @@ function setupSwipeNavigation() {
 
             if (
                 Math.abs(deltaX) <
-                minimumSwipe
+                Math.abs(deltaY)
             ) {
 
                 return;
@@ -3762,9 +1931,96 @@ function setupSwipeNavigation() {
             }
 
 
-            handleSwipe(
-                deltaX
-            );
+            /*
+             * Don't swipe while typing.
+             */
+
+            const active =
+                document.activeElement;
+
+
+            if (
+                active &&
+                (
+                    active.tagName === "INPUT" ||
+                    active.tagName === "TEXTAREA" ||
+                    active.tagName === "SELECT"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            const screens = [
+
+                "home",
+
+                "services",
+
+                "pricing",
+
+                "order",
+
+                "support"
+
+            ];
+
+
+            const currentIndex =
+                screens.indexOf(
+                    AppState.currentScreen
+                );
+
+
+            if (
+                currentIndex === -1
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                deltaX < 0
+            ) {
+
+                const next =
+                    currentIndex + 1;
+
+
+                if (
+                    next <
+                    screens.length
+                ) {
+
+                    showScreen(
+                        screens[next]
+                    );
+
+                }
+
+            }
+
+            else {
+
+                const previous =
+                    currentIndex - 1;
+
+
+                if (
+                    previous >= 0
+                ) {
+
+                    showScreen(
+                        screens[previous]
+                    );
+
+                }
+
+            }
 
         },
         {
@@ -3776,141 +2032,54 @@ function setupSwipeNavigation() {
 
 
 /* =========================================================
-   73. HANDLE SWIPE
+   40. BROWSER BACK
    ========================================================= */
 
-function handleSwipe(
-    distance
-) {
+function setupBrowserBack() {
 
-    if (
-        !isMobileDevice()
-    ) {
+    window.addEventListener(
+        "popstate",
+        () => {
 
-        return;
-
-    }
-
-
-    const screens = [
-
-        "home",
-
-        "services",
-
-        "pricing",
-
-        "order",
-
-        "support"
-
-    ];
-
-
-    const currentIndex =
-        screens.indexOf(
-            AppState.currentScreen
-        );
-
-
-    if (
-        currentIndex === -1
-    ) {
-
-        return;
-
-    }
-
-
-    if (
-        distance < 0
-    ) {
-
-        const nextIndex =
-            currentIndex + 1;
-
-
-        if (
-            nextIndex <
-            screens.length
-        ) {
-
-            showScreen(
-                screens[nextIndex]
-            );
+            goBack();
 
         }
-
-        else {
-
-            showToast(
-                "You're at the last section."
-            );
-
-        }
-
-    }
-
-
-    else {
-
-        const previousIndex =
-            currentIndex - 1;
-
-
-        if (
-            previousIndex >= 0
-        ) {
-
-            showScreen(
-                screens[previousIndex]
-            );
-
-        }
-
-        else {
-
-            showToast(
-                "You're already at Home."
-            );
-
-        }
-
-    }
+    );
 
 }
 
 
 /* =========================================================
-   74. SCREEN TRANSITION POLISH
+   41. BRAND HOME
    ========================================================= */
 
-function setupScreenTransitionObserver() {
+function setupBrandButton() {
 
-    const screens =
-        getAllElements(
-            ".app-screen"
-        );
+    const brand =
+        $(".brand-button");
 
 
-    if (!screens.length) {
+    if (!brand) {
 
         return;
 
     }
 
 
-    screens.forEach(
-        screen => {
+    brand.addEventListener(
+        "click",
+        event => {
 
-            screen.addEventListener(
-                "transitionend",
-                () => {
+            event.preventDefault();
 
-                    screen.scrollTop =
-                        0;
 
-                }
+            AppState.screenHistory =
+                [];
+
+
+            showScreen(
+                "home",
+                false
             );
 
         }
@@ -3920,51 +2089,40 @@ function setupScreenTransitionObserver() {
 
 
 /* =========================================================
-   75. PREVENT DOUBLE TAP ZOOM
+   42. SUCCESS HOME BUTTON
    ========================================================= */
 
-function setupTouchProtection() {
-
-    let lastTouchTime =
-        0;
-
+function setupSuccessHome() {
 
     document.addEventListener(
-        "touchend",
+        "click",
         event => {
 
-            const now =
-                Date.now();
+            const button =
+                event.target.closest(
+                    "#orderSuccess [data-screen]"
+                );
 
 
-            if (
-                now - lastTouchTime <
-                300
-            ) {
+            if (!button) {
 
-                const target =
-                    event.target;
-
-
-                if (
-                    target.closest(
-                        "button, a"
-                    )
-                ) {
-
-                    event.preventDefault();
-
-                }
+                return;
 
             }
 
 
-            lastTouchTime =
-                now;
+            resetOrderForm();
 
-        },
-        {
-            passive: false
+
+            AppState.screenHistory =
+                [];
+
+
+            showScreen(
+                "home",
+                false
+            );
+
         }
     );
 
@@ -3972,7 +2130,44 @@ function setupTouchProtection() {
 
 
 /* =========================================================
-   76. ONLINE / OFFLINE STATUS
+   43. ORDER SCREEN RESET
+   ========================================================= */
+
+function setupOrderScreenReset() {
+
+    const orderNav =
+        $(
+            '.nav-item[data-screen="order"]'
+        );
+
+
+    if (!orderNav) {
+
+        return;
+
+    }
+
+
+    orderNav.addEventListener(
+        "click",
+        () => {
+
+            if (
+                !AppState.selectedService
+            ) {
+
+                resetOrderForm();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   44. CONNECTION STATUS
    ========================================================= */
 
 function setupConnectionStatus() {
@@ -4006,17 +2201,38 @@ function setupConnectionStatus() {
 
 
 /* =========================================================
-   77. PAGE VISIBILITY
+   45. CURRENT YEAR
    ========================================================= */
 
-function setupVisibilityHandling() {
+function setCurrentYear() {
+
+    const year =
+        $("#currentYear");
+
+
+    if (year) {
+
+        year.textContent =
+            new Date().getFullYear();
+
+    }
+
+}
+
+
+/* =========================================================
+   46. ACCESSIBILITY
+   ========================================================= */
+
+function setupAccessibility() {
 
     document.addEventListener(
-        "visibilitychange",
-        () => {
+        "keydown",
+        event => {
 
             if (
-                document.hidden
+                event.key !== "Enter" &&
+                event.key !== " "
             ) {
 
                 return;
@@ -4024,20 +2240,17 @@ function setupVisibilityHandling() {
             }
 
 
-            const current =
-                getScreen(
-                    AppState.currentScreen
-                );
+            const target =
+                event.target;
 
 
             if (
-                !current
+                target.matches(
+                    "button"
+                )
             ) {
 
-                showScreen(
-                    "home",
-                    false
-                );
+                return;
 
             }
 
@@ -4048,296 +2261,124 @@ function setupVisibilityHandling() {
 
 
 /* =========================================================
-   78. IMAGE ERROR HANDLING
+   47. INITIAL SCREEN
    ========================================================= */
 
-function setupImageFallbacks() {
+function initializeInitialScreen() {
 
-    const images =
-        getAllElements(
-            "img"
+    /*
+     * ALWAYS START AT HOME.
+     *
+     * Home appears only once on initial load.
+     * Other buttons directly switch screens.
+     */
+
+    hideAllScreens();
+
+
+    const home =
+        getScreen("home");
+
+
+    if (home) {
+
+        home.classList.add(
+            "active-screen"
         );
 
 
-    images.forEach(
-        image => {
-
-            image.addEventListener(
-                "error",
-                () => {
-
-                    image.style.display =
-                        "none";
-
-
-                    const parent =
-                        image.parentElement;
-
-
-                    if (
-                        parent &&
-                        !parent.querySelector(
-                            ".image-fallback"
-                        )
-                    ) {
-
-                        const fallback =
-                            document.createElement(
-                                "span"
-                            );
-
-
-                        fallback.className =
-                            "image-fallback";
-
-
-                        fallback.textContent =
-                            "GGHQ";
-
-
-                        parent.appendChild(
-                            fallback
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   79. UPDATE LIVE REGION
-   ========================================================= */
-
-function announce(
-    message
-) {
-
-    const region =
-        getElement(
-            "#liveRegion"
+        home.setAttribute(
+            "aria-hidden",
+            "false"
         );
-
-
-    if (!region) {
-
-        return;
 
     }
 
 
-    region.textContent =
-        "";
+    AppState.currentScreen =
+        "home";
 
 
-    setTimeout(
-        () => {
+    AppState.previousScreen =
+        null;
 
-            region.textContent =
-                message;
 
-        },
-        50
+    AppState.screenHistory =
+        [];
+
+
+    updateBottomNavigation(
+        "home"
     );
+
+
+    updateFloatingHome(
+        "home"
+    );
+
+
+    document.body.dataset.screen =
+        "home";
 
 }
 
 
 /* =========================================================
-   80. ACCESSIBILITY NAVIGATION
+   48. INITIALIZE ALL SYSTEMS
    ========================================================= */
 
-function setupAccessibilityNavigation() {
+function initializeApp() {
 
-    const navItems =
-        getAllElements(
-            ".nav-item"
-        );
+    initializeInitialScreen();
 
+    setupNavigation();
 
-    navItems.forEach(
-        item => {
+    setupServiceDetails();
 
-            item.addEventListener(
-                "click",
-                () => {
+    setupPlanDetails();
 
-                    const screen =
-                        item.dataset.screen;
+    setupBackButtons();
 
+    setupFloatingHomeButton();
 
-                    if (
-                        screen
-                    ) {
+    setupOrderServiceSelection();
 
-                        announce(
-                            `Opened ${screen}`
-                        );
+    setupOrderNextButtons();
 
-                    }
+    setupOrderStepBack();
 
-                }
-            );
+    setupOrderSubmit();
 
-        }
-    );
+    setupSupport();
 
-}
-
-
-/* =========================================================
-   81. SCROLL TO TOP ON SCREEN CHANGE
-   ========================================================= */
-
-function setupScrollReset() {
-
-    window.addEventListener(
-        "hashchange",
-        () => {
-
-            window.scrollTo({
-
-                top: 0,
-
-                behavior: "smooth"
-
-            });
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   82. HANDLE WINDOW RESIZE
-   ========================================================= */
-
-function setupResizeHandler() {
-
-    let resizeTimer;
-
-
-    window.addEventListener(
-        "resize",
-        () => {
-
-            clearTimeout(
-                resizeTimer
-            );
-
-
-            resizeTimer =
-                setTimeout(
-                    () => {
-
-                        const current =
-                            getScreen(
-                                AppState.currentScreen
-                            );
-
-
-                        if (
-                            current
-                        ) {
-
-                            current.scrollTop =
-                                0;
-
-                        }
-
-                    },
-                    150
-                );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   83. INITIAL SCREEN STATE
-   ========================================================= */
-
-function setInitialScreen() {
-
-    const hash =
-        window.location.hash
-            .replace(
-                "#",
-                ""
-            )
-            .trim();
-
-
-    if (
-        hash &&
-        getScreen(hash)
-    ) {
-
-        showScreen(
-            hash,
-            false
-        );
-
-
-        return;
-
-    }
-
-
-    showScreen(
-        "home",
-        false
-    );
-
-}
-
-
-/* =========================================================
-   84. FINAL APP INITIALIZER
-   ========================================================= */
-
-function initializeFinalSystems() {
-
-    setCurrentYear();
+    setupModal();
 
     setupSwipeNavigation();
 
-    setupScreenTransitionObserver();
+    setupBrowserBack();
 
-    setupTouchProtection();
+    setupBrandButton();
+
+    setupSuccessHome();
+
+    setupOrderScreenReset();
 
     setupConnectionStatus();
 
-    setupVisibilityHandling();
+    setupAccessibility();
 
-    setupImageFallbacks();
-
-    setupAccessibilityNavigation();
-
-    setupScrollReset();
-
-    setupResizeHandler();
-
-    setInitialScreen();
+    setCurrentYear();
 
 
     console.log(
-        "Gym Growth HQ — All systems ready."
+        "Gym Growth HQ — Clean navigation loaded."
     );
 
 }
 
 
 /* =========================================================
-   85. FINAL DOM READY
+   49. DOM READY
    ========================================================= */
 
 if (
@@ -4347,7 +2388,7 @@ if (
 
     document.addEventListener(
         "DOMContentLoaded",
-        initializeFinalSystems,
+        initializeApp,
         {
             once: true
         }
@@ -4357,13 +2398,13 @@ if (
 
 else {
 
-    initializeFinalSystems();
+    initializeApp();
 
 }
 
 
 /* =========================================================
-   86. GLOBAL APP ACCESS
+   50. GLOBAL ACCESS
    ========================================================= */
 
 window.GymGrowthHQ = {
@@ -4371,6 +2412,10 @@ window.GymGrowthHQ = {
     showScreen,
 
     goBack,
+
+    selectService,
+
+    setOrderStep,
 
     openInfoModal,
 
@@ -4384,47 +2429,17 @@ window.GymGrowthHQ = {
 
     resetOrderForm,
 
-    getState: () => ({
-        ...AppState
-    })
+    getState() {
+
+        return {
+            ...AppState
+        };
+
+    }
 
 };
 
 
 /* =========================================================
-   87. FINAL SAFETY CHECK
-   ========================================================= */
-
-window.addEventListener(
-    "error",
-    event => {
-
-        console.error(
-            "Gym Growth HQ error:",
-            event.error ||
-            event.message
-        );
-
-    }
-);
-
-
-/* =========================================================
-   88. FINAL MESSAGE
-   ========================================================= */
-
-console.log(
-    "%cGym Growth HQ",
-    "font-size:20px;font-weight:800;"
-);
-
-
-console.log(
-    "Mobile-first client experience loaded."
-);
-
-
-/* =========================================================
-   END OF SCRIPT.JS
-   PART 5/5 COMPLETE
+   END OF CLEAN SCRIPT.JS
    ========================================================= */
