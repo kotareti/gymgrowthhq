@@ -697,4 +697,923 @@ console.log(
 );
 
 })();
-   
+/* =========================================================
+   FINAL NAVIGATION FIX — PART 1/5
+   MAIN SCREEN ROUTING
+   ========================================================= */
+
+(function () {
+    "use strict";
+
+    const MAIN_SCREENS = [
+        "home",
+        "services",
+        "pricing",
+        "order",
+        "support"
+    ];
+
+    function finalGetScreen(name) {
+        if (typeof getScreen === "function") {
+            return getScreen(name);
+        }
+
+        const byId = document.getElementById(name);
+
+        if (byId) {
+            return byId;
+        }
+
+        return document.querySelector(
+            `.app-screen[data-screen-section="${name}"],
+             .app-screen[data-detail-section="${name}"],
+             .app-screen[data-plan-detail-section="${name}"],
+             .app-screen[data-support-section="${name}"]`
+        );
+    }
+
+    function finalGoToScreen(name) {
+        const target = finalGetScreen(name);
+
+        if (!target) {
+            console.warn(
+                "Final navigation: screen not found:",
+                name
+            );
+            return false;
+        }
+
+        if (typeof showScreen === "function") {
+            showScreen(name);
+            return true;
+        }
+
+        document
+            .querySelectorAll(".app-screen")
+            .forEach(screen => {
+                screen.classList.remove(
+                    "active-screen"
+                );
+
+                screen.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+            });
+
+        target.classList.add(
+            "active-screen"
+        );
+
+        target.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+        return true;
+    }
+
+    function finalSetSelectedService(service) {
+        if (
+            typeof normalizeServiceKey ===
+            "function"
+        ) {
+            service =
+                normalizeServiceKey(service);
+        }
+
+        if (
+            typeof AppState !== "undefined"
+        ) {
+            AppState.selectedService =
+                service;
+        }
+
+        if (
+            typeof updateSelectedServiceUI ===
+            "function"
+        ) {
+            updateSelectedServiceUI();
+        }
+
+        if (
+            typeof prepareOrderForm ===
+            "function"
+        ) {
+            prepareOrderForm();
+        }
+      /* =========================================================
+   FINAL NAVIGATION FIX — PART 2/5
+   SERVICE + PRICING → ORDER
+   ========================================================= */
+
+    function finalOpenOrder(service) {
+        finalSetSelectedService(service);
+
+        finalGoToScreen("order");
+
+        /*
+         * Every new order starts from Step 1.
+         * The user can then select/change the service.
+         */
+        if (
+            typeof setOrderStep ===
+            "function"
+        ) {
+            setOrderStep(1);
+        }
+    }
+
+    function finalOpenPlan(plan) {
+        if (
+            typeof AppState !==
+            "undefined"
+        ) {
+            AppState.selectedPlan =
+                plan;
+        }
+
+        /*
+         * Pricing → Plan Details
+         */
+        finalGoToScreen(
+            `plan-${plan}`
+        );
+    }
+
+    function finalSetupOrderLinks() {
+
+        /*
+         * SERVICE / DETAIL → ORDER
+         */
+        document
+            .querySelectorAll(
+                '[data-screen="order"][data-plan]'
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        finalOpenOrder(
+                            this.dataset.plan
+                        );
+                    }
+                );
+            });
+
+        /*
+         * Older order attribute used
+         * by the existing HTML.
+         */
+        document
+            .querySelectorAll(
+                "[data-open-order]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        finalOpenOrder(
+                            this.dataset.openOrder
+                        );
+                    }
+                );
+            });
+
+        /*
+         * PRICING → PLAN DETAILS
+         */
+        document
+            .querySelectorAll(
+                "[data-plan-detail]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        finalOpenPlan(
+                            this.dataset.planDetail
+                        );
+                    }
+                );
+            });
+    }
+
+    /*
+     * Prevent duplicate initialization.
+     */
+    if (
+        !window.__GYM_FINAL_ORDER_LINKS__
+    ) {
+
+        window.__GYM_FINAL_ORDER_LINKS__ =
+            true;
+
+        if (
+            document.readyState ===
+            "loading"
+        ) {
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                finalSetupOrderLinks,
+                {
+                    once: true
+                }
+            );
+
+        } else {
+
+            finalSetupOrderLinks();
+        }
+              }
+      /* =========================================================
+   FINAL NAVIGATION FIX — PART 3/5
+   ORDER STEP FLOW
+   ========================================================= */
+
+    function finalSetOrderStep(step) {
+
+        const steps = document.querySelectorAll(
+            ".order-step"
+        );
+
+        if (!steps.length) {
+            return;
+        }
+
+        const stepNumber =
+            Number(step);
+
+        steps.forEach(
+            orderStep => {
+
+                const isActive =
+                    Number(
+                        orderStep.dataset.orderStep
+                    ) === stepNumber;
+
+                orderStep.classList.toggle(
+                    "active-order-step",
+                    isActive
+                );
+
+                orderStep.setAttribute(
+                    "aria-hidden",
+                    isActive
+                        ? "false"
+                        : "true"
+                );
+            }
+        );
+
+        /*
+         * Update progress indicator.
+         */
+        document
+            .querySelectorAll(
+                "[data-progress-step]"
+            )
+            .forEach(progressStep => {
+
+                const number =
+                    Number(
+                        progressStep.dataset
+                            .progressStep
+                    );
+
+                progressStep.classList.toggle(
+                    "active-progress",
+                    number <= stepNumber
+                );
+            });
+
+        /*
+         * Always start the selected step
+         * from the top.
+         */
+        const orderScreen =
+            finalGetScreen("order");
+
+        if (orderScreen) {
+            orderScreen.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+        if (
+            typeof AppState !==
+            "undefined"
+        ) {
+            AppState.currentOrderStep =
+                stepNumber;
+        }
+    }
+
+
+    function finalSetupOrderSteps() {
+
+        /*
+         * NEXT buttons
+         */
+        document
+            .querySelectorAll(
+                "[data-order-next]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const nextStep =
+                            Number(
+                                this.dataset
+                                    .orderNext
+                            );
+
+                        if (!nextStep) {
+                            return;
+                        }
+
+                        finalSetOrderStep(
+                            nextStep
+                        );
+                    }
+                );
+            });
+
+
+        /*
+         * BACK / CHANGE buttons
+         */
+        document
+            .querySelectorAll(
+                "[data-order-go-step]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const step =
+                            Number(
+                                this.dataset
+                                    .orderGoStep
+                            );
+
+                        if (!step) {
+                            return;
+                        }
+
+                        finalSetOrderStep(
+                            step
+                        );
+                    }
+                );
+            });
+
+
+        /*
+         * Service selection:
+         * selecting a service moves directly
+         * to Step 2.
+         */
+        document
+            .querySelectorAll(
+                "[data-order-service]"
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const service =
+                            this.dataset
+                                .orderService;
+
+                        if (!service) {
+                            return;
+                        }
+
+                        finalSetSelectedService(
+                            service
+                        );
+
+                        finalSetOrderStep(
+                            2
+                        );
+                    }
+                );
+            });
+    }
+
+
+    if (
+        !window.__GYM_FINAL_ORDER_STEPS__
+    ) {
+
+        window.__GYM_FINAL_ORDER_STEPS__ =
+            true;
+
+        if (
+            document.readyState ===
+            "loading"
+        ) {
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                finalSetupOrderSteps,
+                {
+                    once: true
+                }
+            );
+
+        } else {
+
+            finalSetupOrderSteps();
+        }
+                          }
+      /* =========================================================
+   FINAL NAVIGATION FIX — PART 4/5
+   MOBILE SCREEN + SWIPE NAVIGATION
+   ========================================================= */
+
+    const FINAL_SCREEN_ORDER = [
+        "home",
+        "services",
+        "pricing",
+        "order",
+        "support"
+    ];
+
+    function finalCurrentMainIndex() {
+
+        if (
+            typeof AppState ===
+            "undefined"
+        ) {
+            return 0;
+        }
+
+        const index =
+            FINAL_SCREEN_ORDER.indexOf(
+                AppState.currentScreen
+            );
+
+        return index >= 0
+            ? index
+            : 0;
+    }
+
+
+    function finalSwipeTo(
+        direction
+    ) {
+
+        const currentIndex =
+            finalCurrentMainIndex();
+
+        let nextIndex =
+            currentIndex + direction;
+
+        if (
+            nextIndex < 0 ||
+            nextIndex >=
+                FINAL_SCREEN_ORDER.length
+        ) {
+            return;
+        }
+
+        const nextScreen =
+            FINAL_SCREEN_ORDER[
+                nextIndex
+            ];
+
+        finalGoToScreen(
+            nextScreen
+        );
+    }
+
+
+    function finalSetupSwipe() {
+
+        let startX = 0;
+        let startY = 0;
+
+        document.addEventListener(
+            "touchstart",
+            function (event) {
+
+                if (
+                    event.touches.length !== 1
+                ) {
+                    return;
+                }
+
+                startX =
+                    event.touches[0].clientX;
+
+                startY =
+                    event.touches[0].clientY;
+            },
+            {
+                passive: true
+            }
+        );
+
+
+        document.addEventListener(
+            "touchend",
+            function (event) {
+
+                if (
+                    event.changedTouches.length !== 1
+                ) {
+                    return;
+                }
+
+                const endX =
+                    event.changedTouches[0]
+                        .clientX;
+
+                const endY =
+                    event.changedTouches[0]
+                        .clientY;
+
+                const deltaX =
+                    endX - startX;
+
+                const deltaY =
+                    endY - startY;
+
+
+                /*
+                 * Ignore normal vertical
+                 * scrolling.
+                 */
+                if (
+                    Math.abs(deltaX) <
+                    Math.abs(deltaY)
+                ) {
+                    return;
+                }
+
+
+                /*
+                 * Small movement is not
+                 * considered a swipe.
+                 */
+                if (
+                    Math.abs(deltaX) < 80
+                ) {
+                    return;
+                }
+
+
+                /*
+                 * Ignore swipe while typing.
+                 */
+                const active =
+                    document.activeElement;
+
+                if (
+                    active &&
+                    (
+                        active.tagName ===
+                            "INPUT" ||
+                        active.tagName ===
+                            "TEXTAREA" ||
+                        active.tagName ===
+                            "SELECT"
+                    )
+                ) {
+                    return;
+                }
+
+
+                /*
+                 * Swipe left → next screen
+                 * Swipe right → previous screen
+                 */
+                if (deltaX < 0) {
+                    finalSwipeTo(1);
+                } else {
+                    finalSwipeTo(-1);
+                }
+            },
+            {
+                passive: true
+            }
+        );
+    }
+
+
+    /*
+     * Keep each main screen starting
+     * from the top.
+     */
+    function finalSetupScreenScrollReset() {
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                const button =
+                    event.target.closest(
+                        ".nav-item"
+                    );
+
+                if (!button) {
+                    return;
+                }
+
+                setTimeout(
+                    function () {
+
+                        window.scrollTo({
+                            top: 0,
+                            behavior: "smooth"
+                        });
+
+                    },
+                    30
+                );
+            }
+        );
+    }
+
+
+    if (
+        !window.__GYM_FINAL_SWIPE__
+    ) {
+
+        window.__GYM_FINAL_SWIPE__ =
+            true;
+
+        if (
+            document.readyState ===
+            "loading"
+        ) {
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                function () {
+
+                    finalSetupSwipe();
+                    finalSetupScreenScrollReset();
+
+                },
+                {
+                    once: true
+                }
+            );
+
+        } else {
+
+            finalSetupSwipe();
+            finalSetupScreenScrollReset();
+        }
+    }
+      /* =========================================================
+   FINAL NAVIGATION FIX — PART 5/5
+   FINAL INITIALIZATION + SAFETY
+   ========================================================= */
+
+    function finalInitializeFix() {
+
+        /*
+         * Make sure Home is the first screen.
+         */
+        const current =
+            typeof AppState !== "undefined"
+                ? AppState.currentScreen
+                : "home";
+
+        if (
+            !current ||
+            !finalGetScreen(current)
+        ) {
+            finalGoToScreen("home");
+        }
+
+
+        /*
+         * Make Order always start
+         * from Step 1 when opened
+         * directly from navigation.
+         */
+        document
+            .querySelectorAll(
+                '.nav-item[data-screen="order"]'
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        setTimeout(
+                            function () {
+
+                                finalSetOrderStep(
+                                    1
+                                );
+
+                            },
+                            50
+                        );
+                    }
+                );
+            });
+
+
+        /*
+         * When Pricing is opened,
+         * show Pricing from the top.
+         */
+        document
+            .querySelectorAll(
+                '.nav-item[data-screen="pricing"]'
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        setTimeout(
+                            function () {
+
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: "smooth"
+                                });
+
+                            },
+                            50
+                        );
+                    }
+                );
+            });
+
+
+        /*
+         * When Services is opened,
+         * show Services from the top.
+         */
+        document
+            .querySelectorAll(
+                '.nav-item[data-screen="services"]'
+            )
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        setTimeout(
+                            function () {
+
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: "smooth"
+                                });
+
+                            },
+                            50
+                        );
+                    }
+                );
+            });
+    }
+
+
+    /*
+     * Initialize after DOM is ready.
+     */
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            finalInitializeFix,
+            {
+                once: true
+            }
+        );
+
+    } else {
+
+        finalInitializeFix();
+    }
+
+
+    /*
+     * Public emergency helpers.
+     * Useful if a button needs to open
+     * a screen directly later.
+     */
+    window.GymGrowthFinalFix = {
+
+        home: function () {
+            finalGoToScreen("home");
+        },
+
+        services: function () {
+            finalGoToScreen("services");
+        },
+
+        pricing: function () {
+            finalGoToScreen("pricing");
+        },
+
+        order: function (service) {
+            finalOpenOrder(service);
+        },
+
+        support: function () {
+            finalGoToScreen("support");
+        },
+
+        nextOrderStep: function () {
+
+            const current =
+                typeof AppState !== "undefined"
+                    ? Number(
+                        AppState.currentOrderStep
+                    )
+                    : 1;
+
+            finalSetOrderStep(
+                Math.min(
+                    current + 1,
+                    3
+                )
+            );
+        },
+
+        previousOrderStep: function () {
+
+            const current =
+                typeof AppState !== "undefined"
+                    ? Number(
+                        AppState.currentOrderStep
+                    )
+                    : 1;
+
+            finalSetOrderStep(
+                Math.max(
+                    current - 1,
+                    1
+                )
+            );
+        }
+    };
+
+
+    console.log(
+        "Gym Growth HQ — Final navigation fix loaded."
+    );
+
+})();
+    }   
