@@ -2837,3 +2837,575 @@ document.addEventListener(
 /* =========================================================
    END VIDEO UPLOAD UPDATE
    ========================================================= */
+/* =========================================================
+   MULTI-SELECT VIDEO FIX
+   Add more videos without removing previous videos
+   ========================================================= */
+
+window.GGHQ_SELECTED_VIDEO_FILES =
+    window.GGHQ_SELECTED_VIDEO_FILES || [];
+
+
+/* ---------------------------------------------------------
+   Render all selected videos
+   --------------------------------------------------------- */
+
+function GGHQ_renderAllVideos() {
+
+    const container =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+    if (!container) return;
+
+
+    container.innerHTML = "";
+
+
+    const files =
+        window.GGHQ_SELECTED_VIDEO_FILES;
+
+
+    if (!files.length) {
+
+        container.innerHTML = `
+            <div class="video-empty-message">
+                No videos selected yet.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const gallery =
+        document.createElement(
+            "div"
+        );
+
+    gallery.className =
+        "video-gallery-preview";
+
+
+    files.forEach(
+        (file, index) => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+            card.className =
+                "video-preview-card";
+
+
+            const number =
+                document.createElement(
+                    "div"
+                );
+
+            number.className =
+                "video-preview-number";
+
+            number.textContent =
+                index + 1;
+
+
+            const video =
+                document.createElement(
+                    "video"
+                );
+
+            video.muted = true;
+
+            video.playsInline = true;
+
+            video.preload =
+                "metadata";
+
+            video.setAttribute(
+                "playsinline",
+                ""
+            );
+
+
+            const previewURL =
+                URL.createObjectURL(
+                    file
+                );
+
+            video.src =
+                previewURL;
+
+
+            video.addEventListener(
+                "loadedmetadata",
+                function() {
+
+                    try {
+
+                        if (
+                            video.duration >
+                            0.2
+                        ) {
+
+                            video.currentTime =
+                                0.1;
+
+                        }
+
+                    } catch (e) {}
+
+                }
+            );
+
+
+            const info =
+                document.createElement(
+                    "div"
+                );
+
+            info.className =
+                "video-preview-info";
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+            name.className =
+                "video-preview-name";
+
+            name.textContent =
+                file.name;
+
+
+            const size =
+                document.createElement(
+                    "div"
+                );
+
+            size.style.cssText = `
+                margin-top:4px;
+                font-size:11px;
+                color:#777783;
+            `;
+
+            size.textContent =
+                GGHQ_formatFileSize(
+                    file.size
+                );
+
+
+            info.appendChild(
+                name
+            );
+
+            info.appendChild(
+                size
+            );
+
+
+            card.appendChild(
+                video
+            );
+
+            card.appendChild(
+                number
+            );
+
+            card.appendChild(
+                info
+            );
+
+
+            gallery.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    container.appendChild(
+        gallery
+    );
+
+
+    const count =
+        document.createElement(
+            "div"
+        );
+
+    count.className =
+        "video-count-label";
+
+
+    count.textContent =
+        `${files.length} video${
+            files.length === 1
+                ? ""
+                : "s"
+        } selected`;
+
+
+    container.appendChild(
+        count
+    );
+
+
+    /*
+       Keep currentOrder in sync
+    */
+
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+
+        currentOrder.videos =
+            files.map(
+                file => ({
+                    name:
+                        file.name,
+
+                    size:
+                        file.size
+                })
+            );
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   File size
+   --------------------------------------------------------- */
+
+function GGHQ_formatFileSize(
+    bytes
+) {
+
+    if (!bytes) return "";
+
+    const mb =
+        bytes /
+        (1024 * 1024);
+
+
+    if (mb < 1) {
+
+        return Math.round(
+            bytes / 1024
+        ) + " KB";
+
+    }
+
+
+    return mb.toFixed(1) +
+        " MB";
+
+}
+
+
+/* ---------------------------------------------------------
+   IMPORTANT:
+   When Choose Videos is used again,
+   ADD new files instead of replacing old files.
+   --------------------------------------------------------- */
+
+const GGHQ_videoInput =
+    document.getElementById(
+        "videoFiles"
+    );
+
+
+if (GGHQ_videoInput) {
+
+    GGHQ_videoInput.addEventListener(
+        "change",
+        function() {
+
+            const newFiles =
+                Array.from(
+                    this.files || []
+                );
+
+
+            if (!newFiles.length) {
+                return;
+            }
+
+
+            /*
+               Add new files to existing files.
+            */
+
+            newFiles.forEach(
+                newFile => {
+
+                    const alreadyExists =
+                        window
+                            .GGHQ_SELECTED_VIDEO_FILES
+                            .some(
+                                oldFile =>
+                                    oldFile.name ===
+                                    newFile.name &&
+                                    oldFile.size ===
+                                    newFile.size &&
+                                    oldFile.lastModified ===
+                                    newFile.lastModified
+                            );
+
+
+                    /*
+                       Don't add the exact
+                       same file twice.
+                    */
+
+                    if (!alreadyExists) {
+
+                        window
+                            .GGHQ_SELECTED_VIDEO_FILES
+                            .push(
+                                newFile
+                            );
+
+                    }
+
+                }
+            );
+
+
+            /*
+               Show ALL videos again.
+            */
+
+            GGHQ_renderAllVideos();
+
+
+            /*
+               Clear the actual input so
+               the same file can also be
+               selected again later if needed.
+            */
+
+            this.value = "";
+
+
+            if (
+                typeof showToast ===
+                "function"
+            ) {
+
+                const total =
+                    window
+                        .GGHQ_SELECTED_VIDEO_FILES
+                        .length;
+
+
+                showToast(
+                    `${total} video${
+                        total === 1
+                            ? ""
+                            : "s"
+                    } selected`,
+                    "✓"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FRESH ORDER = CLEAR OLD VIDEOS
+   ========================================================= */
+
+function GGHQ_clearAllSelectedVideos() {
+
+    window.GGHQ_SELECTED_VIDEO_FILES =
+        [];
+
+
+    const input =
+        document.getElementById(
+            "videoFiles"
+        );
+
+
+    if (input) {
+        input.value = "";
+    }
+
+
+    const container =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+
+    if (container) {
+        container.innerHTML = "";
+    }
+
+
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+
+        currentOrder.videos = [];
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   New Order → completely fresh upload
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const button =
+            event.target.closest(
+                "[data-screen]"
+            );
+
+
+        if (!button) return;
+
+
+        if (
+            button.dataset.screen ===
+            "order"
+        ) {
+
+            GGHQ_clearAllSelectedVideos();
+
+        }
+
+    },
+    true
+);
+
+
+/* ---------------------------------------------------------
+   Going to Upload screen:
+   start fresh
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const button =
+            event.target.closest(
+                "[data-order-next]"
+            );
+
+
+        if (!button) return;
+
+
+        /*
+           Step 3 opens Upload screen.
+           This means we are entering a fresh
+           upload stage.
+        */
+
+        if (
+            button.dataset.orderNext ===
+            "3"
+        ) {
+
+            GGHQ_clearAllSelectedVideos();
+
+        }
+
+    },
+    true
+);
+
+
+/* ---------------------------------------------------------
+   Back from Upload:
+   clear videos
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const button =
+            event.target.closest(
+                "[data-order-back]"
+            );
+
+
+        if (!button) return;
+
+
+        /*
+           Back from Upload screen.
+        */
+
+        if (
+            button.dataset.orderBack ===
+            "2"
+        ) {
+
+            GGHQ_clearAllSelectedVideos();
+
+        }
+
+    },
+    true
+);
+
+
+/* ---------------------------------------------------------
+   After successful Submit:
+   clear selected files for next order
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const button =
+            event.target.closest(
+                "#submitOrderButton"
+            );
+
+
+        if (!button) return;
+
+
+        setTimeout(
+            function() {
+
+                GGHQ_clearAllSelectedVideos();
+
+            },
+            1000
+        );
+
+    },
+    true
+);
+
+
+/* =========================================================
+   END MULTI-SELECT VIDEO FIX
+   ========================================================= */
