@@ -1,971 +1,1338 @@
-const USERS_KEY="gghq_users";
-const SESSION_KEY="gghq_session";
-const ORDERS_KEY="gghq_orders";
+/* =========================================================
+   SUPABASE CONNECTION
+   =========================================================
+   Publishable key is safe for browser use when RLS policies
+   are correctly configured.
+   IMPORTANT: replace SUPABASE_URL with your Project URL.
+   ========================================================= */
 
-let currentUser=null;
+const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE";
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_Pcj2mwFWysWV2sQHwjAm_Q_qtv0I5hS";
 
-let currentOrder={
-    service:"",
-    plan:"",
-    clientName:"",
-    gymName:"",
-    instagram:"",
-    goal:"",
-    notes:"",
-    instructions:"",
-    videos:[]
+function supabaseHeaders() {
+    return {
+        "apikey": SUPABASE_PUBLISHABLE_KEY,
+        "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+        "Content-Type": "application/json"
+    };
+}
+
+function supabaseReady() {
+    return (
+        SUPABASE_URL &&
+        SUPABASE_URL !== "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE" &&
+        SUPABASE_PUBLISHABLE_KEY
+    );
+}
+
+async function syncOrderToSupabase(order) {
+    if (!supabaseReady()) {
+        console.warn("Supabase URL is not configured yet.");
+        return false;
+    }
+
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/orders`,
+            {
+                method: "POST",
+                headers: {
+                    ...supabaseHeaders(),
+                    "Prefer": "return=minimal"
+                },
+                body: JSON.stringify({
+                    id: Number(String(order.id).replace("GGHQ-", "")),
+                    user_id: order.userId || "",
+                    service: order.service || "",
+                    plan: order.plan || "",
+                    amount: 0,
+                    payment_status: "pending",
+                    order_status: order.status || "pending",
+                    gym_name: order.gymName || "",
+                    instagram_url: order.instagram || "",
+                    raw_video_urls: order.videos || [],
+                    final_video_url: order.finalVideo || "",
+                    created_at: order.createdAt || new Date().toISOString()
+                })
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Supabase order sync failed:", errorText);
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Supabase connection error:", error);
+        return false;
+    }
+}
+
+/* =========================================================
+   END SUPABASE CONNECTION
+   ========================================================= */
+
+/* =========================================================
+   GYM GROWTH HQ
+   FINAL FLOW SCRIPT
+   ========================================================= */
+
+const USERS_KEY = "gghq_users";
+const SESSION_KEY = "gghq_session";
+const ORDERS_KEY = "gghq_orders";
+
+let currentUser = null;
+
+let currentOrder = {
+    service: "",
+    plan: "",
+    clientName: "",
+    gymName: "",
+    instagram: "",
+    goal: "",
+    notes: "",
+    instructions: "",
+    videos: []
 };
 
-let currentOrderId=null;
+let currentOrderId = null;
 
-function getUsers(){
-    try{
-        return JSON.parse(localStorage.getItem(USERS_KEY))||[];
-    }catch{
-        return[];
+
+/* =========================================================
+   STORAGE
+   ========================================================= */
+
+function getUsers() {
+    try {
+        return JSON.parse(
+            localStorage.getItem(USERS_KEY)
+        ) || [];
+    } catch {
+        return [];
     }
 }
 
-function saveUsers(users){
-    localStorage.setItem(USERS_KEY,JSON.stringify(users));
+
+function saveUsers(users) {
+    localStorage.setItem(
+        USERS_KEY,
+        JSON.stringify(users)
+    );
 }
 
-function getOrders(){
-    try{
-        return JSON.parse(localStorage.getItem(ORDERS_KEY))||[];
-    }catch{
-        return[];
+
+function getOrders() {
+    try {
+        return JSON.parse(
+            localStorage.getItem(ORDERS_KEY)
+        ) || [];
+    } catch {
+        return [];
     }
 }
 
-function saveOrders(orders){
-    localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));
+
+function saveOrders(orders) {
+    localStorage.setItem(
+        ORDERS_KEY,
+        JSON.stringify(orders)
+    );
 }
 
-function saveSession(user){
-    localStorage.setItem(SESSION_KEY,JSON.stringify(user));
+
+function saveSession(user) {
+    localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify(user)
+    );
 }
 
-function getSession(){
-    try{
-        return JSON.parse(localStorage.getItem(SESSION_KEY));
-    }catch{
+
+function getSession() {
+    try {
+        return JSON.parse(
+            localStorage.getItem(SESSION_KEY)
+        );
+    } catch {
         return null;
     }
 }
 
-function clearSession(){
-    localStorage.removeItem(SESSION_KEY);
+
+function clearSession() {
+    localStorage.removeItem(
+        SESSION_KEY
+    );
 }
 
-function isLoggedIn(){
-    return!!currentUser;
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function isLoggedIn() {
+    return !!currentUser;
 }
 
-function getInitial(name){
-    return name?name.trim().charAt(0).toUpperCase():"?";
+
+function getInitial(name) {
+    return name
+        ? name.trim().charAt(0).toUpperCase()
+        : "?";
 }
 
-function setText(id,value){
-    const el=document.getElementById(id);
-    if(el)el.textContent=value||"—";
+
+function setText(id, value) {
+    const el =
+        document.getElementById(id);
+
+    if (el) {
+        el.textContent = value || "—";
+    }
 }
 
-function escapeHTML(value){
-    if(!value)return"";
+
+function escapeHTML(value) {
+    if (!value) return "";
+
     return String(value)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
-function showToast(message,icon="✓"){
-    const toast=document.getElementById("toast");
-    const text=document.getElementById("toastMessage");
-    const iconEl=document.getElementById("toastIcon");
 
-    if(!toast)return;
+function showToast(message, icon = "✓") {
+    const toast =
+        document.getElementById("toast");
 
-    if(text)text.textContent=message;
-    if(iconEl)iconEl.textContent=icon;
+    const text =
+        document.getElementById("toastMessage");
+
+    const iconEl =
+        document.getElementById("toastIcon");
+
+    if (!toast) return;
+
+    if (text)
+        text.textContent = message;
+
+    if (iconEl)
+        iconEl.textContent = icon;
 
     toast.classList.add("show");
 
-    setTimeout(()=>{
+    setTimeout(() => {
         toast.classList.remove("show");
-    },2200);
+    }, 2200);
 }
 
-function showScreen(id){
 
-    document.querySelectorAll(".app-screen").forEach(screen=>{
-        screen.classList.remove("active-screen");
-    });
+/* =========================================================
+   SCREEN NAVIGATION
+   ========================================================= */
 
-    const screen=document.getElementById(id);
+function showScreen(id) {
+    document
+        .querySelectorAll(".app-screen")
+        .forEach(screen => {
+            screen.classList.remove(
+                "active-screen"
+            );
+        });
 
-    if(!screen)return;
 
-    screen.classList.add("active-screen");
+    const screen =
+        document.getElementById(id);
+
+    if (!screen) return;
+
+
+    screen.classList.add(
+        "active-screen"
+    );
+
 
     window.scrollTo({
-        top:0,
-        behavior:"smooth"
+        top: 0,
+        behavior: "smooth"
     });
+
 
     updateAccountUI();
 
-    if(id==="orders"){
+
+    if (id === "orders") {
         renderOrders();
     }
 
-    if(id==="order-review"){
+
+    if (id === "order-review") {
         updateReview();
     }
 
-    if(id==="order-details"){
-        const order=findCurrentOrder();
 
-        if(order){
+    if (id === "order-details") {
+        const order =
+            findCurrentOrder();
+
+        if (order) {
             renderOrderDetails(order);
         }
     }
 }
 
-function updateAccountUI(){
 
-    const headerButton=document.getElementById("accountHeaderButton");
-    const headerInitial=document.getElementById("headerAccountInitial");
-    const headerName=document.getElementById("headerAccountName");
+/* =========================================================
+   ACCOUNT UI
+   ========================================================= */
 
-    const homeCard=document.getElementById("loggedInHomeCard");
-    const homeButton=document.getElementById("homeAccountButton");
-    const homeInitial=document.getElementById("homeAccountInitial");
-    const homeName=document.getElementById("homeAccountName");
-    const homeEmail=document.getElementById("homeAccountEmail");
+function updateAccountUI() {
+    const headerButton =
+        document.getElementById(
+            "accountHeaderButton"
+        );
 
-    const accountInitial=document.getElementById("accountInitial");
-    const accountName=document.getElementById("accountName");
-    const accountEmail=document.getElementById("accountEmail");
+    const headerInitial =
+        document.getElementById(
+            "headerAccountInitial"
+        );
 
-    if(currentUser){
+    const headerName =
+        document.getElementById(
+            "headerAccountName"
+        );
 
-        const initial=getInitial(currentUser.name);
 
-        if(headerButton)headerButton.style.display="flex";
-        if(headerInitial)headerInitial.textContent=initial;
-        if(headerName)headerName.textContent=currentUser.name;
+    const homeCard =
+        document.getElementById(
+            "loggedInHomeCard"
+        );
 
-        if(homeCard)homeCard.style.display="flex";
-        if(homeButton)homeButton.style.display="none";
-        if(homeInitial)homeInitial.textContent=initial;
-        if(homeName)homeName.textContent=currentUser.name;
-        if(homeEmail)homeEmail.textContent=currentUser.email;
+    const homeButton =
+        document.getElementById(
+            "homeAccountButton"
+        );
 
-        if(accountInitial)accountInitial.textContent=initial;
-        if(accountName)accountName.textContent=currentUser.name;
-        if(accountEmail)accountEmail.textContent=currentUser.email;
+    const homeInitial =
+        document.getElementById(
+            "homeAccountInitial"
+        );
 
-    }else{
+    const homeName =
+        document.getElementById(
+            "homeAccountName"
+        );
 
-        if(headerButton)headerButton.style.display="none";
-        if(homeCard)homeCard.style.display="none";
-        if(homeButton)homeButton.style.display="flex";
+    const homeEmail =
+        document.getElementById(
+            "homeAccountEmail"
+        );
 
-    }
-}
 
-function saveClientProfile(){
+    const accountInitial =
+        document.getElementById(
+            "accountInitial"
+        );
 
-    if(!currentUser)return;
+    const accountName =
+        document.getElementById(
+            "accountName"
+        );
 
-    const users=getUsers();
+    const accountEmail =
+        document.getElementById(
+            "accountEmail"
+        );
 
-    const index=users.findIndex(
-        user=>user.id===currentUser.id
-    );
 
-    if(index===-1)return;
+    if (currentUser) {
 
-    const user=users[index];
+        const initial =
+            getInitial(
+                currentUser.name
+            );
 
-    user.name=
-        currentOrder.clientName||user.name;
 
-    user.gymName=
-        currentOrder.gymName||user.gymName||"";
+        if (headerButton)
+            headerButton.style.display =
+                "flex";
 
-    user.instagram=
-        currentOrder.instagram||user.instagram||"";
+        if (headerInitial)
+            headerInitial.textContent =
+                initial;
 
-    users[index]=user;
+        if (headerName)
+            headerName.textContent =
+                currentUser.name;
 
-    saveUsers(users);
 
-    currentUser.name=user.name;
-    currentUser.gymName=user.gymName;
-    currentUser.instagram=user.instagram;
+        if (homeCard)
+            homeCard.style.display =
+                "flex";
 
-    saveSession(currentUser);
-}
+        if (homeButton)
+            homeButton.style.display =
+                "none";
 
-function fillClientDetails(){
+        if (homeInitial)
+            homeInitial.textContent =
+                initial;
 
-    if(!currentUser)return;
+        if (homeName)
+            homeName.textContent =
+                currentUser.name;
 
-    const name=document.getElementById("clientName");
-    const gym=document.getElementById("gymName");
-    const instagram=document.getElementById("instagramHandle");
+        if (homeEmail)
+            homeEmail.textContent =
+                currentUser.email;
 
-    if(name)name.value=currentUser.name||"";
-    if(gym)gym.value=currentUser.gymName||"";
-    if(instagram)instagram.value=currentUser.instagram||"";
-}
 
-function startOrder(){
+        if (accountInitial)
+            accountInitial.textContent =
+                initial;
 
-    if(!currentUser){
-        showScreen("login");
-        return;
-    }
+        if (accountName)
+            accountName.textContent =
+                currentUser.name;
 
-    fillClientDetails();
-    showScreen("order");
-}
+        if (accountEmail)
+            accountEmail.textContent =
+                currentUser.email;
 
-function loginUser(){
+    } else {
 
-    const emailInput=document.getElementById("loginEmail");
-    const passwordInput=document.getElementById("loginPassword");
+        if (headerButton)
+            headerButton.style.display =
+                "none";
 
-    const email=emailInput.value.trim().toLowerCase();
-    const password=passwordInput.value;
+        if (homeCard)
+            homeCard.style.display =
+                "none";
 
-    if(!email||!password){
-        showToast("Enter email and password","!");
-        return;
-    }
-
-    const users=getUsers();
-
-    const user=users.find(
-        item=>item.email===email
-    );
-
-    if(!user){
-        showToast("Account not found","!");
-        return;
-    }
-
-    if(user.password!==password){
-        showToast("Wrong password","!");
-        return;
-    }
-
-    currentUser={
-        id:user.id,
-        name:user.name,
-        email:user.email,
-        gymName:user.gymName||"",
-        instagram:user.instagram||""
-    };
-
-    saveSession(currentUser);
-
-    updateAccountUI();
-    fillClientDetails();
-
-    emailInput.value="";
-    passwordInput.value="";
-
-    showToast("Login successful","✓");
-
-    showScreen("order");
-}
-
-function createAccount(){
-
-    const nameInput=document.getElementById("signupName");
-    const emailInput=document.getElementById("signupEmail");
-    const passwordInput=document.getElementById("signupPassword");
-
-    const name=nameInput.value.trim();
-    const email=emailInput.value.trim().toLowerCase();
-    const password=passwordInput.value;
-
-    if(!name||!email||!password){
-        showToast("Please fill all details","!");
-        return;
-    }
-
-    if(password.length<6){
-        showToast("Password must be at least 6 characters","!");
-        return;
-    }
-
-    const users=getUsers();
-
-    if(users.some(user=>user.email===email)){
-        showToast("Email already registered","!");
-        return;
-    }
-
-    const newUser={
-        id:"USER-"+Date.now(),
-        name:name,
-        email:email,
-        password:password,
-        gymName:"",
-        instagram:"",
-        createdAt:new Date().toISOString()
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-
-    currentUser={
-        id:newUser.id,
-        name:newUser.name,
-        email:newUser.email,
-        gymName:"",
-        instagram:""
-    };
-
-    saveSession(currentUser);
-
-    nameInput.value="";
-    emailInput.value="";
-    passwordInput.value="";
-
-    updateAccountUI();
-    fillClientDetails();
-
-    showToast("Account created","✓");
-
-    showScreen("order");
-}
-
-function logoutUser(){
-
-    currentUser=null;
-
-    clearSession();
-
-    currentOrder={
-        service:"",
-        plan:"",
-        clientName:"",
-        gymName:"",
-        instagram:"",
-        goal:"",
-        notes:"",
-        instructions:"",
-        videos:[]
-    };
-
-    currentOrderId=null;
-
-    GGHQ_clearVideoSelection();
-
-    updateAccountUI();
-
-    showToast("Logged out","✓");
-
-    showScreen("home");
-}
-
-function selectService(service){
-
-    if(
-        service!=="reel-editing"&&
-        service!=="transformation"
-    ){
-        return;
-    }
-
-    currentOrder.service=service;
-    currentOrder.plan="";
-
-    if(service==="reel-editing"){
-        showScreen("plan-reel-editing");
-        return;
-    }
-
-    if(service==="transformation"){
-        showScreen("plan-transformation");
-        return;
-    }
-}
-
-function selectPlan(service,plan){
-
-    if(
-        service!=="reel-editing"&&
-        service!=="transformation"
-    ){
-        return;
-    }
-
-    currentOrder.service=service;
-    currentOrder.plan=plan||"standard";
-
-    if(currentUser){
-        fillClientDetails();
-        showScreen("order");
-    }else{
-        showScreen("login");
-    }
-}
-
-function saveStepOne(){
-
-    const name=document.getElementById("clientName");
-    const gym=document.getElementById("gymName");
-    const instagram=document.getElementById("instagramHandle");
-
-    if(!name||!gym)return false;
-
-    currentOrder.clientName=name.value.trim();
-    currentOrder.gymName=gym.value.trim();
-    currentOrder.instagram=
-        instagram?instagram.value.trim():"";
-
-    if(currentUser){
-        saveClientProfile();
-    }
-
-    return true;
-}
-
-function goOrderNext(step){
-
-    if(step===2){
-
-        if(!saveStepOne()){
-            showToast("Please enter your details","!");
-            return;
-        }
-
-        showScreen("order-project");
-        return;
-    }
-
-    if(step===3){
-
-        const goal=document.getElementById("projectGoal");
-        const notes=document.getElementById("projectNotes");
-
-        currentOrder.goal=
-            goal?goal.value:"";
-
-        currentOrder.notes=
-            notes?notes.value.trim():"";
-
-        showScreen("order-upload");
-        return;
-    }
-
-    if(step===4){
-
-        showScreen("order-instructions");
-        return;
-    }
-
-    if(step===5){
-
-        const instructions=
-            document.getElementById("specialInstructions");
-
-        currentOrder.instructions=
-            instructions?instructions.value.trim():"";
-
-        updateReview();
-
-        showScreen("order-review");
-    }
-}
-
-function goOrderBack(step){
-
-    if(step===1){
-        showScreen("order");
-    }
-
-    if(step===2){
-        showScreen("order-project");
-    }
-
-    if(step===3){
-        showScreen("order-upload");
-    }
-
-    if(step===4){
-        showScreen("order-instructions");
+        if (homeButton)
+            homeButton.style.display =
+                "flex";
     }
 }
 
 
 /* =========================================================
-   FINAL VIDEO UPLOAD SYSTEM
+   SAVE CLIENT PROFILE
    ========================================================= */
 
-const GGHQ_VIDEO_INPUT=
-    document.getElementById("videoFiles");
+function saveClientProfile() {
+    if (!currentUser) return;
 
-let GGHQ_SELECTED_FILES=[];
 
-if(GGHQ_VIDEO_INPUT){
+    const users =
+        getUsers();
 
-    GGHQ_VIDEO_INPUT.setAttribute(
-        "multiple",
-        "multiple"
-    );
 
-    GGHQ_VIDEO_INPUT.setAttribute(
-        "accept",
-        "video/*"
-    );
-}
-
-function GGHQ_clearVideoSelection(){
-
-    GGHQ_SELECTED_FILES=[];
-
-    if(GGHQ_VIDEO_INPUT){
-        GGHQ_VIDEO_INPUT.value="";
-    }
-
-    if(typeof currentOrder!=="undefined"){
-        currentOrder.videos=[];
-    }
-
-    const container=
-        document.getElementById("selectedFiles");
-
-    if(container){
-        container.innerHTML="";
-    }
-}
-
-function GGHQ_formatVideoSize(bytes){
-
-    if(!bytes)return"";
-
-    const mb=bytes/(1024*1024);
-
-    if(mb<1){
-        return Math.round(bytes/1024)+" KB";
-    }
-
-    return mb.toFixed(1)+" MB";
-}
-
-if(!document.getElementById("gghq-final-video-styles")){
-
-    const style=document.createElement("style");
-
-    style.id="gghq-final-video-styles";
-
-    style.textContent=`
-
-        .gghq-video-gallery{
-            display:grid;
-            grid-template-columns:
-                repeat(2,minmax(0,1fr));
-            gap:12px;
-            margin-top:16px;
-        }
-
-        .gghq-video-card{
-            position:relative;
-            overflow:hidden;
-            border-radius:16px;
-            background:#111118;
-            border:2px solid rgba(139,92,246,.75);
-            box-shadow:0 6px 18px rgba(0,0,0,.22);
-        }
-
-        .gghq-video-card video{
-            display:block;
-            width:100%;
-            aspect-ratio:16/10;
-            object-fit:cover;
-            background:#08080c;
-        }
-
-        .gghq-video-number{
-            position:absolute;
-            top:8px;
-            left:8px;
-            z-index:3;
-            min-width:28px;
-            height:28px;
-            padding:0 8px;
-            border-radius:20px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:rgba(0,0,0,.78);
-            color:#fff;
-            font-size:12px;
-            font-weight:800;
-        }
-
-        .gghq-video-selected{
-            position:absolute;
-            top:8px;
-            right:8px;
-            z-index:3;
-            padding:6px 9px;
-            border-radius:20px;
-            background:#35d477;
-            color:#07140d;
-            font-size:10px;
-            font-weight:900;
-            box-shadow:0 3px 10px rgba(0,0,0,.35);
-        }
-
-        .gghq-video-info{
-            padding:9px 10px 11px;
-        }
-
-        .gghq-video-name{
-            color:#fff;
-            font-size:12px;
-            font-weight:600;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-        }
-
-        .gghq-video-size{
-            margin-top:4px;
-            color:#777783;
-            font-size:11px;
-        }
-
-        .gghq-video-count{
-            width:100%;
-            margin-top:16px;
-            padding:14px 16px;
-            border-radius:14px;
-            background:rgba(139,92,246,.14);
-            border:1px solid rgba(139,92,246,.45);
-            color:#fff;
-            text-align:center;
-            font-size:15px;
-            font-weight:800;
-        }
-
-        .gghq-video-empty{
-            margin-top:16px;
-            padding:18px;
-            border-radius:14px;
-            background:rgba(255,255,255,.03);
-            color:#8f8f9d;
-            text-align:center;
-            font-size:14px;
-        }
-
-        @media(min-width:600px){
-            .gghq-video-gallery{
-                grid-template-columns:
-                    repeat(3,minmax(0,1fr));
-            }
-        }
-    `;
-
-    document.head.appendChild(style);
-}
-
-function GGHQ_renderVideos(){
-
-    const container=
-        document.getElementById(
-            "selectedFiles"
+    const index =
+        users.findIndex(
+            user =>
+                user.id === currentUser.id
         );
 
-    if(!container)return;
 
-    container.innerHTML="";
+    if (index === -1) return;
 
-    if(!GGHQ_SELECTED_FILES.length){
 
-        container.innerHTML=`
-            <div class="gghq-video-empty">
-                No videos selected yet.
-            </div>
-        `;
+    const user =
+        users[index];
+
+
+    user.name =
+        currentOrder.clientName ||
+        user.name;
+
+
+    user.gymName =
+        currentOrder.gymName ||
+        user.gymName ||
+        "";
+
+
+    user.instagram =
+        currentOrder.instagram ||
+        user.instagram ||
+        "";
+
+
+    users[index] = user;
+
+    saveUsers(users);
+
+
+    currentUser.name =
+        user.name;
+
+    currentUser.gymName =
+        user.gymName;
+
+    currentUser.instagram =
+        user.instagram;
+
+
+    saveSession(currentUser);
+}
+
+
+/* =========================================================
+   AUTO-FILL CLIENT DETAILS
+   ========================================================= */
+
+function fillClientDetails() {
+    if (!currentUser) return;
+
+
+    const name =
+        document.getElementById(
+            "clientName"
+        );
+
+    const gym =
+        document.getElementById(
+            "gymName"
+        );
+
+    const instagram =
+        document.getElementById(
+            "instagramHandle"
+        );
+
+
+    if (name) {
+        name.value =
+            currentUser.name || "";
+    }
+
+
+    if (gym) {
+        gym.value =
+            currentUser.gymName || "";
+    }
+
+
+    if (instagram) {
+        instagram.value =
+            currentUser.instagram || "";
+    }
+}
+
+
+/* =========================================================
+   START ORDER
+   ========================================================= */
+
+function startOrder() {
+
+    if (!currentUser) {
+        showScreen("login");
+        return;
+    }
+
+
+    fillClientDetails();
+
+    showScreen("order");
+}
+
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
+function loginUser() {
+
+    const emailInput =
+        document.getElementById(
+            "loginEmail"
+        );
+
+    const passwordInput =
+        document.getElementById(
+            "loginPassword"
+        );
+
+
+    const email =
+        emailInput.value
+            .trim()
+            .toLowerCase();
+
+
+    const password =
+        passwordInput.value;
+
+
+    if (!email || !password) {
+
+        showToast(
+            "Enter email and password",
+            "!"
+        );
 
         return;
     }
 
-    const gallery=
-        document.createElement("div");
 
-    gallery.className=
-        "gghq-video-gallery";
+    const users =
+        getUsers();
 
-    GGHQ_SELECTED_FILES.forEach(
-        (file,index)=>{
 
-            const card=
-                document.createElement("div");
+    const user =
+        users.find(
+            item =>
+                item.email === email
+        );
 
-            card.className=
-                "gghq-video-card";
 
-            const number=
-                document.createElement("div");
+    if (!user) {
 
-            number.className=
-                "gghq-video-number";
+        showToast(
+            "Account not found",
+            "!"
+        );
 
-            number.textContent=
-                index+1;
-
-            const selected=
-                document.createElement("div");
-
-            selected.className=
-                "gghq-video-selected";
-
-            selected.textContent=
-                "✓ SELECTED";
-
-            const video=
-                document.createElement("video");
-
-            video.muted=true;
-            video.playsInline=true;
-            video.preload="metadata";
-
-            video.setAttribute(
-                "playsinline",
-                ""
-            );
-
-            const previewURL=
-                URL.createObjectURL(file);
-
-            video.src=previewURL;
-
-            video.addEventListener(
-                "loadedmetadata",
-                function(){
-
-                    try{
-
-                        if(video.duration>0.2){
-                            video.currentTime=0.1;
-                        }
-
-                    }catch(e){}
-
-                }
-            );
-
-            const info=
-                document.createElement("div");
-
-            info.className=
-                "gghq-video-info";
-
-            const name=
-                document.createElement("div");
-
-            name.className=
-                "gghq-video-name";
-
-            name.textContent=
-                file.name;
-
-            const size=
-                document.createElement("div");
-
-            size.className=
-                "gghq-video-size";
-
-            size.textContent=
-                GGHQ_formatVideoSize(
-                    file.size
-                );
-
-            info.appendChild(name);
-            info.appendChild(size);
-
-            card.appendChild(video);
-            card.appendChild(number);
-            card.appendChild(selected);
-            card.appendChild(info);
-
-            gallery.appendChild(card);
-        }
-    );
-
-    container.appendChild(gallery);
-
-    const count=
-        document.createElement("div");
-
-    count.className=
-        "gghq-video-count";
-
-    count.textContent=
-        `✓ ${GGHQ_SELECTED_FILES.length} VIDEO${
-            GGHQ_SELECTED_FILES.length===1?"":"S"
-        } SELECTED`;
-
-    container.appendChild(count);
-}
-
-function handleVideoFiles(files){
-
-    const newFiles=
-        Array.from(files||[]);
-
-    if(!newFiles.length)return;
-
-    newFiles.forEach(file=>{
-
-        const exists=
-            GGHQ_SELECTED_FILES.some(
-                oldFile=>
-                    oldFile.name===file.name&&
-                    oldFile.size===file.size&&
-                    oldFile.lastModified===
-                        file.lastModified
-            );
-
-        if(!exists){
-            GGHQ_SELECTED_FILES.push(file);
-        }
-    });
-
-    if(typeof currentOrder!=="undefined"){
-
-        currentOrder.videos=
-            GGHQ_SELECTED_FILES.map(
-                file=>({
-                    name:file.name,
-                    size:file.size,
-                    lastModified:
-                        file.lastModified
-                })
-            );
+        return;
     }
 
-    GGHQ_renderVideos();
 
-    if(GGHQ_VIDEO_INPUT){
-        GGHQ_VIDEO_INPUT.value="";
+    if (
+        user.password !== password
+    ) {
+
+        showToast(
+            "Wrong password",
+            "!"
+        );
+
+        return;
     }
+
+
+    currentUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        gymName: user.gymName || "",
+        instagram: user.instagram || ""
+    };
+
+
+    saveSession(currentUser);
+
+    updateAccountUI();
+
+    fillClientDetails();
+
+
+    emailInput.value = "";
+    passwordInput.value = "";
+
 
     showToast(
-        `${GGHQ_SELECTED_FILES.length} video${
-            GGHQ_SELECTED_FILES.length===1?"":"s"
-        } selected`,
+        "Login successful",
         "✓"
     );
+
+
+    /*
+       IMPORTANT:
+       Login finished.
+       Go directly to Order.
+       Never show Login again.
+    */
+
+    showScreen("order");
 }
 
 
-/*
-   Whenever Upload screen opens:
-   start completely fresh.
-*/
+/* =========================================================
+   CREATE ACCOUNT
+   ========================================================= */
 
-const GGHQ_originalShowScreen=
-    showScreen;
+function createAccount() {
 
-showScreen=function(id){
+    const nameInput =
+        document.getElementById(
+            "signupName"
+        );
 
-    if(id==="order-upload"){
-        GGHQ_clearVideoSelection();
+    const emailInput =
+        document.getElementById(
+            "signupEmail"
+        );
+
+    const passwordInput =
+        document.getElementById(
+            "signupPassword"
+        );
+
+
+    const name =
+        nameInput.value.trim();
+
+
+    const email =
+        emailInput.value
+            .trim()
+            .toLowerCase();
+
+
+    const password =
+        passwordInput.value;
+
+
+    if (!name || !email || !password) {
+
+        showToast(
+            "Please fill all details",
+            "!"
+        );
+
+        return;
     }
 
-    GGHQ_originalShowScreen(id);
-};
+
+    if (password.length < 6) {
+
+        showToast(
+            "Password must be at least 6 characters",
+            "!"
+        );
+
+        return;
+    }
 
 
-function updateReview(){
+    const users =
+        getUsers();
 
-    const service=
-        currentOrder.service==="reel-editing"
-            ?"Reel Editing"
-            :currentOrder.service==="transformation"
-                ?"Transformation Reel"
-                :"—";
 
-    const plan=
-        currentOrder.plan==="premium"
-            ?"Premium"
-            :"Standard";
+    if (
+        users.some(
+            user =>
+                user.email === email
+        )
+    ) {
+
+        showToast(
+            "Email already registered",
+            "!"
+        );
+
+        return;
+    }
+
+
+    const newUser = {
+
+        id:
+            "USER-" +
+            Date.now(),
+
+        name:
+            name,
+
+        email:
+            email,
+
+        password:
+            password,
+
+        gymName:
+            "",
+
+        instagram:
+            "",
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+
+    users.push(newUser);
+
+    saveUsers(users);
+
+
+    currentUser = {
+
+        id:
+            newUser.id,
+
+        name:
+            newUser.name,
+
+        email:
+            newUser.email,
+
+        gymName:
+            "",
+
+        instagram:
+            ""
+
+    };
+
+
+    saveSession(
+        currentUser
+    );
+
+
+    nameInput.value = "";
+    emailInput.value = "";
+    passwordInput.value = "";
+
+
+    updateAccountUI();
+
+    fillClientDetails();
+
+
+    showToast(
+        "Account created",
+        "✓"
+    );
+
+
+    showScreen("order");
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+function logoutUser() {
+
+    currentUser = null;
+
+    clearSession();
+
+
+    currentOrder = {
+
+        service: "",
+
+        plan: "",
+
+        clientName: "",
+
+        gymName: "",
+
+        instagram: "",
+
+        goal: "",
+
+        notes: "",
+
+        instructions: "",
+
+        videos: []
+
+    };
+
+
+    currentOrderId = null;
+
+
+    updateAccountUI();
+
+
+    showToast(
+        "Logged out",
+        "✓"
+    );
+
+
+    showScreen("home");
+}
+
+
+/* =========================================================
+   SERVICE SELECTION
+   ========================================================= */
+
+function selectService(service) {
+
+    /*
+       ONLY TWO SERVICES.
+       Promotional Video removed.
+    */
+
+    if (
+        service !== "reel-editing" &&
+        service !== "transformation"
+    ) {
+
+        return;
+    }
+
+
+    currentOrder.service =
+        service;
+
+
+    currentOrder.plan =
+        "";
+
+
+    if (
+        service ===
+        "reel-editing"
+    ) {
+
+        showScreen(
+            "plan-reel-editing"
+        );
+
+        return;
+    }
+
+
+    if (
+        service ===
+        "transformation"
+    ) {
+
+        showScreen(
+            "plan-transformation"
+        );
+
+        return;
+    }
+}
+
+
+/* =========================================================
+   PLAN SELECTION
+   ========================================================= */
+
+function selectPlan(
+    service,
+    plan
+) {
+
+    if (
+        service !== "reel-editing" &&
+        service !== "transformation"
+    ) {
+
+        return;
+    }
+
+
+    currentOrder.service =
+        service;
+
+
+    currentOrder.plan =
+        plan || "standard";
+
+
+    /*
+       Already logged in:
+       DIRECTLY ORDER.
+
+       Not logged in:
+       LOGIN ONCE.
+    */
+
+    if (currentUser) {
+
+        fillClientDetails();
+
+        showScreen("order");
+
+    } else {
+
+        showScreen("login");
+
+    }
+        }
+/* =========================================================
+   ORDER STEP 1
+   ========================================================= */
+
+function saveStepOne() {
+
+    const name =
+        document.getElementById(
+            "clientName"
+        );
+
+    const gym =
+        document.getElementById(
+            "gymName"
+        );
+
+    const instagram =
+        document.getElementById(
+            "instagramHandle"
+        );
+
+
+    if (!name || !gym) return false;
+
+
+    currentOrder.clientName =
+        name.value.trim();
+
+    currentOrder.gymName =
+        gym.value.trim();
+
+    currentOrder.instagram =
+        instagram
+            ? instagram.value.trim()
+            : "";
+
+
+    /*
+       Save permanently to account.
+       So next order doesn't ask again.
+    */
+
+    if (currentUser) {
+
+        saveClientProfile();
+
+    }
+
+
+    return true;
+}
+
+
+/* =========================================================
+   ORDER NEXT
+   ========================================================= */
+
+function goOrderNext(step) {
+
+
+    if (step === 2) {
+
+        if (!saveStepOne()) {
+
+            showToast(
+                "Please enter your details",
+                "!"
+            );
+
+            return;
+
+        }
+
+
+        showScreen(
+            "order-project"
+        );
+
+        return;
+
+    }
+
+
+    if (step === 3) {
+
+        const goal =
+            document.getElementById(
+                "projectGoal"
+            );
+
+        const notes =
+            document.getElementById(
+                "projectNotes"
+            );
+
+
+        currentOrder.goal =
+            goal
+                ? goal.value
+                : "";
+
+        currentOrder.notes =
+            notes
+                ? notes.value.trim()
+                : "";
+
+
+        showScreen(
+            "order-upload"
+        );
+
+        return;
+
+    }
+
+
+    if (step === 4) {
+
+        showScreen(
+            "order-instructions"
+        );
+
+        return;
+
+    }
+
+
+    if (step === 5) {
+
+        const instructions =
+            document.getElementById(
+                "specialInstructions"
+            );
+
+
+        currentOrder.instructions =
+            instructions
+                ? instructions.value.trim()
+                : "";
+
+
+        updateReview();
+
+
+        showScreen(
+            "order-review"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ORDER BACK
+   ========================================================= */
+
+function goOrderBack(step) {
+
+    if (step === 1) {
+
+        showScreen("order");
+
+    }
+
+
+    if (step === 2) {
+
+        showScreen(
+            "order-project"
+        );
+
+    }
+
+
+    if (step === 3) {
+
+        showScreen(
+            "order-upload"
+        );
+
+    }
+
+
+    if (step === 4) {
+
+        showScreen(
+            "order-instructions"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   VIDEO FILES
+   ========================================================= */
+
+function handleVideoFiles(files) {
+
+    currentOrder.videos =
+        Array.from(files).map(
+            file => ({
+                name: file.name,
+                size: file.size
+            })
+        );
+
+
+    const container =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+
+    if (!container) return;
+
+
+    container.innerHTML = "";
+
+
+    currentOrder.videos.forEach(
+        video => {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "selected-file-item";
+
+
+            item.innerHTML = `
+                <span>🎬</span>
+                <span>${escapeHTML(video.name)}</span>
+            `;
+
+
+            container.appendChild(
+                item
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   REVIEW
+   ========================================================= */
+
+function updateReview() {
+
+    const service =
+        currentOrder.service ===
+        "reel-editing"
+            ? "Reel Editing"
+            : currentOrder.service ===
+              "transformation"
+                ? "Transformation Reel"
+                : "—";
+
+
+    const plan =
+        currentOrder.plan ===
+        "premium"
+            ? "Premium"
+            : "Standard";
+
 
     setText(
         "reviewService",
         service
     );
 
+
     setText(
         "reviewPlan",
         plan
     );
+
 
     setText(
         "reviewClient",
         currentOrder.clientName
     );
 
+
     setText(
         "reviewGym",
         currentOrder.gymName
     );
+
 
     setText(
         "reviewInstagram",
         currentOrder.instagram
     );
 
+
     setText(
         "reviewVideos",
-        currentOrder.videos.length+
+        currentOrder.videos.length +
         " video(s)"
     );
+
 }
 
-function submitOrder(){
 
-    if(!currentUser){
+/* =========================================================
+   SUBMIT ORDER
+   ========================================================= */
+
+function submitOrder() {
+
+    /*
+       NEVER redirect to Plan here.
+    */
+
+    if (!currentUser) {
+
         showScreen("login");
+
         return;
+
     }
 
-    if(!currentOrder.service){
+
+    if (!currentOrder.service) {
 
         showToast(
             "Please select a service",
             "!"
         );
 
+
         showScreen("services");
+
         return;
+
     }
 
-    if(!currentOrder.plan){
-        currentOrder.plan="standard";
+
+    if (!currentOrder.plan) {
+
+        currentOrder.plan =
+            "standard";
+
     }
+
+
+    /*
+       Make sure client details
+       are saved before order.
+    */
 
     saveStepOne();
 
-    const orders=getOrders();
 
-    const order={
+    const orders =
+        getOrders();
+
+
+    const order = {
 
         id:
-            "GGHQ-"+Date.now(),
+            "GGHQ-" +
+            Date.now(),
 
         userId:
             currentUser.id,
@@ -1011,111 +1378,175 @@ function submitOrder(){
 
         createdAt:
             new Date().toISOString()
+
     };
+
 
     orders.push(order);
 
+
     saveOrders(orders);
 
-    currentOrderId=order.id;
+
+    currentOrderId =
+        order.id;
+
+
+    /*
+       IMPORTANT:
+
+       Do NOT reset before navigating.
+       Go directly to Account.
+    */
 
     showToast(
         "Order submitted successfully",
         "✓"
     );
 
+
+    /*
+       Small delay only for toast.
+       Then Account.
+    */
+
     setTimeout(
-        ()=>{
+        () => {
 
             renderOrders();
 
-            showScreen("account");
+
+            showScreen(
+                "account"
+            );
 
         },
         500
     );
 
-    currentOrder={
-
-        service:"",
-        plan:"",
-
-        clientName:
-            currentUser.name||"",
-
-        gymName:
-            currentUser.gymName||"",
-
-        instagram:
-            currentUser.instagram||"",
-
-        goal:"",
-        notes:"",
-        instructions:"",
-        videos:[]
-    };
 
     /*
-       Clear uploaded files for next order.
+       Prepare blank order AFTER
+       saving everything.
+       Client profile stays saved.
     */
 
-    GGHQ_clearVideoSelection();
+    currentOrder = {
+
+        service: "",
+
+        plan: "",
+
+        clientName:
+            currentUser.name || "",
+
+        gymName:
+            currentUser.gymName || "",
+
+        instagram:
+            currentUser.instagram || "",
+
+        goal: "",
+
+        notes: "",
+
+        instructions: "",
+
+        videos: []
+
+    };
+
 }
 
-function findCurrentOrder(){
 
-    if(!currentOrderId){
+/* =========================================================
+   FIND CURRENT ORDER
+   ========================================================= */
+
+function findCurrentOrder() {
+
+    if (!currentOrderId) {
+
         return null;
+
     }
 
-    const orders=getOrders();
+
+    const orders =
+        getOrders();
+
 
     return orders.find(
-        order=>
-            order.id===currentOrderId
+        order =>
+            order.id ===
+            currentOrderId
     );
+
 }
 
-function getMyOrders(){
 
-    if(!currentUser){
-        return[];
+/* =========================================================
+   MY ORDERS
+   ========================================================= */
+
+function getMyOrders() {
+
+    if (!currentUser) {
+
+        return [];
+
     }
 
+
     return getOrders().filter(
-        order=>
-            order.userId===currentUser.id
+        order =>
+            order.userId ===
+            currentUser.id
     );
+
 }
 
-function renderOrders(){
 
-    const list=
+/* =========================================================
+   RENDER ORDERS
+   ========================================================= */
+
+function renderOrders() {
+
+    const list =
         document.getElementById(
             "ordersList"
         );
 
-    if(!list)return;
 
-    list.innerHTML="";
+    if (!list) return;
 
-    if(!currentUser){
 
-        list.innerHTML=`
+    list.innerHTML = "";
+
+
+    if (!currentUser) {
+
+        list.innerHTML = `
             <div class="empty-state">
                 <h3>Login Required</h3>
                 <p>Please login to view your orders.</p>
             </div>
         `;
 
+
         return;
+
     }
 
-    const orders=getMyOrders();
 
-    if(!orders.length){
+    const orders =
+        getMyOrders();
 
-        list.innerHTML=`
+
+    if (!orders.length) {
+
+        list.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">📦</div>
                 <h3>No Orders Yet</h3>
@@ -1123,36 +1554,46 @@ function renderOrders(){
             </div>
         `;
 
+
         return;
+
     }
+
 
     orders
         .slice()
         .reverse()
-        .forEach(order=>{
+        .forEach(order => {
 
-            const card=
+            const card =
                 document.createElement(
                     "button"
                 );
 
-            card.type="button";
 
-            card.className=
+            card.type =
+                "button";
+
+
+            card.className =
                 "order-history-card";
 
-            const service=
-                order.service==="reel-editing"
-                    ?"Reel Editing"
-                    :"Transformation Reel";
 
-            const plan=
-                order.plan==="premium"
-                    ?"Premium"
-                    :"Standard";
+            const service =
+                order.service ===
+                "reel-editing"
+                    ? "Reel Editing"
+                    : "Transformation Reel";
 
-            card.innerHTML=`
 
+            const plan =
+                order.plan ===
+                "premium"
+                    ? "Premium"
+                    : "Standard";
+
+
+            card.innerHTML = `
                 <div class="order-history-icon">
                     📦
                 </div>
@@ -1179,258 +1620,397 @@ function renderOrders(){
                 <span class="account-menu-arrow">
                     →
                 </span>
-
             `;
+
 
             card.addEventListener(
                 "click",
-                ()=>{
+                () => {
 
-                    currentOrderId=
+                    currentOrderId =
                         order.id;
+
 
                     renderOrderDetails(
                         order
                     );
 
+
                     showScreen(
                         "order-details"
                     );
+
                 }
             );
 
-            list.appendChild(card);
+
+            list.appendChild(
+                card
+            );
+
         });
+
 }
 
-function renderOrderDetails(order){
 
-    if(!order)return;
+/* =========================================================
+   ORDER DETAILS
+   ========================================================= */
 
-    const service=
-        order.service==="reel-editing"
-            ?"Reel Editing"
-            :"Transformation Reel";
+function renderOrderDetails(
+    order
+) {
 
-    const plan=
-        order.plan==="premium"
-            ?"Premium"
-            :"Standard";
+    if (!order) return;
+
+
+    const service =
+        order.service ===
+        "reel-editing"
+            ? "Reel Editing"
+            : "Transformation Reel";
+
+
+    const plan =
+        order.plan ===
+        "premium"
+            ? "Premium"
+            : "Standard";
+
 
     setText(
         "detailOrderNumber",
-        "#"+
+        "#" +
         order.id.replace(
             "GGHQ-",
             ""
         )
     );
 
+
     setText(
         "detailOrderStatus",
-        order.deliveryStatus||
+        order.deliveryStatus ||
         order.status
     );
+
 
     setText(
         "detailService",
         service
     );
 
+
     setText(
         "detailPlan",
         plan
     );
+
 
     setText(
         "detailClient",
         order.clientName
     );
 
+
     setText(
         "detailGym",
         order.gymName
     );
+
 
     setText(
         "detailGoal",
         order.goal
     );
 
+
     setText(
         "detailVideos",
         order.videos
-            ?order.videos.length+
-             " video(s)"
-            :"—"
+            ? order.videos.length +
+              " video(s)"
+            : "—"
     );
+
 
     setText(
         "detailInstructions",
-        order.instructions||"—"
+        order.instructions ||
+        "—"
     );
+
 }
 
-function restoreSession(){
 
-    const session=getSession();
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
 
-    if(!session){
+function restoreSession() {
 
-        currentUser=null;
+    const session =
+        getSession();
+
+
+    if (!session) {
+
+        currentUser = null;
+
         updateAccountUI();
 
         return;
+
     }
 
-    const users=getUsers();
 
-    const user=users.find(
-        item=>
-            item.id===session.id&&
-            item.email===session.email
-    );
+    const users =
+        getUsers();
 
-    if(!user){
+
+    const user =
+        users.find(
+            item =>
+                item.id === session.id &&
+                item.email === session.email
+        );
+
+
+    if (!user) {
 
         clearSession();
-        currentUser=null;
+
+        currentUser = null;
+
         updateAccountUI();
 
         return;
+
     }
 
-    currentUser={
 
-        id:user.id,
-        name:user.name,
-        email:user.email,
+    currentUser = {
+
+        id:
+            user.id,
+
+        name:
+            user.name,
+
+        email:
+            user.email,
 
         gymName:
-            user.gymName||"",
+            user.gymName || "",
 
         instagram:
-            user.instagram||""
+            user.instagram || ""
+
     };
 
+
     updateAccountUI();
+
 }
+
+
+/* =========================================================
+   CLICK HANDLER
+   ========================================================= */
 
 document.addEventListener(
     "click",
-    function(event){
+    function(event) {
 
-        const button=
+        const button =
             event.target.closest(
                 "button, a"
             );
 
-        if(!button)return;
 
-        if(
-            button.dataset.screen===
+        if (!button) return;
+
+
+        /* ================================================
+           ACCOUNT
+           ================================================ */
+
+        if (
+            button.dataset.screen ===
             "account"
-        ){
+        ) {
 
             event.preventDefault();
 
-            if(currentUser){
+
+            if (currentUser) {
 
                 updateAccountUI();
+
 
                 showScreen(
                     "account"
                 );
 
-            }else{
+            } else {
 
                 showScreen(
                     "login"
                 );
+
             }
 
+
             return;
+
         }
 
-        if(
-            button.dataset.screen===
+
+        /* ================================================
+           ORDERS
+           ================================================ */
+
+        if (
+            button.dataset.screen ===
             "orders"
-        ){
+        ) {
 
             event.preventDefault();
 
-            if(!currentUser){
+
+            if (!currentUser) {
 
                 showScreen(
                     "login"
                 );
 
+
                 return;
+
             }
 
+
             renderOrders();
+
 
             showScreen(
                 "orders"
             );
 
+
             return;
+
         }
 
-        if(button.dataset.detail){
+
+        /* ================================================
+           SERVICES
+           ================================================ */
+
+        if (
+            button.dataset.detail
+        ) {
 
             event.preventDefault();
+
 
             selectService(
                 button.dataset.detail
             );
 
+
             return;
+
         }
 
-        if(button.dataset.planDetail){
+
+        /* ================================================
+           PLAN DETAIL
+           ================================================ */
+
+        if (
+            button.dataset.planDetail
+        ) {
 
             event.preventDefault();
 
-            const service=
+
+            const service =
                 button.dataset.planDetail;
 
-            if(
-                service==="reel-editing"
-            ){
+
+            if (
+                service ===
+                "reel-editing"
+            ) {
 
                 showScreen(
                     "plan-reel-editing"
                 );
+
             }
 
-            if(
-                service==="transformation"
-            ){
+
+            if (
+                service ===
+                "transformation"
+            ) {
 
                 showScreen(
                     "plan-transformation"
                 );
+
             }
 
+
             return;
+
         }
 
-        if(button.dataset.plan){
+
+        /* ================================================
+           START ORDER FROM PLAN
+           ================================================ */
+
+        if (
+            button.dataset.plan
+        ) {
 
             event.preventDefault();
 
+
+            const service =
+                button.dataset.plan;
+
+
+            /*
+               Current HTML has one Start Order
+               per service.
+
+               Use Standard as default plan.
+            */
+
             selectPlan(
-                button.dataset.plan,
+                service,
                 "standard"
             );
 
+
             return;
+
         }
 
-        if(button.dataset.orderNext){
+
+        /* ================================================
+           ORDER NEXT
+           ================================================ */
+
+        if (
+            button.dataset.orderNext
+        ) {
 
             event.preventDefault();
+
 
             goOrderNext(
                 Number(
@@ -1438,12 +2018,22 @@ document.addEventListener(
                 )
             );
 
+
             return;
+
         }
 
-        if(button.dataset.orderBack){
+
+        /* ================================================
+           ORDER BACK
+           ================================================ */
+
+        if (
+            button.dataset.orderBack
+        ) {
 
             event.preventDefault();
+
 
             goOrderBack(
                 Number(
@@ -1451,21 +2041,39 @@ document.addEventListener(
                 )
             );
 
+
             return;
+
         }
 
-        if(button.dataset.screen){
+
+        /* ================================================
+           NORMAL SCREEN
+           ================================================ */
+
+        if (
+            button.dataset.screen
+        ) {
 
             event.preventDefault();
+
 
             showScreen(
                 button.dataset.screen
             );
 
+
             return;
+
         }
+
     }
 );
+
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
 
 document
     .getElementById("loginButton")
@@ -1474,6 +2082,11 @@ document
         loginUser
     );
 
+
+/* =========================================================
+   SIGNUP
+   ========================================================= */
+
 document
     .getElementById("signupButton")
     ?.addEventListener(
@@ -1481,66 +2094,1194 @@ document
         createAccount
     );
 
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
 document
     .getElementById("logoutButton")
     ?.addEventListener(
         "click",
-        function(event){
+        function(event) {
 
             event.preventDefault();
 
             logoutUser();
+
         }
     );
+
+
+/* =========================================================
+   LOGIN → SIGNUP
+   ========================================================= */
 
 document
     .getElementById("goToSignup")
     ?.addEventListener(
         "click",
-        function(event){
+        function(event) {
 
             event.preventDefault();
 
-            showScreen("signup");
+
+            showScreen(
+                "signup"
+            );
+
         }
     );
+
+
+/* =========================================================
+   SIGNUP → LOGIN
+   ========================================================= */
 
 document
     .getElementById("goToLogin")
     ?.addEventListener(
         "click",
-        function(event){
+        function(event) {
 
             event.preventDefault();
 
-            showScreen("login");
+
+            showScreen(
+                "login"
+            );
+
         }
     );
+
+
+/* =========================================================
+   VIDEO INPUT
+   ========================================================= */
 
 document
     .getElementById("videoFiles")
     ?.addEventListener(
         "change",
-        function(){
+        function() {
 
             handleVideoFiles(
                 this.files
             );
+
         }
     );
+
+
+/* =========================================================
+   SUBMIT
+   ========================================================= */
 
 document
     .getElementById("submitOrderButton")
     ?.addEventListener(
         "click",
-        function(event){
+        function(event) {
 
             event.preventDefault();
 
+
             submitOrder();
+
         }
     );
 
+
+/* =========================================================
+   RESTORE SESSION
+   ========================================================= */
+
 restoreSession();
 
+
+/* =========================================================
+   INITIAL SCREEN
+   ========================================================= */
+
 showScreen("home");
+/* =========================================================
+   FINAL VIDEO UPLOAD UPDATE
+   Fresh Upload + Gallery Style Video Preview
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   Make sure multiple videos can be selected
+   --------------------------------------------------------- */
+
+const videoInput =
+    document.getElementById("videoFiles");
+
+if (videoInput) {
+
+    videoInput.setAttribute(
+        "multiple",
+        "multiple"
+    );
+
+    videoInput.setAttribute(
+        "accept",
+        "video/*"
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   Gallery preview styles
+   No CSS file editing required
+   --------------------------------------------------------- */
+
+if (!document.getElementById("videoGalleryStyles")) {
+
+    const style =
+        document.createElement("style");
+
+    style.id =
+        "videoGalleryStyles";
+
+    style.textContent = `
+
+        .video-gallery-preview {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .video-preview-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #15151c;
+            border: 1px solid rgba(145, 92, 255, 0.35);
+        }
+
+        .video-preview-card video {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            object-fit: cover;
+            background: #08080c;
+        }
+
+        .video-preview-info {
+            padding: 9px 10px 11px;
+        }
+
+        .video-preview-name {
+            font-size: 12px;
+            line-height: 1.35;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .video-preview-number {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            min-width: 28px;
+            height: 28px;
+            padding: 0 8px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.75);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .video-count-label {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(145, 92, 255, 0.10);
+            color: #d8c7ff;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .video-empty-message {
+            margin-top: 16px;
+            padding: 18px;
+            border-radius: 14px;
+            text-align: center;
+            color: #8f8f9d;
+            background: rgba(255,255,255,0.03);
+            font-size: 14px;
+        }
+
+        @media (min-width: 600px) {
+
+            .video-gallery-preview {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+            }
+
+        }
+
+    `;
+
+    document.head.appendChild(style);
+
+}
+
+
+/* ---------------------------------------------------------
+   Clear upload selection
+   --------------------------------------------------------- */
+
+function clearFreshUpload() {
+
+    const input =
+        document.getElementById(
+            "videoFiles"
+        );
+
+    const selected =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+
+    /*
+       Clear actual phone-file selection
+    */
+
+    if (input) {
+
+        input.value = "";
+
+    }
+
+
+    /*
+       Clear preview area
+    */
+
+    if (selected) {
+
+        selected.innerHTML = "";
+
+    }
+
+
+    /*
+       Clear current order video list
+    */
+
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+
+        currentOrder.videos = [];
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Create gallery container
+   --------------------------------------------------------- */
+
+function getVideoGalleryContainer() {
+
+    const selected =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+    if (!selected) return null;
+
+
+    /*
+       Reuse existing selectedFiles
+       element as our gallery container.
+    */
+
+    selected.className =
+        "video-gallery-wrapper";
+
+
+    return selected;
+
+}
+
+
+/* ---------------------------------------------------------
+   Format file size
+   --------------------------------------------------------- */
+
+function formatVideoSize(bytes) {
+
+    if (!bytes) return "";
+
+
+    const mb =
+        bytes / (1024 * 1024);
+
+
+    if (mb < 1) {
+
+        return Math.round(
+            bytes / 1024
+        ) + " KB";
+
+    }
+
+
+    return mb.toFixed(1) + " MB";
+
+}
+
+
+/* ---------------------------------------------------------
+   Show selected videos
+   --------------------------------------------------------- */
+
+function showVideoGallery(files) {
+
+    const container =
+        getVideoGalleryContainer();
+
+
+    if (!container) return;
+
+
+    container.innerHTML = "";
+
+
+    if (
+        !files ||
+        files.length === 0
+    ) {
+
+        container.innerHTML = `
+            <div class="video-empty-message">
+                No videos selected yet.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    /*
+       Gallery wrapper
+    */
+
+    const gallery =
+        document.createElement(
+            "div"
+        );
+
+
+    gallery.className =
+        "video-gallery-preview";
+
+
+    /*
+       Count label
+    */
+
+    const count =
+        document.createElement(
+            "div"
+        );
+
+
+    count.className =
+        "video-count-label";
+
+
+    count.textContent =
+        `${files.length} video${
+            files.length === 1
+                ? ""
+                : "s"
+        } selected`;
+
+
+    /*
+       Create each thumbnail
+    */
+
+    Array.from(files).forEach(
+        (file, index) => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "video-preview-card";
+
+
+            /*
+               Number badge
+            */
+
+            const number =
+                document.createElement(
+                    "div"
+                );
+
+
+            number.className =
+                "video-preview-number";
+
+
+            number.textContent =
+                index + 1;
+
+
+            /*
+               Video thumbnail
+            */
+
+            const video =
+                document.createElement(
+                    "video"
+                );
+
+
+            video.muted = true;
+
+            video.playsInline = true;
+
+            video.preload =
+                "metadata";
+
+
+            video.setAttribute(
+                "playsinline",
+                ""
+            );
+
+
+            /*
+               Create temporary preview URL
+            */
+
+            const previewURL =
+                URL.createObjectURL(
+                    file
+                );
+
+
+            video.src =
+                previewURL;
+
+
+            /*
+               Show first frame
+            */
+
+            video.addEventListener(
+                "loadedmetadata",
+                function() {
+
+                    try {
+
+                        if (
+                            video.duration >
+                            0.5
+                        ) {
+
+                            video.currentTime =
+                                0.1;
+
+                        }
+
+                    } catch (error) {}
+
+                }
+            );
+
+
+            /*
+               Release URL after video
+               element is no longer needed
+            */
+
+            video.addEventListener(
+                "error",
+                function() {
+
+                    URL.revokeObjectURL(
+                        previewURL
+                    );
+
+                }
+            );
+
+
+            /*
+               File information
+            */
+
+            const info =
+                document.createElement(
+                    "div"
+                );
+
+
+            info.className =
+                "video-preview-info";
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+
+            name.className =
+                "video-preview-name";
+
+
+            name.textContent =
+                file.name;
+
+
+            const size =
+                document.createElement(
+                    "div"
+                );
+
+
+            size.style.cssText =
+                `
+                margin-top:4px;
+                font-size:11px;
+                color:#777783;
+                `;
+
+
+            size.textContent =
+                formatVideoSize(
+                    file.size
+                );
+
+
+            info.appendChild(name);
+
+            info.appendChild(size);
+
+
+            card.appendChild(
+                video
+            );
+
+            card.appendChild(
+                number
+            );
+
+            card.appendChild(
+                info
+            );
+
+
+            gallery.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    container.appendChild(
+        gallery
+    );
+
+
+    container.appendChild(
+        count
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   NEW video selection handler
+   --------------------------------------------------------- */
+
+function newVideoSelectionHandler(
+    files
+) {
+
+    if (!files) return;
+
+
+    /*
+       Save ONLY the videos selected
+       for THIS current order.
+    */
+
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+
+        currentOrder.videos =
+            Array.from(files).map(
+                file => ({
+
+                    name:
+                        file.name,
+
+                    size:
+                        file.size
+
+                })
+            );
+
+    }
+
+
+    /*
+       Show gallery
+    */
+
+    showVideoGallery(
+        files
+    );
+
+
+    /*
+       Small confirmation
+    */
+
+    if (
+        typeof showToast ===
+        "function"
+    ) {
+
+        showToast(
+            `${files.length} video${
+                files.length === 1
+                    ? ""
+                    : "s"
+            } selected`,
+            "✓"
+        );
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Replace / override old upload handler
+   --------------------------------------------------------- */
+
+if (videoInput) {
+
+    videoInput.addEventListener(
+        "change",
+        function() {
+
+            newVideoSelectionHandler(
+                this.files
+            );
+
+        }
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   IMPORTANT:
+   Whenever Upload screen opens,
+   start with a completely fresh selection.
+   --------------------------------------------------------- */
+
+if (
+    typeof showScreen ===
+    "function"
+) {
+
+    const originalShowScreen =
+        showScreen;
+
+
+    window.showScreen =
+        function(screenId) {
+
+            /*
+               Every time we enter Upload screen,
+               clear old selected videos.
+
+               So even if user presses Back
+               and returns again, it is empty.
+            */
+
+            if (
+                screenId ===
+                "order-upload"
+            ) {
+
+                clearFreshUpload();
+
+            }
+
+
+            originalShowScreen(
+                screenId
+            );
+
+        };
+
+}
+
+
+/* ---------------------------------------------------------
+   Extra protection:
+   Start a completely fresh upload
+   whenever New Order is clicked.
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const button =
+            event.target.closest(
+                "[data-screen]"
+            );
+
+
+        if (!button) return;
+
+
+        const target =
+            button.dataset.screen;
+
+
+        /*
+           New Order
+        */
+
+        if (
+            target === "order"
+        ) {
+
+            clearFreshUpload();
+
+        }
+
+    },
+    true
+);
+
+
+/* ---------------------------------------------------------
+   Clear upload after successful order
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const button =
+            event.target.closest(
+                "#submitOrderButton"
+            );
+
+
+        if (!button) return;
+
+
+        /*
+           Wait until existing submit logic
+           finishes saving the order.
+        */
+
+        setTimeout(
+            function() {
+
+                clearFreshUpload();
+
+            },
+            700
+        );
+
+    },
+    true
+);
+
+
+/* =========================================================
+   END VIDEO UPLOAD UPDATE
+   ========================================================= */
+
+
+/* =========================================================
+   MULTI-SELECT VIDEO FIX
+   Add more videos without removing previous videos
+   ========================================================= */
+
+window.GGHQ_SELECTED_VIDEO_FILES =
+    window.GGHQ_SELECTED_VIDEO_FILES ||
+    [];
+
+
+/* ---------------------------------------------------------
+   Render all selected videos
+   --------------------------------------------------------- */
+
+function GGHQ_renderAllVideos() {
+
+    const container =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+
+    if (!container) return;
+
+
+    container.innerHTML = "";
+
+
+    const files =
+        window.GGHQ_SELECTED_VIDEO_FILES;
+
+
+    if (!files.length) {
+
+        container.innerHTML = `
+            <div class="video-empty-message">
+                No videos selected yet.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const gallery =
+        document.createElement(
+            "div"
+        );
+
+
+    gallery.className =
+        "video-gallery-preview";
+
+
+    files.forEach(
+        (file, index) => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "video-preview-card";
+
+
+            const number =
+                document.createElement(
+                    "div"
+                );
+
+
+            number.className =
+                "video-preview-number";
+
+
+            number.textContent =
+                index + 1;
+
+
+            const video =
+                document.createElement(
+                    "video"
+                );
+
+
+            video.muted = true;
+
+            video.playsInline = true;
+
+            video.preload =
+                "metadata";
+
+
+            video.setAttribute(
+                "playsinline",
+                ""
+            );
+
+
+            const previewURL =
+                URL.createObjectURL(
+                    file
+                );
+
+
+            video.src =
+                previewURL;
+
+
+            video.addEventListener(
+                "loadedmetadata",
+                function() {
+
+                    try {
+
+                        if (
+                            video.duration >
+                            0.2
+                        ) {
+
+                            video.currentTime =
+                                0.1;
+
+                        }
+
+                    } catch (e) {}
+
+                }
+            );
+
+
+            const info =
+                document.createElement(
+                    "div"
+                );
+
+
+            info.className =
+                "video-preview-info";
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+
+            name.className =
+                "video-preview-name";
+
+
+            name.textContent =
+                file.name;
+
+
+            info.appendChild(
+                name
+            );
+
+
+            card.appendChild(
+                video
+            );
+
+
+            card.appendChild(
+                number
+            );
+
+
+            card.appendChild(
+                info
+            );
+
+
+            gallery.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    container.appendChild(
+        gallery
+    );
+
+
+    const count =
+        document.createElement(
+            "div"
+        );
+
+
+    count.className =
+        "video-count-label";
+
+
+    count.textContent =
+        `${files.length} video${
+            files.length === 1
+                ? ""
+                : "s"
+        } selected`;
+
+
+    container.appendChild(
+        count
+    );
+
+
+    /*
+       Keep currentOrder in sync
+    */
+
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+
+        currentOrder.videos =
+            files.map(
+                file => ({
+
+                    name:
+                        file.name,
+
+                    size:
+                        file.size
+
+                })
+            );
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   File size
+   --------------------------------------------------------- */
+
+function GGHQ_formatFileSize(
+    bytes
+) {
+
+    if (!bytes) return "";
+
+
+    const mb =
+        bytes /
+        (1024 * 1024);
+
+
+    if (mb <
+                    if (!exists) {
+
+                window
+                    .GGHQ_SELECTED_VIDEO_FILES
+                    .push(
+                        newFile
+                    );
+
+            }
+
+        }
+    );
+
+
+    /*
+       Keep current order synced.
+    */
+
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+
+        currentOrder.videos =
+            window
+                .GGHQ_SELECTED_VIDEO_FILES
+                .map(
+                    file => ({
+
+                        name:
+                            file.name,
+
+                        size:
+                            file.size
+
+                    })
+                );
+
+    }
+
+
+    /*
+       SHOW CLEAR CONFIRMATION
+    */
+
+    GGHQ_renderSelectedConfirmation();
+
+
+    /*
+       Clear input so another
+       selection can be added.
+    */
+
+    this.value = "";
+
+
+    if (
+        typeof showToast ===
+        "function"
+    ) {
+
+        showToast(
+            `${
+                window
+                    .GGHQ_SELECTED_VIDEO_FILES
+                    .length
+            } videos selected`,
+            "✓"
+        );
+
+    }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   END SELECTED VIDEO CONFIRMATION
+   ========================================================= */
+
+
+/* =========================================================
+   SUPABASE STATUS
+   ========================================================= */
+
+if (!supabaseReady()) {
+
+    console.warn(
+        "GGHQ: Supabase URL is still missing. Add your Supabase Project URL."
+    );
+
+    }
