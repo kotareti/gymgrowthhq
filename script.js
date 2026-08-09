@@ -162,13 +162,11 @@ function showToast(
 
     if (!toast) return;
 
-    if (text) {
+    if (text)
         text.textContent = message;
-    }
 
-    if (iconEl) {
+    if (iconEl)
         iconEl.textContent = icon;
-    }
 
     toast.classList.add("show");
 
@@ -229,7 +227,6 @@ function showScreen(id) {
     }
 
     if (id === "order-details") {
-
         const order =
             findCurrentOrder();
 
@@ -241,7 +238,6 @@ function showScreen(id) {
     }
 
     if (id === "order-project") {
-
         ensureCreativeBriefFields();
 
         setTimeout(() => {
@@ -495,11 +491,8 @@ function startOrder() {
     currentOrder.goal = "";
     currentOrder.notes = "";
     currentOrder.instructions = "";
-
     currentOrder.creativeBrief =
         createEmptyCreativeBrief();
-
-    currentOrder.videos = [];
 
     fillClientDetails();
 
@@ -536,12 +529,10 @@ function loginUser() {
         passwordInput.value;
 
     if (!email || !password) {
-
         showToast(
             "Enter email and password",
             "!"
         );
-
         return;
     }
 
@@ -556,12 +547,10 @@ function loginUser() {
         );
 
     if (!user) {
-
         showToast(
             "Account not found",
             "!"
         );
-
         return;
     }
 
@@ -569,29 +558,19 @@ function loginUser() {
         user.password !==
         password
     ) {
-
         showToast(
             "Wrong password",
             "!"
         );
-
         return;
     }
 
     currentUser = {
-
-        id:
-            user.id,
-
-        name:
-            user.name,
-
-        email:
-            user.email,
-
+        id: user.id,
+        name: user.name,
+        email: user.email,
         gymName:
             user.gymName || "",
-
         instagram:
             user.instagram || ""
     };
@@ -661,24 +640,20 @@ function createAccount() {
         !email ||
         !password
     ) {
-
         showToast(
             "Please fill all details",
             "!"
         );
-
         return;
     }
 
     if (
         password.length < 6
     ) {
-
         showToast(
             "Password must be at least 6 characters",
             "!"
         );
-
         return;
     }
 
@@ -692,17 +667,14 @@ function createAccount() {
                 email
         )
     ) {
-
         showToast(
             "Email already registered",
             "!"
         );
-
         return;
     }
 
     const newUser = {
-
         id:
             "USER-" +
             Date.now(),
@@ -733,7 +705,6 @@ function createAccount() {
     saveUsers(users);
 
     currentUser = {
-
         id:
             newUser.id,
 
@@ -784,7 +755,6 @@ function logoutUser() {
     clearAllSelectedVideos();
 
     currentOrder = {
-
         service: "",
         plan: "",
         clientName: "",
@@ -793,10 +763,8 @@ function logoutUser() {
         goal: "",
         notes: "",
         instructions: "",
-
         creativeBrief:
             createEmptyCreativeBrief(),
-
         videos: []
     };
 
@@ -838,11 +806,9 @@ function selectService(service) {
         service ===
         "reel-editing"
     ) {
-
         showScreen(
             "plan-reel-editing"
         );
-
         return;
     }
 
@@ -850,11 +816,9 @@ function selectService(service) {
         service ===
         "transformation"
     ) {
-
         showScreen(
             "plan-transformation"
         );
-
         return;
     }
 }
@@ -893,6 +857,7 @@ function selectPlan(
     } else {
 
         showScreen("login");
+
     }
 }
 
@@ -1063,6 +1028,7 @@ function ensureCreativeBriefFields() {
             screen.appendChild(
                 wrapper
             );
+
         }
     }
 
@@ -1071,6 +1037,13 @@ function ensureCreativeBriefFields() {
 
 
 function saveCreativeBrief() {
+
+    if (
+        typeof currentOrder ===
+        "undefined"
+    ) {
+        return;
+    }
 
     currentOrder.creativeBrief = {
 
@@ -1317,7 +1290,6 @@ function formatVideoSize(bytes) {
         (1024 * 1024);
 
     if (mb < 1) {
-
         return Math.round(
             bytes / 1024
         ) + " KB";
@@ -1351,8 +1323,13 @@ function clearAllSelectedVideos() {
         container.innerHTML = "";
     }
 
-    currentOrder.videos =
-        [];
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+        currentOrder.videos =
+            [];
+    }
 }
 
 
@@ -1430,7 +1407,8 @@ function renderSelectedVideos() {
 
             video.muted = true;
             video.playsInline = true;
-            video.preload = "metadata";
+            video.preload =
+                "metadata";
 
             video.setAttribute(
                 "playsinline",
@@ -1556,14 +1534,10 @@ function renderSelectedVideos() {
             file => ({
                 name:
                     file.name,
-
                 size:
                     file.size,
-
                 type:
-                    file.type ||
-                    "video/mp4",
-
+                    file.type || "video/mp4",
                 lastModified:
                     file.lastModified
             })
@@ -1661,6 +1635,7 @@ if (GGHQ_videoInput) {
             handleVideoSelection(
                 this.files
             );
+
         }
     );
 }
@@ -1716,215 +1691,6 @@ function updateReview() {
         "reviewVideos",
         currentOrder.videos.length +
         " video(s)"
-    );
-
-
-    /* =====================================================
-       CREATIVE BRIEF IN REVIEW
-       ===================================================== */
-
-    const reviewVideos =
-        document.getElementById(
-            "reviewVideos"
-        );
-
-    if (!reviewVideos) {
-        return;
-    }
-
-    const oldBrief =
-        document.getElementById(
-            "gghqReviewCreativeBrief"
-        );
-
-    if (oldBrief) {
-        oldBrief.remove();
-    }
-
-    const brief =
-        currentOrder.creativeBrief ||
-        createEmptyCreativeBrief();
-
-    const wrapper =
-        document.createElement(
-            "div"
-        );
-
-    wrapper.id =
-        "gghqReviewCreativeBrief";
-
-    wrapper.style.cssText = `
-        margin-top:20px;
-        padding:18px;
-        border-radius:18px;
-        background:rgba(145,92,255,0.07);
-        border:1px solid rgba(145,92,255,0.30);
-    `;
-
-
-    const title =
-        document.createElement(
-            "div"
-        );
-
-    title.textContent =
-        "🎬 Creative Brief";
-
-    title.style.cssText = `
-        margin-bottom:16px;
-        color:#ffffff;
-        font-size:17px;
-        font-weight:800;
-    `;
-
-    wrapper.appendChild(
-        title
-    );
-
-
-    const fields = [
-
-        [
-            "🔥 Trend / Reference",
-            brief.trend
-        ],
-
-        [
-            "🎵 Song / Audio",
-            brief.song
-        ],
-
-        [
-            "🎨 Editing Style",
-            brief.editingStyle
-        ],
-
-        [
-            "🎥 Shot Instructions",
-            brief.shotInstructions
-        ],
-
-        [
-            "✍️ Hook / On-screen Text",
-            brief.hook
-        ],
-
-        [
-            "📢 CTA",
-            brief.cta
-        ],
-
-        [
-            "📝 Special Instructions",
-            brief.specialInstructions
-        ]
-    ];
-
-
-    let hasContent =
-        false;
-
-
-    fields.forEach(
-        ([label, value]) => {
-
-            if (
-                value ===
-                    undefined ||
-                value ===
-                    null ||
-                !String(value).trim()
-            ) {
-                return;
-            }
-
-            hasContent =
-                true;
-
-            const row =
-                document.createElement(
-                    "div"
-                );
-
-            row.style.cssText = `
-                margin-bottom:14px;
-            `;
-
-
-            const labelEl =
-                document.createElement(
-                    "div"
-                );
-
-            labelEl.textContent =
-                label;
-
-            labelEl.style.cssText = `
-                color:#cdb5ff;
-                font-size:12px;
-                font-weight:700;
-                margin-bottom:5px;
-            `;
-
-
-            const valueEl =
-                document.createElement(
-                    "div"
-                );
-
-            valueEl.textContent =
-                value;
-
-            valueEl.style.cssText = `
-                color:#ffffff;
-                font-size:13px;
-                line-height:1.55;
-                white-space:pre-wrap;
-            `;
-
-
-            row.appendChild(
-                labelEl
-            );
-
-            row.appendChild(
-                valueEl
-            );
-
-            wrapper.appendChild(
-                row
-            );
-        }
-    );
-
-
-    if (!hasContent) {
-
-        const empty =
-            document.createElement(
-                "div"
-            );
-
-        empty.textContent =
-            "No creative brief added.";
-
-        empty.style.cssText = `
-            padding:14px;
-            border-radius:12px;
-            background:rgba(255,255,255,0.03);
-            color:#8f8f9d;
-            font-size:13px;
-        `;
-
-        wrapper.appendChild(
-            empty
-        );
-    }
-
-
-    reviewVideos.insertAdjacentElement(
-        "afterend",
-        wrapper
     );
 }
 
@@ -2026,12 +1792,10 @@ async function uploadOrderVideos(
                 "/storage/v1/object/order-videos/" +
                 encodedPath,
                 {
-
                     method:
                         "POST",
 
                     headers: {
-
                         "apikey":
                             SUPABASE_PUBLISHABLE_KEY,
 
@@ -2101,9 +1865,7 @@ async function uploadOrderVideos(
 async function submitOrder() {
 
     if (!currentUser) {
-
         showScreen("login");
-
         return;
     }
 
@@ -2115,12 +1877,10 @@ async function submitOrder() {
         );
 
         showScreen("services");
-
         return;
     }
 
     if (!currentOrder.plan) {
-
         currentOrder.plan =
             "standard";
     }
@@ -2129,11 +1889,9 @@ async function submitOrder() {
 
     saveCreativeBrief();
 
-
     const orderId =
         "GGHQ-" +
         Date.now();
-
 
     const order = {
 
@@ -2191,20 +1949,17 @@ async function submitOrder() {
             new Date().toISOString()
     };
 
-
     try {
 
         const selectedVideoFiles =
             window.GGHQ_SELECTED_VIDEO_FILES ||
             [];
 
-
         const uploadedVideos =
             await uploadOrderVideos(
                 orderId,
                 selectedVideoFiles
             );
-
 
         order.videos =
             uploadedVideos;
@@ -2527,20 +2282,17 @@ function renderOrders() {
                 card.className =
                     "order-history-card";
 
-
                 const service =
                     order.service ===
                     "reel-editing"
                         ? "Reel Editing"
                         : "Transformation Reel";
 
-
                 const plan =
                     order.plan ===
                     "premium"
                         ? "Premium"
                         : "Standard";
-
 
                 card.innerHTML = `
 
@@ -2574,7 +2326,6 @@ function renderOrders() {
                     </span>
                 `;
 
-
                 card.addEventListener(
                     "click",
                     () => {
@@ -2591,7 +2342,6 @@ function renderOrders() {
                         );
                     }
                 );
-
 
                 list.appendChild(
                     card
@@ -2623,7 +2373,6 @@ function renderOrderDetails(
             ? "Premium"
             : "Standard";
 
-
     setText(
         "detailOrderNumber",
         "#" +
@@ -2633,43 +2382,36 @@ function renderOrderDetails(
         )
     );
 
-
     setText(
         "detailOrderStatus",
         order.deliveryStatus ||
         order.status
     );
 
-
     setText(
         "detailService",
         service
     );
-
 
     setText(
         "detailPlan",
         plan
     );
 
-
     setText(
         "detailClient",
         order.clientName
     );
-
 
     setText(
         "detailGym",
         order.gymName
     );
 
-
     setText(
         "detailGoal",
         order.goal
     );
-
 
     setText(
         "detailVideos",
@@ -2679,18 +2421,15 @@ function renderOrderDetails(
             : "—"
     );
 
-
     setText(
         "detailInstructions",
         order.instructions ||
         "—"
     );
 
-
     renderOrderCreativeBrief(
         order
     );
-
 
     renderOrderVideoGallery(
         order
@@ -2713,32 +2452,26 @@ function renderOrderCreativeBrief(
 
     if (!detailVideos) return;
 
-
     const oldBrief =
         document.getElementById(
             "gghqOrderCreativeBrief"
         );
 
-
     if (oldBrief) {
         oldBrief.remove();
     }
 
-
     const brief =
         order.creativeBrief ||
         {};
-
 
     const wrapper =
         document.createElement(
             "div"
         );
 
-
     wrapper.id =
         "gghqOrderCreativeBrief";
-
 
     wrapper.style.cssText = `
         margin-top:18px;
@@ -2748,16 +2481,13 @@ function renderOrderCreativeBrief(
         border:1px solid rgba(145,92,255,0.30);
     `;
 
-
     const title =
         document.createElement(
             "div"
         );
 
-
     title.textContent =
         "🎬 Creative Brief";
-
 
     title.style.cssText = `
         margin-bottom:14px;
@@ -2766,11 +2496,9 @@ function renderOrderCreativeBrief(
         color:#ffffff;
     `;
 
-
     wrapper.appendChild(
         title
     );
-
 
     const fields = [
 
@@ -2810,49 +2538,41 @@ function renderOrderCreativeBrief(
         ]
     ];
 
-
     let hasContent =
         false;
-
 
     fields.forEach(
         ([label, value]) => {
 
             if (
                 value ===
-                    undefined ||
+                undefined ||
                 value ===
-                    null ||
+                null ||
                 !String(value).trim()
             ) {
                 return;
             }
 
-
             hasContent =
                 true;
-
 
             const row =
                 document.createElement(
                     "div"
                 );
 
-
             row.style.cssText = `
                 margin-bottom:12px;
             `;
-
 
             const labelEl =
                 document.createElement(
                     "div"
                 );
 
-
             labelEl.textContent =
                 label;
-
 
             labelEl.style.cssText = `
                 color:#cdb5ff;
@@ -2861,16 +2581,13 @@ function renderOrderCreativeBrief(
                 margin-bottom:5px;
             `;
 
-
             const valueEl =
                 document.createElement(
                     "div"
                 );
 
-
             valueEl.textContent =
                 value;
-
 
             valueEl.style.cssText = `
                 color:#ffffff;
@@ -2879,23 +2596,19 @@ function renderOrderCreativeBrief(
                 white-space:pre-wrap;
             `;
 
-
             row.appendChild(
                 labelEl
             );
 
-
             row.appendChild(
                 valueEl
             );
-
 
             wrapper.appendChild(
                 row
             );
         }
     );
-
 
     if (!hasContent) {
 
@@ -2904,10 +2617,8 @@ function renderOrderCreativeBrief(
                 "div"
             );
 
-
         empty.textContent =
             "No creative brief was saved for this order.";
-
 
         empty.style.cssText = `
             padding:14px;
@@ -2917,12 +2628,10 @@ function renderOrderCreativeBrief(
             font-size:13px;
         `;
 
-
         wrapper.appendChild(
             empty
         );
     }
-
 
     detailVideos.insertAdjacentElement(
         "afterend",
@@ -2946,17 +2655,14 @@ function renderOrderVideoGallery(
 
     if (!detailVideos) return;
 
-
     const oldGallery =
         document.getElementById(
             "gghqOrderVideoGallery"
         );
 
-
     if (oldGallery) {
         oldGallery.remove();
     }
-
 
     const videos =
         Array.isArray(
@@ -2971,16 +2677,13 @@ function renderOrderVideoGallery(
             )
             : [];
 
-
     const wrapper =
         document.createElement(
             "div"
         );
 
-
     wrapper.id =
         "gghqOrderVideoGallery";
-
 
     wrapper.style.cssText = `
         margin-top:18px;
@@ -2990,16 +2693,13 @@ function renderOrderVideoGallery(
         border:1px solid rgba(145,92,255,0.30);
     `;
 
-
     const title =
         document.createElement(
             "div"
         );
 
-
     title.textContent =
         "🎬 Uploaded Videos";
-
 
     title.style.cssText = `
         margin-bottom:12px;
@@ -3008,11 +2708,9 @@ function renderOrderVideoGallery(
         color:#ffffff;
     `;
 
-
     wrapper.appendChild(
         title
     );
-
 
     if (!videos.length) {
 
@@ -3021,10 +2719,8 @@ function renderOrderVideoGallery(
                 "div"
             );
 
-
         empty.textContent =
             "No saved video preview is available for this order.";
-
 
         empty.style.cssText = `
             padding:14px;
@@ -3033,7 +2729,6 @@ function renderOrderVideoGallery(
             color:#8f8f9d;
             font-size:13px;
         `;
-
 
         wrapper.appendChild(
             empty
@@ -3046,13 +2741,11 @@ function renderOrderVideoGallery(
                 "div"
             );
 
-
         grid.style.cssText = `
             display:grid;
             grid-template-columns:repeat(1,minmax(0,1fr));
             gap:14px;
         `;
-
 
         videos.forEach(
             (video, index) => {
@@ -3062,7 +2755,6 @@ function renderOrderVideoGallery(
                         "div"
                     );
 
-
                 card.style.cssText = `
                     overflow:hidden;
                     border-radius:14px;
@@ -3070,28 +2762,22 @@ function renderOrderVideoGallery(
                     border:1px solid rgba(145,92,255,0.35);
                 `;
 
-
                 const player =
                     document.createElement(
                         "video"
                     );
 
-
                 player.src =
                     video.url;
-
 
                 player.controls =
                     true;
 
-
                 player.playsInline =
                     true;
 
-
                 player.preload =
                     "metadata";
-
 
                 player.style.cssText = `
                     display:block;
@@ -3100,22 +2786,18 @@ function renderOrderVideoGallery(
                     background:#08080c;
                 `;
 
-
                 const info =
                     document.createElement(
                         "div"
                     );
 
-
                 info.style.cssText =
                     "padding:10px 12px 12px;";
-
 
                 const name =
                     document.createElement(
                         "div"
                     );
-
 
                 name.textContent =
                     (
@@ -3127,7 +2809,6 @@ function renderOrderVideoGallery(
                         "Video"
                     );
 
-
                 name.style.cssText = `
                     color:#ffffff;
                     font-size:13px;
@@ -3137,28 +2818,22 @@ function renderOrderVideoGallery(
                     white-space:nowrap;
                 `;
 
-
                 const open =
                     document.createElement(
                         "a"
                     );
 
-
                 open.href =
                     video.url;
-
 
                 open.target =
                     "_blank";
 
-
                 open.rel =
                     "noopener noreferrer";
 
-
                 open.textContent =
                     "Open Video ↗";
-
 
                 open.style.cssText = `
                     display:inline-block;
@@ -3168,26 +2843,21 @@ function renderOrderVideoGallery(
                     text-decoration:none;
                 `;
 
-
                 info.appendChild(
                     name
                 );
-
 
                 info.appendChild(
                     open
                 );
 
-
                 card.appendChild(
                     player
                 );
 
-
                 card.appendChild(
                     info
                 );
-
 
                 grid.appendChild(
                     card
@@ -3195,12 +2865,10 @@ function renderOrderVideoGallery(
             }
         );
 
-
         wrapper.appendChild(
             grid
         );
     }
-
 
     detailVideos.insertAdjacentElement(
         "afterend",
@@ -3224,10 +2892,8 @@ if (
             "style"
         );
 
-
     style.id =
         "gghqVideoStyles";
-
 
     style.textContent = `
 
@@ -3339,14 +3005,12 @@ if (
         }
 
         @media (min-width:600px) {
-
             .video-gallery-preview {
                 grid-template-columns:
                     repeat(3,minmax(0,1fr));
             }
         }
     `;
-
 
     document.head.appendChild(
         style
@@ -3372,10 +3036,8 @@ function restoreSession() {
         return;
     }
 
-
     const users =
         getUsers();
-
 
     const user =
         users.find(
@@ -3385,7 +3047,6 @@ function restoreSession() {
                 item.email ===
                     session.email
         );
-
 
     if (!user) {
 
@@ -3397,7 +3058,6 @@ function restoreSession() {
 
         return;
     }
-
 
     currentUser = {
 
@@ -3417,7 +3077,6 @@ function restoreSession() {
             user.instagram || ""
     };
 
-
     updateAccountUI();
 }
 
@@ -3436,6 +3095,19 @@ document.addEventListener(
             );
 
         if (!button) return;
+
+
+        /* SUBMIT ORDER — delegated handler
+           This works even when script.js loads before the button exists. */
+
+        if (button.id === "submitOrderButton") {
+
+            event.preventDefault();
+
+            submitOrder();
+
+            return;
+        }
 
 
         /* ACCOUNT */
@@ -3521,7 +3193,6 @@ document.addEventListener(
             const service =
                 button.dataset.planDetail;
 
-
             if (
                 service ===
                 "reel-editing"
@@ -3532,7 +3203,6 @@ document.addEventListener(
                 );
             }
 
-
             if (
                 service ===
                 "transformation"
@@ -3542,7 +3212,6 @@ document.addEventListener(
                     "plan-transformation"
                 );
             }
-
 
             return;
         }
@@ -3559,12 +3228,10 @@ document.addEventListener(
             const service =
                 button.dataset.plan;
 
-
             selectPlan(
                 service,
                 "standard"
             );
-
 
             return;
         }
@@ -3584,7 +3251,6 @@ document.addEventListener(
                 )
             );
 
-
             return;
         }
 
@@ -3603,7 +3269,6 @@ document.addEventListener(
                 )
             );
 
-
             return;
         }
 
@@ -3616,20 +3281,16 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             if (
                 button.dataset.screen ===
                 "order"
             ) {
-
                 clearAllSelectedVideos();
             }
-
 
             showScreen(
                 button.dataset.screen
             );
-
 
             return;
         }
@@ -3727,99 +3388,7 @@ document
 
 
 /* =========================================================
-   SUBMIT
-   ========================================================= */
-
-document
-    .getElementById(
-        "submitOrderButton"
-    )
-    ?.addEventListener(
-        "click",
-        function(event) {
-
-            event.preventDefault();
-
-            submitOrder();
-        }
-    );
-
-
-/* =========================================================
    RESTORE SESSION
-   ========================================================= */
-
-function restoreSession() {
-
-    const session =
-        getSession();
-
-    if (!session) {
-
-        currentUser = null;
-
-        updateAccountUI();
-
-        return;
-    }
-
-
-    const users =
-        getUsers();
-
-
-    const user =
-        users.find(
-            item =>
-                item.id ===
-                    session.id &&
-                item.email ===
-                    session.email
-        );
-
-
-    if (!user) {
-
-        clearSession();
-
-        currentUser = null;
-
-        updateAccountUI();
-
-        return;
-    }
-
-
-    currentUser = {
-
-        id:
-            user.id,
-
-        name:
-            user.name,
-
-        email:
-            user.email,
-
-        gymName:
-            user.gymName || "",
-
-        instagram:
-            user.instagram || ""
-    };
-
-
-    saveSession(
-        currentUser
-    );
-
-
-    updateAccountUI();
-}
-
-
-/* =========================================================
-   INITIALIZE
    ========================================================= */
 
 restoreSession();
@@ -3835,7 +3404,6 @@ showScreen("home");
 /* =========================================================
    SUPABASE NOTE
    =========================================================
-
    Before submitting an order with creative_brief,
    the Supabase orders table must have this column:
 
@@ -3844,5 +3412,4 @@ showScreen("home");
    creative_brief jsonb DEFAULT '{}'::jsonb;
 
    Run that SQL once in Supabase SQL Editor.
-
    ========================================================= */
