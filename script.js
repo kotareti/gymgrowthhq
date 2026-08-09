@@ -3714,3 +3714,135 @@ document
         "goToLogin"
     )
     ?.addEventListener(
+        "click",
+        function(event) {
+
+            event.preventDefault();
+
+            showScreen(
+                "login"
+            );
+        }
+    );
+
+
+/* =========================================================
+   SUBMIT
+   ========================================================= */
+
+document
+    .getElementById(
+        "submitOrderButton"
+    )
+    ?.addEventListener(
+        "click",
+        function(event) {
+
+            event.preventDefault();
+
+            submitOrder();
+        }
+    );
+
+
+/* =========================================================
+   RESTORE SESSION
+   ========================================================= */
+
+function restoreSession() {
+
+    const session =
+        getSession();
+
+    if (!session) {
+
+        currentUser = null;
+
+        updateAccountUI();
+
+        return;
+    }
+
+
+    const users =
+        getUsers();
+
+
+    const user =
+        users.find(
+            item =>
+                item.id ===
+                    session.id &&
+                item.email ===
+                    session.email
+        );
+
+
+    if (!user) {
+
+        clearSession();
+
+        currentUser = null;
+
+        updateAccountUI();
+
+        return;
+    }
+
+
+    currentUser = {
+
+        id:
+            user.id,
+
+        name:
+            user.name,
+
+        email:
+            user.email,
+
+        gymName:
+            user.gymName || "",
+
+        instagram:
+            user.instagram || ""
+    };
+
+
+    saveSession(
+        currentUser
+    );
+
+
+    updateAccountUI();
+}
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+restoreSession();
+
+
+/* =========================================================
+   INITIAL SCREEN
+   ========================================================= */
+
+showScreen("home");
+
+
+/* =========================================================
+   SUPABASE NOTE
+   =========================================================
+
+   Before submitting an order with creative_brief,
+   the Supabase orders table must have this column:
+
+   ALTER TABLE public.orders
+   ADD COLUMN IF NOT EXISTS
+   creative_brief jsonb DEFAULT '{}'::jsonb;
+
+   Run that SQL once in Supabase SQL Editor.
+
+   ========================================================= */
