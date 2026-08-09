@@ -1,7 +1,7 @@
 /* =========================================================
    GYM GROWTH HQ
+   ACCOUNT + ORDERS + LOGIN
    FINAL JAVASCRIPT
-   LOGIN + SIGNUP + ORDER FLOW
    ========================================================= */
 
 
@@ -23,6 +23,8 @@ const AppState = {
 
     currentUser: null,
 
+    currentOrderId: null,
+
     orderData: {
 
         clientName: "",
@@ -40,6 +42,24 @@ const AppState = {
         videoFiles: []
 
     }
+
+};
+
+
+/* =========================================================
+   STORAGE KEYS
+   ========================================================= */
+
+const STORAGE = {
+
+    USER:
+        "gym_growth_user",
+
+    ORDERS:
+        "gym_growth_orders",
+
+    LOGIN:
+        "gym_growth_logged_in"
 
 };
 
@@ -65,22 +85,127 @@ function $all(selector) {
 
 
 /* =========================================================
+   LOCAL STORAGE
+   ========================================================= */
+
+function saveUser(user) {
+
+    localStorage.setItem(
+        STORAGE.USER,
+        JSON.stringify(user)
+    );
+
+}
+
+
+function getSavedUser() {
+
+    const data =
+        localStorage.getItem(
+            STORAGE.USER
+        );
+
+    if (!data) {
+
+        return null;
+
+    }
+
+    try {
+
+        return JSON.parse(data);
+
+    } catch (error) {
+
+        return null;
+
+    }
+
+}
+
+
+function saveOrders(orders) {
+
+    localStorage.setItem(
+        STORAGE.ORDERS,
+        JSON.stringify(orders)
+    );
+
+}
+
+
+function getOrders() {
+
+    const data =
+        localStorage.getItem(
+            STORAGE.ORDERS
+        );
+
+    if (!data) {
+
+        return [];
+
+    }
+
+    try {
+
+        return JSON.parse(data);
+
+    } catch (error) {
+
+        return [];
+
+    }
+
+}
+
+
+function setLoggedIn(value) {
+
+    localStorage.setItem(
+        STORAGE.LOGIN,
+        value
+            ? "true"
+            : "false"
+    );
+
+}
+
+
+function isStoredLoggedIn() {
+
+    return (
+        localStorage.getItem(
+            STORAGE.LOGIN
+        ) === "true"
+    );
+
+}
+
+
+/* =========================================================
    SCREEN MAP
    ========================================================= */
 
 const screens = {
 
-    home: "home",
+    home:
+        "home",
 
-    services: "services",
+    services:
+        "services",
 
-    "reel-editing": "reel-editing",
+    "reel-editing":
+        "reel-editing",
 
-    transformation: "transformation",
+    transformation:
+        "transformation",
 
-    "gym-promotion": "gym-promotion",
+    "gym-promotion":
+        "gym-promotion",
 
-    pricing: "pricing",
+    pricing:
+        "pricing",
 
     "plan-reel-editing":
         "plan-reel-editing",
@@ -91,11 +216,14 @@ const screens = {
     "plan-gym-promotion":
         "plan-gym-promotion",
 
-    login: "login",
+    login:
+        "login",
 
-    signup: "signup",
+    signup:
+        "signup",
 
-    order: "order",
+    order:
+        "order",
 
     "order-project":
         "order-project",
@@ -112,7 +240,17 @@ const screens = {
     "order-success":
         "order-success",
 
-    support: "support"
+    account:
+        "account",
+
+    orders:
+        "orders",
+
+    "order-details":
+        "order-details",
+
+    support:
+        "support"
 
 };
 
@@ -137,8 +275,8 @@ function getScreen(name) {
 
 function hideAllScreens() {
 
-    $all(".app-screen").forEach(
-        screen => {
+    $all(".app-screen")
+        .forEach(screen => {
 
             screen.classList.remove(
                 "active-screen"
@@ -149,16 +287,10 @@ function hideAllScreens() {
                 "true"
             );
 
-            /*
-             * Important:
-             * Only one screen is visible.
-             */
-
             screen.style.display =
                 "none";
 
-        }
-    );
+        });
 
 }
 
@@ -216,6 +348,9 @@ function showScreen(name) {
     updateFloatingHome(
         screen.id
     );
+
+
+    updateAccountUI();
 
 }
 
@@ -318,7 +453,7 @@ function getPlanName(
 
 
 /* =========================================================
-   GENERIC SCREEN BUTTONS
+   SCREEN BUTTONS
    ========================================================= */
 
 function setupScreenButtons() {
@@ -347,10 +482,6 @@ function setupScreenButtons() {
                 button.dataset.screen;
 
 
-            /*
-             * Save selected service.
-             */
-
             if (
                 button.dataset.service
             ) {
@@ -360,10 +491,6 @@ function setupScreenButtons() {
 
             }
 
-
-            /*
-             * Save selected plan.
-             */
 
             if (
                 button.dataset.plan
@@ -376,9 +503,7 @@ function setupScreenButtons() {
 
 
             /*
-             * Start Order.
-             *
-             * Login must happen first.
+             * Order requires login.
              */
 
             if (
@@ -400,6 +525,31 @@ function setupScreenButtons() {
                 }
 
                 return;
+
+            }
+
+
+            /*
+             * Account requires login.
+             */
+
+            if (
+                target === "account" ||
+                target === "orders" ||
+                target === "order-details"
+            ) {
+
+                if (
+                    !AppState.isLoggedIn
+                ) {
+
+                    showScreen(
+                        "login"
+                    );
+
+                    return;
+
+                }
 
             }
 
@@ -525,6 +675,26 @@ function startOrder() {
         1;
 
 
+    /*
+     * If account name exists,
+     * automatically put it in form.
+     */
+
+    const clientName =
+        $("#clientName");
+
+
+    if (
+        clientName &&
+        AppState.currentUser
+    ) {
+
+        clientName.value =
+            AppState.currentUser.name || "";
+
+    }
+
+
     showScreen(
         "order"
     );
@@ -541,15 +711,20 @@ function startOrder() {
 
 const orderRooms = {
 
-    1: "order",
+    1:
+        "order",
 
-    2: "order-project",
+    2:
+        "order-project",
 
-    3: "order-upload",
+    3:
+        "order-upload",
 
-    4: "order-instructions",
+    4:
+        "order-instructions",
 
-    5: "order-review"
+    5:
+        "order-review"
 
 };
 
@@ -575,11 +750,6 @@ function goToOrderStep(
 
     }
 
-
-    /*
-     * Save current information
-     * before moving to next room.
-     */
 
     collectOrderData();
 
@@ -642,10 +812,6 @@ function setupOrderNextButtons() {
                     button.dataset.orderNext
                 );
 
-
-            /*
-             * Validate current room.
-             */
 
             if (
                 !validateOrderStep(
@@ -721,11 +887,6 @@ function validateOrderStep(
     collectOrderData();
 
 
-    /*
-     * STEP 1
-     * Client Details
-     */
-
     if (
         step === 1
     ) {
@@ -739,17 +900,7 @@ function validateOrderStep(
                 "!"
             );
 
-
-            const field =
-                $("#clientName");
-
-
-            if (field) {
-
-                field.focus();
-
-            }
-
+            $("#clientName")?.focus();
 
             return false;
 
@@ -765,17 +916,7 @@ function validateOrderStep(
                 "!"
             );
 
-
-            const field =
-                $("#gymName");
-
-
-            if (field) {
-
-                field.focus();
-
-            }
-
+            $("#gymName")?.focus();
 
             return false;
 
@@ -791,17 +932,7 @@ function validateOrderStep(
                 "!"
             );
 
-
-            const field =
-                $("#instagramHandle");
-
-
-            if (field) {
-
-                field.focus();
-
-            }
-
+            $("#instagramHandle")?.focus();
 
             return false;
 
@@ -809,11 +940,6 @@ function validateOrderStep(
 
     }
 
-
-    /*
-     * STEP 2
-     * Project Details
-     */
 
     if (
         step === 2
@@ -828,43 +954,11 @@ function validateOrderStep(
                 "!"
             );
 
-
-            const field =
-                $("#projectGoal");
-
-
-            if (field) {
-
-                field.focus();
-
-            }
-
+            $("#projectGoal")?.focus();
 
             return false;
 
         }
-
-    }
-
-
-    /*
-     * STEP 3
-     * Video Upload
-     *
-     * We do not force upload yet.
-     * Client can continue if needed.
-     */
-
-    if (
-        step === 3
-    ) {
-
-        /*
-         * Upload is optional for now.
-         *
-         * Real cloud upload will be
-         * connected later.
-         */
 
     }
 
@@ -1008,15 +1102,6 @@ function setupVideoUpload() {
                 "";
 
 
-            if (
-                files.length === 0
-            ) {
-
-                return;
-
-            }
-
-
             files.forEach(
                 file => {
 
@@ -1042,10 +1127,16 @@ function setupVideoUpload() {
             );
 
 
-            showToast(
-                `${files.length} video${files.length > 1 ? "s" : ""} selected.`,
-                "✓"
-            );
+            if (
+                files.length
+            ) {
+
+                showToast(
+                    `${files.length} video${files.length > 1 ? "s" : ""} selected.`,
+                    "✓"
+                );
+
+            }
 
         }
     );
@@ -1062,85 +1153,43 @@ function updateReview() {
     collectOrderData();
 
 
-    const service =
-        $("#reviewService");
-
-    const plan =
-        $("#reviewPlan");
-
-    const client =
-        $("#reviewClient");
-
-    const gym =
-        $("#reviewGym");
-
-    const instagram =
-        $("#reviewInstagram");
-
-    const videos =
-        $("#reviewVideos");
+    $("#reviewService").textContent =
+        getServiceName(
+            AppState.selectedService
+        );
 
 
-    if (service) {
-
-        service.textContent =
-            getServiceName(
-                AppState.selectedService
-            );
-
-    }
+    $("#reviewPlan").textContent =
+        getPlanName(
+            AppState.selectedPlan
+        );
 
 
-    if (plan) {
-
-        plan.textContent =
-            getPlanName(
-                AppState.selectedPlan
-            );
-
-    }
+    $("#reviewClient").textContent =
+        AppState.orderData.clientName ||
+        "Not provided";
 
 
-    if (client) {
-
-        client.textContent =
-            AppState.orderData.clientName ||
-            "Not provided";
-
-    }
+    $("#reviewGym").textContent =
+        AppState.orderData.gymName ||
+        "Not provided";
 
 
-    if (gym) {
-
-        gym.textContent =
-            AppState.orderData.gymName ||
-            "Not provided";
-
-    }
+    $("#reviewInstagram").textContent =
+        AppState.orderData.instagram ||
+        "Not provided";
 
 
-    if (instagram) {
-
-        instagram.textContent =
-            AppState.orderData.instagram ||
-            "Not provided";
-
-    }
+    const count =
+        AppState.orderData
+            .videoFiles
+            .length;
 
 
-    if (videos) {
-
-        const count =
-            AppState.orderData.videoFiles
-                .length;
-
-
-        videos.textContent =
-            count > 0
-                ? `${count} video${count > 1 ? "s" : ""} selected`
-                : "No videos selected";
-
-    }
+    $("#reviewVideos").textContent =
+        count
+            ? `${count} video${count > 1 ? "s" : ""} selected`
+            : "No videos selected";
 
 }
 
@@ -1157,10 +1206,6 @@ function setupLogin() {
     const signupButton =
         $("#goToSignup");
 
-
-    /*
-     * Go to signup
-     */
 
     if (signupButton) {
 
@@ -1211,13 +1256,7 @@ function setupLogin() {
                     "!"
                 );
 
-
-                if (email) {
-
-                    email.focus();
-
-                }
-
+                email?.focus();
 
                 return;
 
@@ -1234,13 +1273,7 @@ function setupLogin() {
                     "!"
                 );
 
-
-                if (password) {
-
-                    password.focus();
-
-                }
-
+                password?.focus();
 
                 return;
 
@@ -1248,22 +1281,54 @@ function setupLogin() {
 
 
             /*
-             * TEMPORARY LOGIN
-             *
-             * Real authentication will
-             * be connected later.
+             * For this front-end version,
+             * create/load the local account.
              */
+
+            let user =
+                getSavedUser();
+
+
+            if (
+                user &&
+                user.email ===
+                email.value.trim()
+            ) {
+
+                AppState.currentUser =
+                    user;
+
+            } else {
+
+                AppState.currentUser = {
+
+                    name:
+                        email.value
+                            .split("@")[0],
+
+                    email:
+                        email.value.trim()
+
+                };
+
+
+                saveUser(
+                    AppState.currentUser
+                );
+
+            }
+
 
             AppState.isLoggedIn =
                 true;
 
 
-            AppState.currentUser = {
+            setLoggedIn(
+                true
+            );
 
-                email:
-                    email.value.trim()
 
-            };
+            updateAccountUI();
 
 
             showToast(
@@ -1299,10 +1364,6 @@ function setupSignup() {
     const loginButton =
         $("#goToLogin");
 
-
-    /*
-     * Already have account
-     */
 
     if (loginButton) {
 
@@ -1356,13 +1417,7 @@ function setupSignup() {
                     "!"
                 );
 
-
-                if (name) {
-
-                    name.focus();
-
-                }
-
+                name?.focus();
 
                 return;
 
@@ -1379,13 +1434,7 @@ function setupSignup() {
                     "!"
                 );
 
-
-                if (email) {
-
-                    email.focus();
-
-                }
-
+                email?.focus();
 
                 return;
 
@@ -1402,28 +1451,11 @@ function setupSignup() {
                     "!"
                 );
 
-
-                if (password) {
-
-                    password.focus();
-
-                }
-
+                password?.focus();
 
                 return;
 
             }
-
-
-            /*
-             * TEMPORARY ACCOUNT
-             *
-             * Real authentication will
-             * be connected later.
-             */
-
-            AppState.isLoggedIn =
-                true;
 
 
             AppState.currentUser = {
@@ -1437,10 +1469,22 @@ function setupSignup() {
             };
 
 
-            /*
-             * Automatically put the
-             * signup name into order.
-             */
+            saveUser(
+                AppState.currentUser
+            );
+
+
+            AppState.isLoggedIn =
+                true;
+
+
+            setLoggedIn(
+                true
+            );
+
+
+            updateAccountUI();
+
 
             const clientName =
                 $("#clientName");
@@ -1476,47 +1520,175 @@ function setupSignup() {
 
 
 /* =========================================================
-   BRAND BUTTON
+   ACCOUNT UI
    ========================================================= */
 
-function setupBrandButton() {
+function updateAccountUI() {
 
-    const brand =
-        $(".brand-button");
+    const user =
+        AppState.currentUser;
 
 
-    if (!brand) {
+    const loggedIn =
+        AppState.isLoggedIn &&
+        !!user;
+
+
+    const headerButton =
+        $("#accountHeaderButton");
+
+    const homeCard =
+        $("#loggedInHomeCard");
+
+    const homeAccountButton =
+        $("#homeAccountButton");
+
+
+    if (
+        headerButton
+    ) {
+
+        headerButton.style.display =
+            loggedIn
+                ? "flex"
+                : "none";
+
+    }
+
+
+    if (
+        homeCard
+    ) {
+
+        homeCard.style.display =
+            loggedIn
+                ? "flex"
+                : "none";
+
+    }
+
+
+    if (
+        homeAccountButton
+    ) {
+
+        homeAccountButton.textContent =
+            loggedIn
+                ? "👤 My Account"
+                : "👤 Login / Create Account";
+
+    }
+
+
+    if (!loggedIn) {
 
         return;
 
     }
 
 
-    brand.addEventListener(
-        "click",
-        event => {
-
-            event.preventDefault();
+    const name =
+        user.name ||
+        "Account";
 
 
-            showScreen(
-                "home"
-            );
+    const email =
+        user.email ||
+        "";
 
-        }
-    );
+
+    const initial =
+        name
+            .charAt(0)
+            .toUpperCase();
+
+
+    /*
+     * Header
+     */
+
+    $("#headerAccountInitial")
+        && (
+            $("#headerAccountInitial")
+                .textContent =
+                initial
+        );
+
+
+    $("#headerAccountName")
+        && (
+            $("#headerAccountName")
+                .textContent =
+                name
+        );
+
+
+    /*
+     * Home
+     */
+
+    $("#homeAccountInitial")
+        && (
+            $("#homeAccountInitial")
+                .textContent =
+                initial
+        );
+
+
+    $("#homeAccountName")
+        && (
+            $("#homeAccountName")
+                .textContent =
+                name
+        );
+
+
+    $("#homeAccountEmail")
+        && (
+            $("#homeAccountEmail")
+                .textContent =
+                email
+        );
+
+
+    /*
+     * Account page
+     */
+
+    $("#accountInitial")
+        && (
+            $("#accountInitial")
+                .textContent =
+                initial
+        );
+
+
+    $("#accountName")
+        && (
+            $("#accountName")
+                .textContent =
+                name
+        );
+
+
+    $("#accountEmail")
+        && (
+            $("#accountEmail")
+                .textContent =
+                email
+        );
 
 }
 
 
 /* =========================================================
-   FLOATING HOME
+   LOGOUT
    ========================================================= */
 
-function setupFloatingHome() {
+function setupLogout() {
 
     const button =
-        $("#floatingHomeButton");
+        $("#logoutButton");
 
 
     if (!button) {
@@ -1533,12 +1705,131 @@ function setupFloatingHome() {
             event.preventDefault();
 
 
-            showScreen(
-                "home"
+            AppState.isLoggedIn =
+                false;
+
+            AppState.currentUser =
+                null;
+
+            setLoggedIn(
+                false
+            );
+
+
+            updateAccountUI();
+
+
+            showToast(
+                "Logged out successfully.",
+                "✓"
+            );
+
+
+            setTimeout(
+                () => {
+
+                    showScreen(
+                        "home"
+                    );
+
+                },
+                400
             );
 
         }
     );
+
+}
+
+
+/* =========================================================
+   CREATE ORDER
+   ========================================================= */
+
+function createOrder() {
+
+    collectOrderData();
+
+
+    const orders =
+        getOrders();
+
+
+    const nextNumber =
+        orders.length + 1;
+
+
+    const order = {
+
+        id:
+            `#${String(nextNumber).padStart(3, "0")}`,
+
+        userEmail:
+            AppState.currentUser
+                ? AppState.currentUser.email
+                : "",
+
+        service:
+            AppState.selectedService,
+
+        plan:
+            AppState.selectedPlan,
+
+        clientName:
+            AppState.orderData.clientName,
+
+        gymName:
+            AppState.orderData.gymName,
+
+        instagram:
+            AppState.orderData.instagram,
+
+        projectGoal:
+            AppState.orderData.projectGoal,
+
+        projectNotes:
+            AppState.orderData.projectNotes,
+
+        specialInstructions:
+            AppState.orderData.specialInstructions,
+
+        videoCount:
+            AppState.orderData.videoFiles
+                .length,
+
+        videoNames:
+            AppState.orderData.videoFiles
+                .map(file => file.name),
+
+        status:
+            "Submitted",
+
+        date:
+            new Date().toLocaleDateString(
+                "en-IN"
+            ),
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+
+    orders.push(
+        order
+    );
+
+
+    saveOrders(
+        orders
+    );
+
+
+    AppState.currentOrderId =
+        order.id;
+
+
+    return order;
 
 }
 
@@ -1567,14 +1858,21 @@ function setupSubmitOrder() {
             event.preventDefault();
 
 
-            /*
-             * Validate final order.
-             */
+            if (
+                !AppState.isLoggedIn
+            ) {
+
+                showScreen(
+                    "login"
+                );
+
+                return;
+
+            }
+
 
             if (
-                !validateOrderStep(
-                    1
-                )
+                !validateOrderStep(1)
             ) {
 
                 goToOrderStep(
@@ -1586,39 +1884,18 @@ function setupSubmitOrder() {
             }
 
 
-            collectOrderData();
+            const order =
+                createOrder();
 
 
-            /*
-             * Front-end only for now.
-             *
-             * Later this data will be
-             * sent to our backend.
-             */
+            if (!order) {
 
-            const finalOrder = {
+                return;
 
-                service:
-                    AppState.selectedService,
-
-                plan:
-                    AppState.selectedPlan,
-
-                user:
-                    AppState.currentUser,
-
-                order:
-                    {
-                        ...AppState.orderData
-                    }
-
-            };
+            }
 
 
-            console.log(
-                "FINAL ORDER:",
-                finalOrder
-            );
+            updateOrdersList();
 
 
             showToast(
@@ -1645,6 +1922,366 @@ function setupSubmitOrder() {
 
 
 /* =========================================================
+   GET CURRENT USER ORDERS
+   ========================================================= */
+
+function getCurrentUserOrders() {
+
+    const orders =
+        getOrders();
+
+
+    if (
+        !AppState.currentUser
+    ) {
+
+        return [];
+
+    }
+
+
+    const email =
+        AppState.currentUser.email;
+
+
+    return orders.filter(
+        order =>
+            order.userEmail === email
+    );
+
+}
+
+
+/* =========================================================
+   MY ORDERS PAGE
+   ========================================================= */
+
+function updateOrdersList() {
+
+    const container =
+        $("#ordersList");
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        "";
+
+
+    const orders =
+        getCurrentUserOrders();
+
+
+    if (
+        orders.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="empty-orders">
+
+                <div class="empty-orders-icon">
+                    📦
+                </div>
+
+                <h3>
+                    No Orders Yet
+                </h3>
+
+                <p>
+                    Your submitted orders
+                    will appear here.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /*
+     * Latest order first.
+     */
+
+    const reversed =
+        [...orders].reverse();
+
+
+    reversed.forEach(
+        order => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "order-card";
+
+
+            card.innerHTML = `
+
+                <div class="order-card-top">
+
+                    <div>
+
+                        <div class="order-number">
+                            ORDER ${escapeHTML(order.id)}
+                        </div>
+
+                        <div class="order-card-title">
+                            ${escapeHTML(
+                                getServiceName(
+                                    order.service
+                                )
+                            )}
+                        </div>
+
+                    </div>
+
+                    <span class="order-status">
+                        ${escapeHTML(
+                            order.status
+                        )}
+                    </span>
+
+                </div>
+
+
+                <div class="order-card-info">
+
+                    <div class="order-info-item">
+
+                        <span>
+                            Plan
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                getPlanName(
+                                    order.plan
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="order-info-item">
+
+                        <span>
+                            Date
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                order.date
+                            )}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="order-view-button"
+                    type="button"
+                    data-view-order="${escapeHTML(
+                        order.id
+                    )}"
+                >
+                    View Order Details →
+                </button>
+
+            `;
+
+
+            container.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ORDER CLICK
+   ========================================================= */
+
+function setupOrderViewButtons() {
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    "[data-view-order]"
+                );
+
+
+            if (!button) {
+
+                return;
+
+            }
+
+
+            event.preventDefault();
+
+
+            const id =
+                button.dataset.viewOrder;
+
+
+            openOrderDetails(
+                id
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   OPEN ORDER DETAILS
+   ========================================================= */
+
+function openOrderDetails(
+    orderId
+) {
+
+    const orders =
+        getCurrentUserOrders();
+
+
+    const order =
+        orders.find(
+            item =>
+                item.id === orderId
+        );
+
+
+    if (!order) {
+
+        showToast(
+            "Order not found.",
+            "!"
+        );
+
+        return;
+
+    }
+
+
+    AppState.currentOrderId =
+        order.id;
+
+
+    $("#detailOrderNumber")
+        && (
+            $("#detailOrderNumber")
+                .textContent =
+                order.id
+        );
+
+
+    $("#detailOrderStatus")
+        && (
+            $("#detailOrderStatus")
+                .textContent =
+                order.status
+        );
+
+
+    $("#detailService")
+        && (
+            $("#detailService")
+                .textContent =
+                getServiceName(
+                    order.service
+                )
+        );
+
+
+    $("#detailPlan")
+        && (
+            $("#detailPlan")
+                .textContent =
+                getPlanName(
+                    order.plan
+                )
+        );
+
+
+    $("#detailClient")
+        && (
+            $("#detailClient")
+                .textContent =
+                order.clientName ||
+                "—"
+        );
+
+
+    $("#detailGym")
+        && (
+            $("#detailGym")
+                .textContent =
+                order.gymName ||
+                "—"
+        );
+
+
+    $("#detailGoal")
+        && (
+            $("#detailGoal")
+                .textContent =
+                order.projectGoal ||
+                "—"
+        );
+
+
+    $("#detailVideos")
+        && (
+            $("#detailVideos")
+                .textContent =
+                order.videoCount
+                    ? `${order.videoCount} video${order.videoCount > 1 ? "s" : ""} uploaded`
+                    : "No videos"
+        );
+
+
+    $("#detailInstructions")
+        && (
+            $("#detailInstructions")
+                .textContent =
+                order.specialInstructions ||
+                order.projectNotes ||
+                "No special instructions"
+        );
+
+
+    showScreen(
+        "order-details"
+    );
+
+}
+
+
+/* =========================================================
    RESET ORDER
    ========================================================= */
 
@@ -1658,6 +2295,9 @@ function resetOrder() {
 
     AppState.orderStep =
         1;
+
+    AppState.currentOrderId =
+        null;
 
 
     AppState.orderData = {
@@ -1819,20 +2459,263 @@ function showToast(
 
 
 /* =========================================================
-   INITIALIZE APP
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHTML(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   BRAND BUTTON
+   ========================================================= */
+
+function setupBrandButton() {
+
+    const brand =
+        $(".brand-button");
+
+
+    if (!brand) {
+
+        return;
+
+    }
+
+
+    brand.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            showScreen(
+                "home"
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FLOATING HOME
+   ========================================================= */
+
+function setupFloatingHome() {
+
+    const button =
+        $("#floatingHomeButton");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            showScreen(
+                "home"
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ACCOUNT HEADER
+   ========================================================= */
+
+function setupAccountHeader() {
+
+    const button =
+        $("#accountHeaderButton");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            if (
+                AppState.isLoggedIn
+            ) {
+
+                showScreen(
+                    "account"
+                );
+
+            } else {
+
+                showScreen(
+                    "login"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ACCOUNT / ORDERS SCREEN CONTROL
+   ========================================================= */
+
+function setupAccountScreens() {
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            const button =
+                event.target.closest(
+                    '[data-screen="orders"]'
+                );
+
+
+            if (!button) {
+
+                return;
+
+            }
+
+
+            if (
+                !AppState.isLoggedIn
+            ) {
+
+                event.preventDefault();
+
+                showScreen(
+                    "login"
+                );
+
+                return;
+
+            }
+
+
+            updateOrdersList();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   INITIAL LOAD
+   ========================================================= */
+
+function restoreSession() {
+
+    const savedUser =
+        getSavedUser();
+
+
+    const loggedIn =
+        isStoredLoggedIn();
+
+
+    if (
+        savedUser &&
+        loggedIn
+    ) {
+
+        AppState.currentUser =
+            savedUser;
+
+        AppState.isLoggedIn =
+            true;
+
+    } else {
+
+        AppState.currentUser =
+            null;
+
+        AppState.isLoggedIn =
+            false;
+
+    }
+
+
+    updateAccountUI();
+
+}
+
+
+/* =========================================================
+   INITIALIZE
    ========================================================= */
 
 function initializeApp() {
 
     /*
-     * Hide everything first.
+     * Restore previous login.
+     */
+
+    restoreSession();
+
+
+    /*
+     * Hide all screens.
      */
 
     hideAllScreens();
 
 
     /*
-     * Home is the only initial screen.
+     * Home is first screen.
      */
 
     const home =
@@ -1845,12 +2728,10 @@ function initializeApp() {
             "active-screen"
         );
 
-
         home.setAttribute(
             "aria-hidden",
             "false"
         );
-
 
         home.style.display =
             "block";
@@ -1863,7 +2744,7 @@ function initializeApp() {
 
 
     /*
-     * Setup all systems.
+     * Setup systems.
      */
 
     setupScreenButtons();
@@ -1884,9 +2765,17 @@ function initializeApp() {
 
     setupSubmitOrder();
 
+    setupLogout();
+
+    setupOrderViewButtons();
+
     setupBrandButton();
 
     setupFloatingHome();
+
+    setupAccountHeader();
+
+    setupAccountScreens();
 
 
     updateFloatingHome(
@@ -1894,8 +2783,11 @@ function initializeApp() {
     );
 
 
+    updateAccountUI();
+
+
     console.log(
-        "Gym Growth HQ — FINAL APP READY"
+        "Gym Growth HQ — ACCOUNT SYSTEM READY"
     );
 
 }
@@ -1938,6 +2830,12 @@ window.GymGrowthHQ = {
     goToOrderStep,
 
     resetOrder,
+
+    openOrderDetails,
+
+    getOrders,
+
+    getCurrentUserOrders,
 
     getState() {
 
