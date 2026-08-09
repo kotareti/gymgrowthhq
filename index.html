@@ -7,12 +7,7 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    >
-
-    <meta
-        name="description"
-        content="Gym Growth HQ - Professional short-form video editing and content solutions for gyms."
+        content="width=device-width, initial-scale=1.0"
     >
 
     <meta
@@ -51,9 +46,9 @@
 <div class="app">
 
 
-<!-- =========================================================
-     TOP BAR
-     ========================================================= -->
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
 
 <header class="top-bar">
 
@@ -61,16 +56,13 @@
         class="brand-button"
         type="button"
         data-screen="home"
-        aria-label="Go to Home"
     >
 
         <div class="brand-logo">
-
             <img
                 src="gym-growth-hq-logo.png"
-                alt="Gym Growth HQ Logo"
+                alt="Gym Growth HQ"
             >
-
         </div>
 
         <div class="brand-text">
@@ -93,97 +85,88 @@
 <main class="app-content">
 
 
-<!-- =========================================================
-     1. HOME
-     ========================================================= -->
+<!-- =====================================================
+     HOME
+     ===================================================== -->
 
 <section
     id="home"
-    class="app-screen home-screen active-screen"
+    class="app-screen active-screen"
     data-screen-section="home"
 >
 
     <div class="screen-inner">
 
-        <div class="content-placeholder home-placeholder">
+        <span class="eyebrow">
+            GYM GROWTH HQ
+        </span>
 
-            <span class="eyebrow">
-                GYM GROWTH HQ
-            </span>
+        <h1>
+            Grow Your Gym
+            <span>With Better Reels.</span>
+        </h1>
 
-            <h1>
-                Grow Your Gym
-                <span>
-                    With Better Reels.
-                </span>
-            </h1>
+        <p>
+            Professional short-form content
+            designed for gyms and fitness brands.
+        </p>
 
-            <p>
-                Professional short-form content
-                designed for gyms and fitness brands.
-            </p>
 
-            <div class="home-actions">
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-screen="services"
+        >
 
-                <!-- HOME → SERVICES ONLY -->
+            Explore Services
 
-                <button
-                    class="primary-button"
-                    type="button"
-                    data-screen="services"
-                >
+            <span>→</span>
 
-                    Explore Services
-
-                    <span class="button-arrow">
-                        →
-                    </span>
-
-                </button>
-
-            </div>
-
-        </div>
+        </button>
 
     </div>
 
 </section>
 
 
-<!-- =========================================================
-     2. SERVICES
-     ========================================================= -->
+
+<!-- =====================================================
+     SERVICES
+     ===================================================== -->
 
 <section
     id="services"
-    class="app-screen services-screen"
+    class="app-screen"
     data-screen-section="services"
 >
 
     <div class="screen-inner">
 
-        <div class="section-heading">
+        <button
+            class="back-button"
+            type="button"
+            data-screen="home"
+        >
+            ← Home
+        </button>
 
-            <span class="eyebrow">
-                WHAT WE DO
-            </span>
 
-            <h2>
-                Choose What
-                <span>You Need.</span>
-            </h2>
+        <span class="eyebrow">
+            OUR SERVICES
+        </span>
 
-            <p>
-                Choose one service to continue.
-            </p>
+        <h2>
+            Choose a
+            <span>Service.</span>
+        </h2>
 
-        </div>
+        <p>
+            Select the service you need.
+        </p>
 
 
         <div class="service-list">
 
-
-            <!-- SERVICE 1 -->
 
             <article class="service-card">
 
@@ -191,41 +174,27 @@
                     🎬
                 </div>
 
-                <div class="service-content">
+                <h3>
+                    Reel Editing
+                </h3>
 
-                    <span class="service-number">
-                        SERVICE 01
-                    </span>
+                <p>
+                    Professional editing for
+                    gym reels.
+                </p>
 
-                    <h3>
-                        Reel Editing
-                    </h3>
-
-                    <p>
-                        Professional short-form
-                        editing for regular gym reels.
-                    </p>
-
-                    <button
-                        class="outline-button full-button"
-                        type="button"
-                        data-detail="reel-editing"
-                    >
-
-                        Choose Reel Editing
-
-                        <span>
-                            →
-                        </span>
-
-                    </button>
-
-                </div>
+                <button
+                    class="primary-button full-button"
+                    type="button"
+                    data-detail="reel-editing"
+                >
+                    Choose Reel Editing
+                    <span>→</span>
+                </button>
 
             </article>
 
 
-            <!-- SERVICE 2 -->
 
             <article class="service-card">
 
@@ -233,41 +202,27 @@
                     🔥
                 </div>
 
-                <div class="service-content">
+                <h3>
+                    Transformation Reel
+                </h3>
 
-                    <span class="service-number">
-                        SERVICE 02
-                    </span>
+                <p>
+                    High-impact before and
+                    after transformation reels.
+                </p>
 
-                    <h3>
-                        Transformation Reel
-                    </h3>
-
-                    <p>
-                        Before-and-after transformation
-                        reels designed for impact.
-                    </p>
-
-                    <button
-                        class="outline-button full-button"
-                        type="button"
-                        data-detail="transformation"
-                    >
-
-                        Choose Transformation
-
-                        <span>
-                            →
-                        </span>
-
-                    </button>
-
-                </div>
+                <button
+                    class="primary-button full-button"
+                    type="button"
+                    data-detail="transformation"
+                >
+                    Choose Transformation
+                    <span>→</span>
+                </button>
 
             </article>
 
 
-            <!-- SERVICE 3 -->
 
             <article class="service-card">
 
@@ -275,36 +230,23 @@
                     📈
                 </div>
 
-                <div class="service-content">
+                <h3>
+                    Gym Promotion
+                </h3>
 
-                    <span class="service-number">
-                        SERVICE 03
-                    </span>
+                <p>
+                    Promotional videos for
+                    gyms and campaigns.
+                </p>
 
-                    <h3>
-                        Gym Promotion
-                    </h3>
-
-                    <p>
-                        Promotional content for your
-                        gym, offers and campaigns.
-                    </p>
-
-                    <button
-                        class="outline-button full-button"
-                        type="button"
-                        data-detail="gym-promotion"
-                    >
-
-                        Choose Gym Promotion
-
-                        <span>
-                            →
-                        </span>
-
-                    </button>
-
-                </div>
+                <button
+                    class="primary-button full-button"
+                    type="button"
+                    data-detail="gym-promotion"
+                >
+                    Choose Gym Promotion
+                    <span>→</span>
+                </button>
 
             </article>
 
@@ -315,13 +257,14 @@
 </section>
 
 
-<!-- =========================================================
-     3. REEL EDITING DETAILS
-     ========================================================= -->
+
+<!-- =====================================================
+     REEL EDITING DETAILS
+     ===================================================== -->
 
 <section
     id="reel-editing"
-    class="app-screen detail-screen"
+    class="app-screen"
     data-detail-section="reel-editing"
 >
 
@@ -330,94 +273,58 @@
         <button
             class="back-button"
             type="button"
-            data-back="services"
+            data-screen="services"
         >
-            <span>←</span>
-            Back to Services
+            ← Services
         </button>
 
 
-        <div class="detail-header">
+        <span class="eyebrow">
+            SERVICE DETAILS
+        </span>
 
-            <div class="large-detail-icon">
-                🎬
-            </div>
-
-            <span class="eyebrow">
-                SERVICE 01
-            </span>
-
-            <h2>
-                Reel Editing
-            </h2>
-
-            <p>
-                Professional editing for your
-                regular gym reels.
-            </p>
-
+        <div class="large-detail-icon">
+            🎬
         </div>
 
+        <h2>
+            Reel Editing
+        </h2>
 
-        <div class="detail-price-card">
-
-            <span class="price-label">
-                Starting from
-            </span>
-
-            <strong class="detail-price">
-                ₹199
-            </strong>
-
-            <span class="price-unit">
-                / reel
-            </span>
-
-        </div>
+        <p>
+            Professional short-form editing
+            for your gym content.
+        </p>
 
 
-        <div class="information-block">
+        <div class="detail-card">
 
-            <div class="information-title">
+            <h3>
+                What You Get
+            </h3>
 
-                <span class="info-icon">
-                    ✓
-                </span>
-
-                <h3>
-                    What You Get
-                </h3>
-
-            </div>
-
-            <ul class="detail-list">
+            <ul>
 
                 <li>
-                    <span>✓</span>
-                    Clean professional cuts
+                    ✓ Clean professional cuts
                 </li>
 
                 <li>
-                    <span>✓</span>
-                    Music and beat matching
+                    ✓ Music and beat matching
                 </li>
 
                 <li>
-                    <span>✓</span>
-                    Captions when required
+                    ✓ Captions
                 </li>
 
                 <li>
-                    <span>✓</span>
-                    Instagram-ready vertical format
+                    ✓ Instagram-ready format
                 </li>
 
             </ul>
 
         </div>
 
-
-        <!-- SERVICE DETAILS → PRICING -->
 
         <button
             class="primary-button full-button"
@@ -426,11 +333,9 @@
             data-service="reel-editing"
         >
 
-            View Pricing & Plans
+            View Pricing
 
-            <span class="button-arrow">
-                →
-            </span>
+            <span>→</span>
 
         </button>
 
@@ -439,13 +344,14 @@
 </section>
 
 
-<!-- =========================================================
-     4. TRANSFORMATION DETAILS
-     ========================================================= -->
+
+<!-- =====================================================
+     TRANSFORMATION DETAILS
+     ===================================================== -->
 
 <section
     id="transformation"
-    class="app-screen detail-screen"
+    class="app-screen"
     data-detail-section="transformation"
 >
 
@@ -454,86 +360,52 @@
         <button
             class="back-button"
             type="button"
-            data-back="services"
+            data-screen="services"
         >
-            <span>←</span>
-            Back to Services
+            ← Services
         </button>
 
 
-        <div class="detail-header">
+        <span class="eyebrow">
+            SERVICE DETAILS
+        </span>
 
-            <div class="large-detail-icon">
-                🔥
-            </div>
-
-            <span class="eyebrow">
-                SERVICE 02
-            </span>
-
-            <h2>
-                Transformation Reel
-            </h2>
-
-            <p>
-                Before-and-after transformation
-                content designed to stand out.
-            </p>
-
+        <div class="large-detail-icon">
+            🔥
         </div>
 
+        <h2>
+            Transformation Reel
+        </h2>
 
-        <div class="detail-price-card">
-
-            <span class="price-label">
-                Starting from
-            </span>
-
-            <strong class="detail-price">
-                ₹299
-            </strong>
-
-            <span class="price-unit">
-                / reel
-            </span>
-
-        </div>
+        <p>
+            Powerful before-and-after
+            transformation content.
+        </p>
 
 
-        <div class="information-block">
+        <div class="detail-card">
 
-            <div class="information-title">
+            <h3>
+                What You Get
+            </h3>
 
-                <span class="info-icon">
-                    ✓
-                </span>
-
-                <h3>
-                    What You Get
-                </h3>
-
-            </div>
-
-            <ul class="detail-list">
+            <ul>
 
                 <li>
-                    <span>✓</span>
-                    Before-and-after structure
+                    ✓ Before and after structure
                 </li>
 
                 <li>
-                    <span>✓</span>
-                    Strong visual pacing
+                    ✓ Strong visual pacing
                 </li>
 
                 <li>
-                    <span>✓</span>
-                    Music and beat matching
+                    ✓ Music and beat matching
                 </li>
 
                 <li>
-                    <span>✓</span>
-                    Instagram-ready format
+                    ✓ Instagram-ready format
                 </li>
 
             </ul>
@@ -548,11 +420,9 @@
             data-service="transformation"
         >
 
-            View Pricing & Plans
+            View Pricing
 
-            <span class="button-arrow">
-                →
-            </span>
+            <span>→</span>
 
         </button>
 
@@ -561,13 +431,14 @@
 </section>
 
 
-<!-- =========================================================
-     5. GYM PROMOTION DETAILS
-     ========================================================= -->
+
+<!-- =====================================================
+     GYM PROMOTION DETAILS
+     ===================================================== -->
 
 <section
     id="gym-promotion"
-    class="app-screen detail-screen"
+    class="app-screen"
     data-detail-section="gym-promotion"
 >
 
@@ -576,86 +447,52 @@
         <button
             class="back-button"
             type="button"
-            data-back="services"
+            data-screen="services"
         >
-            <span>←</span>
-            Back to Services
+            ← Services
         </button>
 
 
-        <div class="detail-header">
+        <span class="eyebrow">
+            SERVICE DETAILS
+        </span>
 
-            <div class="large-detail-icon">
-                📈
-            </div>
-
-            <span class="eyebrow">
-                SERVICE 03
-            </span>
-
-            <h2>
-                Gym Promotion
-            </h2>
-
-            <p>
-                Promotional video content for your
-                gym, offers, equipment and atmosphere.
-            </p>
-
+        <div class="large-detail-icon">
+            📈
         </div>
 
+        <h2>
+            Gym Promotion
+        </h2>
 
-        <div class="detail-price-card">
-
-            <span class="price-label">
-                Starting from
-            </span>
-
-            <strong class="detail-price">
-                ₹499
-            </strong>
-
-            <span class="price-unit">
-                / video
-            </span>
-
-        </div>
+        <p>
+            Promotional content for your
+            gym, offers and campaigns.
+        </p>
 
 
-        <div class="information-block">
+        <div class="detail-card">
 
-            <div class="information-title">
+            <h3>
+                What You Get
+            </h3>
 
-                <span class="info-icon">
-                    ✓
-                </span>
-
-                <h3>
-                    What You Get
-                </h3>
-
-            </div>
-
-            <ul class="detail-list">
+            <ul>
 
                 <li>
-                    <span>✓</span>
-                    Gym promotional editing
+                    ✓ Promotional editing
                 </li>
 
                 <li>
-                    <span>✓</span>
-                    Offer and campaign highlights
+                    ✓ Offer highlights
                 </li>
 
                 <li>
-                    <span>✓</span>
-                    Music and pacing
+                    ✓ Music and pacing
                 </li>
 
                 <li>
-                    <span>✓</span>
-                    Social-media-ready video
+                    ✓ Social-media-ready video
                 </li>
 
             </ul>
@@ -670,11 +507,9 @@
             data-service="gym-promotion"
         >
 
-            View Pricing & Plans
+            View Pricing
 
-            <span class="button-arrow">
-                →
-            </span>
+            <span>→</span>
 
         </button>
 
@@ -683,226 +518,146 @@
 </section>
 
 
-<!-- =========================================================
-     6. PRICING / PLAN
-     ========================================================= -->
+
+<!-- =====================================================
+     PRICING
+     ===================================================== -->
 
 <section
     id="pricing"
-    class="app-screen pricing-screen"
+    class="app-screen"
     data-screen-section="pricing"
 >
 
     <div class="screen-inner">
 
-        <div class="section-heading">
+        <button
+            class="back-button"
+            type="button"
+            data-screen="services"
+        >
+            ← Services
+        </button>
 
-            <span class="eyebrow">
-                SIMPLE PRICING
-            </span>
 
-            <h2>
-                Choose Your
-                <span>Plan.</span>
-            </h2>
+        <span class="eyebrow">
+            PRICING
+        </span>
 
-            <p>
-                Select the plan you want to explore.
-            </p>
+        <h2>
+            Choose Your
+            <span>Plan.</span>
+        </h2>
 
-        </div>
+        <p>
+            Select a plan to see complete details.
+        </p>
 
 
         <div class="pricing-list">
 
 
-            <!-- PLAN 1 -->
+            <article class="pricing-card">
 
-            <article
-                class="pricing-card featured-plan"
-                data-plan-card="reel-editing"
-            >
+                <span class="plan-label">
+                    REEL EDITING
+                </span>
 
-                <div class="pricing-card-header">
+                <h3>
+                    Standard Reel
+                </h3>
 
-                    <div>
-
-                        <span class="plan-label">
-                            REEL EDITING
-                        </span>
-
-                        <h3>
-                            Standard Reel
-                        </h3>
-
-                    </div>
-
-                    <span class="plan-badge">
-                        POPULAR
-                    </span>
-
+                <div class="price">
+                    ₹199
+                    <small>/ reel</small>
                 </div>
 
-
-                <div class="pricing-main">
-
-                    <span class="currency">
-                        ₹
-                    </span>
-
-                    <strong class="plan-price">
-                        199
-                    </strong>
-
-                    <span class="plan-unit">
-                        / reel
-                    </span>
-
-                </div>
-
-
-                <p class="pricing-short-description">
-                    Professional editing for regular gym reels.
+                <p>
+                    Professional editing
+                    for regular gym reels.
                 </p>
 
-
                 <button
-                    class="outline-button full-button"
+                    class="primary-button full-button"
                     type="button"
                     data-plan-detail="reel-editing"
                 >
 
                     View Plan Details
 
-                    <span>
-                        →
-                    </span>
+                    <span>→</span>
 
                 </button>
 
             </article>
 
 
-            <!-- PLAN 2 -->
 
-            <article
-                class="pricing-card"
-                data-plan-card="transformation"
-            >
+            <article class="pricing-card">
 
-                <div class="pricing-card-header">
+                <span class="plan-label">
+                    TRANSFORMATION
+                </span>
 
-                    <div>
+                <h3>
+                    Transformation Reel
+                </h3>
 
-                        <span class="plan-label">
-                            TRANSFORMATION
-                        </span>
-
-                        <h3>
-                            Transformation Reel
-                        </h3>
-
-                    </div>
-
+                <div class="price">
+                    ₹299
+                    <small>/ reel</small>
                 </div>
 
-
-                <div class="pricing-main">
-
-                    <span class="currency">
-                        ₹
-                    </span>
-
-                    <strong class="plan-price">
-                        299
-                    </strong>
-
-                    <span class="plan-unit">
-                        / reel
-                    </span>
-
-                </div>
-
-
-                <p class="pricing-short-description">
-                    Built for before-and-after stories.
+                <p>
+                    Designed for
+                    transformation stories.
                 </p>
 
-
                 <button
-                    class="outline-button full-button"
+                    class="primary-button full-button"
                     type="button"
                     data-plan-detail="transformation"
                 >
 
                     View Plan Details
 
-                    <span>
-                        →
-                    </span>
+                    <span>→</span>
 
                 </button>
 
             </article>
 
 
-            <!-- PLAN 3 -->
 
-            <article
-                class="pricing-card"
-                data-plan-card="gym-promotion"
-            >
+            <article class="pricing-card">
 
-                <div class="pricing-card-header">
+                <span class="plan-label">
+                    GYM PROMOTION
+                </span>
 
-                    <div>
+                <h3>
+                    Promotional Video
+                </h3>
 
-                        <span class="plan-label">
-                            GYM PROMOTION
-                        </span>
-
-                        <h3>
-                            Promotional Video
-                        </h3>
-
-                    </div>
-
+                <div class="price">
+                    ₹499
+                    <small>/ video</small>
                 </div>
 
-
-                <div class="pricing-main">
-
-                    <span class="currency">
-                        ₹
-                    </span>
-
-                    <strong class="plan-price">
-                        499
-                    </strong>
-
-                    <span class="plan-unit">
-                        / video
-                    </span>
-
-                </div>
-
-
-                <p class="pricing-short-description">
-                    Promotional content for gyms and campaigns.
+                <p>
+                    Promotional content
+                    for gyms.
                 </p>
 
-
                 <button
-                    class="outline-button full-button"
+                    class="primary-button full-button"
                     type="button"
                     data-plan-detail="gym-promotion"
                 >
 
                     View Plan Details
 
-                    <span>
-                        →
-                    </span>
+                    <span>→</span>
 
                 </button>
 
@@ -915,13 +670,14 @@
 </section>
 
 
-<!-- =========================================================
-     7. PLAN DETAIL — REEL EDITING
-     ========================================================= -->
+
+<!-- =====================================================
+     PLAN DETAILS — REEL EDITING
+     ===================================================== -->
 
 <section
     id="plan-reel-editing"
-    class="app-screen plan-detail-screen"
+    class="app-screen"
     data-plan-detail-section="reel-editing"
 >
 
@@ -930,77 +686,38 @@
         <button
             class="back-button"
             type="button"
-            data-back="pricing"
+            data-screen="pricing"
         >
-            <span>←</span>
-            Back to Pricing
+            ← Pricing
         </button>
 
 
-        <div class="plan-detail-header">
+        <span class="eyebrow">
+            PLAN DETAILS
+        </span>
 
-            <span class="eyebrow">
-                REEL EDITING
-            </span>
+        <h2>
+            Standard Reel
+        </h2>
 
-            <h2>
-                Standard Reel
-            </h2>
-
-            <div class="big-price">
-
-                <span>
-                    ₹
-                </span>
-
-                <strong>
-                    199
-                </strong>
-
-                <small>
-                    / reel
-                </small>
-
-            </div>
-
+        <div class="price">
+            ₹199
+            <small>/ reel</small>
         </div>
 
 
-        <div class="information-block">
+        <div class="detail-card">
 
-            <div class="information-title">
+            <h3>
+                Included
+            </h3>
 
-                <span class="info-icon">
-                    ✓
-                </span>
+            <ul>
 
-                <h3>
-                    What You Get
-                </h3>
-
-            </div>
-
-            <ul class="detail-list">
-
-                <li>
-                    <span>✓</span>
-                    Clean professional cuts
-                </li>
-
-                <li>
-                    <span>✓</span>
-                    Music and beat matching
-                </li>
-
-                <li>
-                    <span>✓</span>
-                    Captions when required
-                </li>
-
-                <li>
-                    <span>✓</span>
-                    Instagram-ready format
-                </li>
+                <li>✓ Professional editing</li>
+                <li>✓ Beat matching</li>
+                <li>✓ Captions</li>
+                <li>✓ Vertical export</li>
 
             </ul>
 
@@ -1014,11 +731,9 @@
             data-plan="reel-editing"
         >
 
-            Order Standard Reel
+            Start Order
 
-            <span class="button-arrow">
-                →
-            </span>
+            <span>→</span>
 
         </button>
 
@@ -1027,13 +742,14 @@
 </section>
 
 
-<!-- =========================================================
-     8. PLAN DETAIL — TRANSFORMATION
-     ========================================================= -->
+
+<!-- =====================================================
+     PLAN DETAILS — TRANSFORMATION
+     ===================================================== -->
 
 <section
     id="plan-transformation"
-    class="app-screen plan-detail-screen"
+    class="app-screen"
     data-plan-detail-section="transformation"
 >
 
@@ -1042,77 +758,38 @@
         <button
             class="back-button"
             type="button"
-            data-back="pricing"
+            data-screen="pricing"
         >
-            <span>←</span>
-            Back to Pricing
+            ← Pricing
         </button>
 
 
-        <div class="plan-detail-header">
+        <span class="eyebrow">
+            PLAN DETAILS
+        </span>
 
-            <span class="eyebrow">
-                TRANSFORMATION
-            </span>
+        <h2>
+            Transformation Reel
+        </h2>
 
-            <h2>
-                Transformation Reel
-            </h2>
-
-            <div class="big-price">
-
-                <span>
-                    ₹
-                </span>
-
-                <strong>
-                    299
-                </strong>
-
-                <small>
-                    / reel
-                </small>
-
-            </div>
-
+        <div class="price">
+            ₹299
+            <small>/ reel</small>
         </div>
 
 
-        <div class="information-block">
+        <div class="detail-card">
 
-            <div class="information-title">
+            <h3>
+                Included
+            </h3>
 
-                <span class="info-icon">
-                    ✓
-                </span>
+            <ul>
 
-                <h3>
-                    What You Get
-                </h3>
-
-            </div>
-
-            <ul class="detail-list">
-
-                <li>
-                    <span>✓</span>
-                    Before-and-after structure
-                </li>
-
-                <li>
-                    <span>✓</span>
-                    Strong visual pacing
-                </li>
-
-                <li>
-                    <span>✓</span>
-                    Music and beat matching
-                </li>
-
-                <li>
-                    <span>✓</span>
-                    Instagram-ready format
-                </li>
+                <li>✓ Before & after structure</li>
+                <li>✓ Strong pacing</li>
+                <li>✓ Music matching</li>
+                <li>✓ Vertical export</li>
 
             </ul>
 
@@ -1126,11 +803,9 @@
             data-plan="transformation"
         >
 
-            Order Transformation Reel
+            Start Order
 
-            <span class="button-arrow">
-                →
-            </span>
+            <span>→</span>
 
         </button>
 
@@ -1139,13 +814,14 @@
 </section>
 
 
-<!-- =========================================================
-     9. PLAN DETAIL — GYM PROMOTION
-     ========================================================= -->
+
+<!-- =====================================================
+     PLAN DETAILS — GYM PROMOTION
+     ===================================================== -->
 
 <section
     id="plan-gym-promotion"
-    class="app-screen plan-detail-screen"
+    class="app-screen"
     data-plan-detail-section="gym-promotion"
 >
 
@@ -1154,77 +830,38 @@
         <button
             class="back-button"
             type="button"
-            data-back="pricing"
+            data-screen="pricing"
         >
-            <span>←</span>
-            Back to Pricing
+            ← Pricing
         </button>
 
 
-        <div class="plan-detail-header">
+        <span class="eyebrow">
+            PLAN DETAILS
+        </span>
 
-            <span class="eyebrow">
-                GYM PROMOTION
-            </span>
+        <h2>
+            Promotional Video
+        </h2>
 
-            <h2>
-                Promotional Video
-            </h2>
-
-            <div class="big-price">
-
-                <span>
-                    ₹
-                </span>
-
-                <strong>
-                    499
-                </strong>
-
-                <small>
-                    / video
-                </small>
-
-            </div>
-
+        <div class="price">
+            ₹499
+            <small>/ video</small>
         </div>
 
 
-        <div class="information-block">
+        <div class="detail-card">
 
-            <div class="information-title">
+            <h3>
+                Included
+            </h3>
 
-                <span class="info-icon">
-                    ✓
-                </span>
+            <ul>
 
-                <h3>
-                    What You Get
-                </h3>
-
-            </div>
-
-            <ul class="detail-list">
-
-                <li>
-                    <span>✓</span>
-                    Promotional editing
-                </li>
-
-                <li>
-                    <span>✓</span>
-                    Offer and campaign highlights
-                </li>
-
-                <li>
-                    <span>✓</span>
-                    Music and pacing
-                </li>
-
-                <li>
-                    <span>✓</span>
-                    Social-media-ready video
-                </li>
+                <li>✓ Promotional editing</li>
+                <li>✓ Offer highlights</li>
+                <li>✓ Music and pacing</li>
+                <li>✓ Social-ready export</li>
 
             </ul>
 
@@ -1238,11 +875,9 @@
             data-plan="gym-promotion"
         >
 
-            Order Promotional Video
+            Start Order
 
-            <span class="button-arrow">
-                →
-            </span>
+            <span>→</span>
 
         </button>
 
@@ -1251,840 +886,620 @@
 </section>
 
 
-<!-- =========================================================
-     10. ORDER
-     ========================================================= -->
+
+<!-- =====================================================
+     ORDER — ROOM 1
+     CLIENT DETAILS
+     ===================================================== -->
 
 <section
     id="order"
-    class="app-screen order-screen"
+    class="app-screen"
     data-screen-section="order"
 >
 
     <div class="screen-inner">
 
-        <div class="section-heading">
+        <span class="eyebrow">
+            ORDER • 01 / 05
+        </span>
 
-            <span class="eyebrow">
-                ORDER
-            </span>
+        <h2>
+            Your
+            <span>Details.</span>
+        </h2>
 
-            <h2>
-                Let's Create
-                <span>Your Reel.</span>
-            </h2>
+        <p>
+            Tell us who we are creating for.
+        </p>
 
-            <p>
-                Complete the order step by step.
-            </p>
+
+        <div class="form-group">
+
+            <label for="clientName">
+                Your Name
+            </label>
+
+            <input
+                id="clientName"
+                type="text"
+                placeholder="Enter your name"
+                autocomplete="name"
+            >
 
         </div>
 
 
-        <!-- =================================================
-             ORDER PROGRESS — 5 TOTAL INCLUDING REVIEW
-             ================================================= -->
+        <div class="form-group">
 
-        <div class="order-progress">
+            <label for="gymName">
+                Gym Name
+            </label>
 
-            <div
-                class="progress-step active-progress"
-                data-progress-step="1"
+            <input
+                id="gymName"
+                type="text"
+                placeholder="Enter your gym name"
+                autocomplete="organization"
             >
-                <span>1</span>
-                <small>Service</small>
-            </div>
-
-            <div class="progress-line"></div>
-
-            <div
-                class="progress-step"
-                data-progress-step="2"
-            >
-                <span>2</span>
-                <small>Plan</small>
-            </div>
-
-            <div class="progress-line"></div>
-
-            <div
-                class="progress-step"
-                data-progress-step="3"
-            >
-                <span>3</span>
-                <small>Project</small>
-            </div>
-
-            <div class="progress-line"></div>
-
-            <div
-                class="progress-step"
-                data-progress-step="4"
-            >
-                <span>4</span>
-                <small>Contact</small>
-            </div>
-
-            <div class="progress-line"></div>
-
-            <div
-                class="progress-step"
-                data-progress-step="5"
-            >
-                <span>5</span>
-                <small>Review</small>
-            </div>
 
         </div>
 
 
-        <!-- =================================================
-             ORDER PAGE 1 — SERVICE
-             ================================================= -->
+        <div class="form-group">
 
-        <div
-            class="order-step active-order-step"
-            data-order-step="1"
+            <label for="instagramHandle">
+                Instagram
+            </label>
+
+            <input
+                id="instagramHandle"
+                type="text"
+                placeholder="@yourgym"
+            >
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-order-next="2"
         >
 
-            <div class="order-step-heading">
+            Continue
 
-                <span class="step-label">
-                    STEP 1
-                </span>
+            <span>→</span>
 
-                <h3>
-                    Choose Your Service
-                </h3>
-
-                <p>
-                    Select the service you want.
-                </p>
-
-            </div>
-
-
-            <div class="order-options">
-
-
-                <button
-                    class="order-option"
-                    type="button"
-                    data-order-service="reel-editing"
-                    data-order-next="2"
-                >
-
-                    <span class="option-icon">
-                        🎬
-                    </span>
-
-                    <span class="option-info">
-
-                        <strong>
-                            Reel Editing
-                        </strong>
-
-                        <small>
-                            ₹199 / reel
-                        </small>
-
-                    </span>
-
-                    <span class="option-arrow">
-                        →
-                    </span>
-
-                </button>
-
-
-                <button
-                    class="order-option"
-                    type="button"
-                    data-order-service="transformation"
-                    data-order-next="2"
-                >
-
-                    <span class="option-icon">
-                        🔥
-                    </span>
-
-                    <span class="option-info">
-
-                        <strong>
-                            Transformation Reel
-                        </strong>
-
-                        <small>
-                            ₹299 / reel
-                        </small>
-
-                    </span>
-
-                    <span class="option-arrow">
-                        →
-                    </span>
-
-                </button>
-
-
-                <button
-                    class="order-option"
-                    type="button"
-                    data-order-service="gym-promotion"
-                    data-order-next="2"
-                >
-
-                    <span class="option-icon">
-                        📈
-                    </span>
-
-                    <span class="option-info">
-
-                        <strong>
-                            Gym Promotion
-                        </strong>
-
-                        <small>
-                            ₹499 / video
-                        </small>
-
-                    </span>
-
-                    <span class="option-arrow">
-                        →
-                    </span>
-
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             ORDER PAGE 2 — PLAN
-             ================================================= -->
-
-        <div
-            class="order-step"
-            data-order-step="2"
-        >
-
-            <div class="order-step-heading">
-
-                <span class="step-label">
-                    STEP 2
-                </span>
-
-                <h3>
-                    Choose Your Plan
-                </h3>
-
-                <p>
-                    Select the plan you want.
-                </p>
-
-            </div>
-
-
-            <div class="order-options">
-
-
-                <button
-                    class="order-option"
-                    type="button"
-                    data-order-plan="standard"
-                    data-order-next="3"
-                >
-
-                    <span class="option-icon">
-                        ⭐
-                    </span>
-
-                    <span class="option-info">
-
-                        <strong>
-                            Standard
-                        </strong>
-
-                        <small>
-                            Professional editing
-                        </small>
-
-                    </span>
-
-                    <span class="option-arrow">
-                        →
-                    </span>
-
-                </button>
-
-
-                <button
-                    class="order-option"
-                    type="button"
-                    data-order-plan="premium"
-                    data-order-next="3"
-                >
-
-                    <span class="option-icon">
-                        🚀
-                    </span>
-
-                    <span class="option-info">
-
-                        <strong>
-                            Premium
-                        </strong>
-
-                        <small>
-                            Advanced editing
-                        </small>
-
-                    </span>
-
-                    <span class="option-arrow">
-                        →
-                    </span>
-
-                </button>
-
-            </div>
-
-
-            <button
-                class="back-text-button"
-                type="button"
-                data-order-go-step="1"
-            >
-                ← Back to Service
-            </button>
-
-        </div>
-
-
-        <!-- =================================================
-             ORDER PAGE 3 — PROJECT
-             ================================================= -->
-
-        <div
-            class="order-step"
-            data-order-step="3"
-        >
-
-            <div class="order-step-heading">
-
-                <span class="step-label">
-                    STEP 3
-                </span>
-
-                <h3>
-                    Project Details
-                </h3>
-
-                <p>
-                    Tell us what you want from the project.
-                </p>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="projectGoal">
-                    What do you want from this reel?
-                </label>
-
-                <select
-                    id="projectGoal"
-                    name="projectGoal"
-                >
-
-                    <option value="">
-                        Select one
-                    </option>
-
-                    <option value="growth">
-                        Grow Instagram reach
-                    </option>
-
-                    <option value="promotion">
-                        Promote my gym
-                    </option>
-
-                    <option value="transformation">
-                        Show a transformation
-                    </option>
-
-                    <option value="engagement">
-                        Increase engagement
-                    </option>
-
-                    <option value="other">
-                        Something else
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="projectNotes">
-                    Anything we should know?
-                </label>
-
-                <textarea
-                    id="projectNotes"
-                    name="projectNotes"
-                    rows="4"
-                    placeholder="Tell us anything important..."
-                ></textarea>
-
-            </div>
-
-
-            <button
-                class="primary-button full-button"
-                type="button"
-                data-order-next="4"
-            >
-
-                Continue
-
-                <span class="button-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-            <button
-                class="back-text-button"
-                type="button"
-                data-order-go-step="2"
-            >
-                ← Back to Plan
-            </button>
-
-        </div>
-
-
-        <!-- =================================================
-             ORDER PAGE 4 — CONTACT
-             ================================================= -->
-
-        <div
-            class="order-step"
-            data-order-step="4"
-        >
-
-            <div class="order-step-heading">
-
-                <span class="step-label">
-                    STEP 4
-                </span>
-
-                <h3>
-                    Your Details
-                </h3>
-
-                <p>
-                    Give us the details we need to contact you.
-                </p>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="clientName">
-                    Your Name
-                </label>
-
-                <input
-                    id="clientName"
-                    name="clientName"
-                    type="text"
-                    autocomplete="name"
-                    placeholder="Enter your name"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="gymName">
-                    Gym Name
-                </label>
-
-                <input
-                    id="gymName"
-                    name="gymName"
-                    type="text"
-                    autocomplete="organization"
-                    placeholder="Enter your gym name"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="instagramHandle">
-                    Instagram
-                </label>
-
-                <input
-                    id="instagramHandle"
-                    name="instagramHandle"
-                    type="text"
-                    placeholder="@yourgym"
-                >
-
-            </div>
-
-
-            <button
-                class="primary-button full-button"
-                type="button"
-                data-order-next="5"
-            >
-
-                Review Order
-
-                <span class="button-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-            <button
-                class="back-text-button"
-                type="button"
-                data-order-go-step="3"
-            >
-                ← Back to Project
-            </button>
-
-        </div>
-
-
-        <!-- =================================================
-             ORDER PAGE 5 — REVIEW
-             ================================================= -->
-
-        <div
-            class="order-step"
-            data-order-step="5"
-        >
-
-            <div class="order-step-heading">
-
-                <span class="step-label">
-                    FINAL STEP
-                </span>
-
-                <h3>
-                    Review Your Order
-                </h3>
-
-                <p>
-                    Check everything before submitting.
-                </p>
-
-            </div>
-
-
-            <div class="information-block">
-
-                <div class="information-title">
-
-                    <span class="info-icon">
-                        ✓
-                    </span>
-
-                    <h3>
-                        Order Summary
-                    </h3>
-
-                </div>
-
-
-                <div class="order-summary">
-
-                    <p>
-                        <strong>
-                            Service
-                        </strong>
-
-                        <span id="reviewService">
-                            Selected service
-                        </span>
-                    </p>
-
-
-                    <p>
-                        <strong>
-                            Plan
-                        </strong>
-
-                        <span id="reviewPlan">
-                            Selected plan
-                        </span>
-                    </p>
-
-
-                    <p>
-                        <strong>
-                            Gym
-                        </strong>
-
-                        <span id="reviewGym">
-                            Gym name
-                        </span>
-                    </p>
-
-
-                    <p>
-                        <strong>
-                            Instagram
-                        </strong>
-
-                        <span id="reviewInstagram">
-                            Instagram
-                        </span>
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <button
-                class="primary-button full-button"
-                type="button"
-                id="submitOrderButton"
-            >
-
-                Submit Order Request
-
-                <span class="button-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-            <button
-                class="back-text-button"
-                type="button"
-                data-order-go-step="4"
-            >
-                ← Back to Contact
-            </button>
-
-        </div>
-
-
-        <!-- =================================================
-             ORDER SUCCESS
-             ================================================= -->
-
-        <div
-            id="orderSuccess"
-            class="order-success"
-            aria-hidden="true"
-        >
-
-            <div class="success-icon">
-                ✓
-            </div>
-
-            <span class="eyebrow">
-                REQUEST RECEIVED
-            </span>
-
-            <h3>
-                You're All Set.
-            </h3>
-
-            <p>
-                Your order request has been prepared.
-                We'll contact you with the next steps.
-            </p>
-
-            <button
-                class="primary-button full-button"
-                type="button"
-                data-screen="home"
-            >
-
-                Back to Home
-
-                <span>
-                    →
-                </span>
-
-            </button>
-
-        </div>
+        </button>
 
     </div>
 
 </section>
 
 
-<!-- =========================================================
-     11. SUPPORT
-     ========================================================= -->
+
+<!-- =====================================================
+     ORDER — ROOM 2
+     PROJECT DETAILS
+     ===================================================== -->
+
+<section
+    id="order-project"
+    class="app-screen"
+    data-order-room="project"
+>
+
+    <div class="screen-inner">
+
+        <span class="eyebrow">
+            ORDER • 02 / 05
+        </span>
+
+        <h2>
+            Project
+            <span>Details.</span>
+        </h2>
+
+        <p>
+            Tell us what you want from this project.
+        </p>
+
+
+        <div class="form-group">
+
+            <label for="projectGoal">
+                Main Goal
+            </label>
+
+            <select id="projectGoal">
+
+                <option value="">
+                    Select your goal
+                </option>
+
+                <option value="growth">
+                    Grow Instagram reach
+                </option>
+
+                <option value="promotion">
+                    Promote my gym
+                </option>
+
+                <option value="transformation">
+                    Show a transformation
+                </option>
+
+                <option value="engagement">
+                    Increase engagement
+                </option>
+
+                <option value="other">
+                    Something else
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="projectNotes">
+                Project Notes
+            </label>
+
+            <textarea
+                id="projectNotes"
+                rows="5"
+                placeholder="Tell us what you want..."
+            ></textarea>
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-order-next="3"
+        >
+
+            Continue
+
+            <span>→</span>
+
+        </button>
+
+
+        <button
+            class="back-text-button"
+            type="button"
+            data-order-back="1"
+        >
+
+            ← Back
+
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ORDER — ROOM 3
+     VIDEO UPLOAD
+     ===================================================== -->
+
+<section
+    id="order-upload"
+    class="app-screen"
+    data-order-room="upload"
+>
+
+    <div class="screen-inner">
+
+        <span class="eyebrow">
+            ORDER • 03 / 05
+        </span>
+
+        <h2>
+            Upload Your
+            <span>Video.</span>
+        </h2>
+
+        <p>
+            Send us the raw footage you want us to edit.
+        </p>
+
+
+        <div class="upload-box">
+
+            <div class="upload-icon">
+                🎥
+            </div>
+
+            <h3>
+                Upload Raw Footage
+            </h3>
+
+            <p>
+                Choose the video files from your phone.
+            </p>
+
+
+            <label
+                class="upload-button"
+                for="videoFiles"
+            >
+
+                Choose Videos
+
+            </label>
+
+
+            <input
+                id="videoFiles"
+                type="file"
+                accept="video/*"
+                multiple
+                hidden
+            >
+
+
+            <div
+                id="selectedFiles"
+                class="selected-files"
+            ></div>
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-order-next="4"
+        >
+
+            Continue
+
+            <span>→</span>
+
+        </button>
+
+
+        <button
+            class="back-text-button"
+            type="button"
+            data-order-back="2"
+        >
+
+            ← Back
+
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ORDER — ROOM 4
+     INSTRUCTIONS
+     ===================================================== -->
+
+<section
+    id="order-instructions"
+    class="app-screen"
+    data-order-room="instructions"
+>
+
+    <div class="screen-inner">
+
+        <span class="eyebrow">
+            ORDER • 04 / 05
+        </span>
+
+        <h2>
+            Special
+            <span>Instructions.</span>
+        </h2>
+
+        <p>
+            Tell us anything specific you want.
+        </p>
+
+
+        <div class="form-group">
+
+            <label for="specialInstructions">
+                Instructions
+            </label>
+
+            <textarea
+                id="specialInstructions"
+                rows="7"
+                placeholder="Example: Use this song, keep this clip first, add captions..."
+            ></textarea>
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-order-next="5"
+        >
+
+            Review Order
+
+            <span>→</span>
+
+        </button>
+
+
+        <button
+            class="back-text-button"
+            type="button"
+            data-order-back="3"
+        >
+
+            ← Back
+
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ORDER — ROOM 5
+     REVIEW
+     ===================================================== -->
+
+<section
+    id="order-review"
+    class="app-screen"
+    data-order-room="review"
+>
+
+    <div class="screen-inner">
+
+        <span class="eyebrow">
+            ORDER • 05 / 05
+        </span>
+
+        <h2>
+            Review Your
+            <span>Order.</span>
+        </h2>
+
+        <p>
+            Check everything once before submitting.
+        </p>
+
+
+        <div class="review-card">
+
+            <div class="review-row">
+
+                <span>
+                    Service
+                </span>
+
+                <strong id="reviewService">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <span>
+                    Plan
+                </span>
+
+                <strong id="reviewPlan">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <span>
+                    Client
+                </span>
+
+                <strong id="reviewClient">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <span>
+                    Gym
+                </span>
+
+                <strong id="reviewGym">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <span>
+                    Instagram
+                </span>
+
+                <strong id="reviewInstagram">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <span>
+                    Videos
+                </span>
+
+                <strong id="reviewVideos">
+                    —
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="submit-button full-button"
+            type="button"
+            id="submitOrderButton"
+        >
+
+            SUBMIT ORDER
+
+            <span>✓</span>
+
+        </button>
+
+
+        <button
+            class="back-text-button"
+            type="button"
+            data-order-back="4"
+        >
+
+            ← Back
+
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     SUCCESS
+     ===================================================== -->
+
+<section
+    id="order-success"
+    class="app-screen"
+    data-screen-section="order-success"
+>
+
+    <div class="screen-inner success-screen">
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <span class="eyebrow">
+            ORDER RECEIVED
+        </span>
+
+        <h2>
+            You're
+            <span>All Set.</span>
+        </h2>
+
+        <p>
+            Your order request has been received.
+            We'll contact you with the next steps.
+        </p>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-screen="home"
+        >
+
+            Back to Home
+
+            <span>→</span>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     SUPPORT
+     ===================================================== -->
 
 <section
     id="support"
-    class="app-screen support-screen"
+    class="app-screen"
     data-screen-section="support"
 >
 
     <div class="screen-inner">
 
-        <div class="section-heading">
+        <button
+            class="back-button"
+            type="button"
+            data-screen="home"
+        >
+            ← Home
+        </button>
 
-            <span class="eyebrow">
-                WE'RE HERE TO HELP
-            </span>
 
-            <h2>
-                Need
-                <span>Help?</span>
-            </h2>
+        <span class="eyebrow">
+            SUPPORT
+        </span>
+
+        <h2>
+            Need
+            <span>Help?</span>
+        </h2>
+
+        <p>
+            We're here to help with your project.
+        </p>
+
+
+        <div class="support-card">
+
+            <h3>
+                Contact Us
+            </h3>
 
             <p>
-                Find the information you need.
+                Get help with your order or project.
             </p>
 
         </div>
 
 
-        <div class="support-options">
+        <div class="support-card">
 
+            <h3>
+                Delivery
+            </h3>
 
-            <button
-                class="support-card"
-                type="button"
-                data-support="contact"
-            >
-
-                <span class="support-icon">
-                    💬
-                </span>
-
-                <span class="support-card-content">
-
-                    <strong>
-                        Contact Us
-                    </strong>
-
-                    <small>
-                        Talk to us about your project
-                    </small>
-
-                </span>
-
-                <span class="support-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-            <button
-                class="support-card"
-                type="button"
-                data-support="delivery"
-            >
-
-                <span class="support-icon">
-                    ⏱
-                </span>
-
-                <span class="support-card-content">
-
-                    <strong>
-                        Delivery Information
-                    </strong>
-
-                    <small>
-                        Understand our delivery process
-                    </small>
-
-                </span>
-
-                <span class="support-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-            <button
-                class="support-card"
-                type="button"
-                data-support="revisions"
-            >
-
-                <span class="support-icon">
-                    ↻
-                </span>
-
-                <span class="support-card-content">
-
-                    <strong>
-                        Revisions
-                    </strong>
-
-                    <small>
-                        Understand how revisions work
-                    </small>
-
-                </span>
-
-                <span class="support-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-            <button
-                class="support-card"
-                type="button"
-                data-support="requirements"
-            >
-
-                <span class="support-icon">
-                    📋
-                </span>
-
-                <span class="support-card-content">
-
-                    <strong>
-                        What We Need From You
-                    </strong>
-
-                    <small>
-                        Footage and information required
-                    </small>
-
-                </span>
-
-                <span class="support-arrow">
-                    →
-                </span>
-
-            </button>
+            <p>
+                Learn about delivery and revisions.
+            </p>
 
         </div>
 
@@ -2093,173 +1508,42 @@
 </section>
 
 
-<!-- =========================================================
-     MODAL
-     ========================================================= -->
-
-<div
-    id="infoModal"
-    class="info-modal"
-    aria-hidden="true"
->
-
-    <div
-        class="modal-backdrop"
-        data-modal-close
-    ></div>
-
-
-    <div
-        class="modal-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modalTitle"
-    >
-
-        <button
-            type="button"
-            class="modal-close"
-            id="modalClose"
-            aria-label="Close"
-        >
-            ×
-        </button>
-
-
-        <div
-            class="modal-icon"
-            id="modalIcon"
-        >
-            ✦
-        </div>
-
-
-        <span
-            class="eyebrow"
-            id="modalEyebrow"
-        >
-            INFORMATION
-        </span>
-
-
-        <h3 id="modalTitle">
-            Information
-        </h3>
-
-
-        <p id="modalText">
-            Information will appear here.
-        </p>
-
-
-        <button
-            type="button"
-            class="primary-button full-button"
-            id="modalActionButton"
-        >
-
-            Continue
-
-            <span class="button-arrow">
-                →
-            </span>
-
-        </button>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
+<!-- =====================================================
      TOAST
-     ========================================================= -->
+     ===================================================== -->
 
 <div
     id="toast"
     class="toast"
-    role="status"
-    aria-live="polite"
     aria-hidden="true"
 >
 
-    <span
-        class="toast-icon"
-        id="toastIcon"
-    >
+    <span id="toastIcon">
         ✓
     </span>
 
-    <span
-        class="toast-message"
-        id="toastMessage"
-    >
+    <span id="toastMessage">
         Done
     </span>
 
 </div>
 
 
-<!-- =========================================================
-     LOADING
-     ========================================================= -->
-
-<div
-    id="loadingOverlay"
-    class="loading-overlay"
-    aria-hidden="true"
->
-
-    <div class="loading-card">
-
-        <div class="loading-spinner"></div>
-
-        <p id="loadingText">
-            Please wait...
-        </p>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     ACCESSIBILITY
-     ========================================================= -->
-
-<div
-    id="liveRegion"
-    class="sr-only"
-    aria-live="polite"
-    aria-atomic="true"
-></div>
-
-
-<!-- =========================================================
+<!-- =====================================================
      FLOATING HOME
-     ========================================================= -->
+     ===================================================== -->
 
 <button
     id="floatingHomeButton"
     class="floating-home-button"
     type="button"
     data-screen="home"
-    aria-label="Go to Home"
+    aria-label="Home"
 >
+
     ↑
+
 </button>
-
-
-<!-- =========================================================
-     BRAND
-     ========================================================= -->
-
-<div
-    class="app-version"
-    aria-hidden="true"
->
-    Gym Growth HQ
-</div>
 
 
 </main>
@@ -2271,4 +1555,4 @@
 
 </body>
 
-                </html>
+</html>
