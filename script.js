@@ -1,84 +1,4 @@
-/* =========================================================
-   SUPABASE CONNECTION
-   =========================================================
-   Publishable key is safe for browser use when RLS policies
-   are correctly configured.
-   IMPORTANT: replace SUPABASE_URL with your Project URL.
-   ========================================================= */
-
-const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE";
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_Pcj2mwFWysWV2sQHwjAm_Q_qtv0I5hS";
-
-function supabaseHeaders() {
-    return {
-        "apikey": SUPABASE_PUBLISHABLE_KEY,
-        "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-        "Content-Type": "application/json"
-    };
-}
-
-function supabaseReady() {
-    return (
-        SUPABASE_URL &&
-        SUPABASE_URL !== "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE" &&
-        SUPABASE_PUBLISHABLE_KEY
-    );
-}
-
-async function syncOrderToSupabase(order) {
-    if (!supabaseReady()) {
-        console.warn("Supabase URL is not configured yet.");
-        return false;
-    }
-
-    try {
-        const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/orders`,
-            {
-                method: "POST",
-                headers: {
-                    ...supabaseHeaders(),
-                    "Prefer": "return=minimal"
-                },
-                body: JSON.stringify({
-                    id: Number(String(order.id).replace("GGHQ-", "")),
-                    user_id: order.userId || "",
-                    service: order.service || "",
-                    plan: order.plan || "",
-                    amount: 0,
-                    payment_status: "pending",
-                    order_status: order.status || "pending",
-                    gym_name: order.gymName || "",
-                    instagram_url: order.instagram || "",
-                    raw_video_urls: order.videos || [],
-                    final_video_url: order.finalVideo || "",
-                    created_at: order.createdAt || new Date().toISOString()
-                })
-            }
-        );
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Supabase order sync failed:", errorText);
-            return false;
-        }
-
-        return true;
-    } catch (error) {
-        console.error("Supabase connection error:", error);
-        return false;
-    }
-}
-
-/* =========================================================
-   END SUPABASE CONNECTION
-   ========================================================= */
-
-/* =========================================================
-   GYM GROWTH HQ
-   FINAL FLOW SCRIPT
-   ========================================================= */
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Pcj2mwFWysWV2sQHwjAm_Q_qtv0I5hS";
 
 const USERS_KEY = "gghq_users";
 const SESSION_KEY = "gghq_session";
@@ -100,11 +20,6 @@ let currentOrder = {
 
 let currentOrderId = null;
 
-
-/* =========================================================
-   STORAGE
-   ========================================================= */
-
 function getUsers() {
     try {
         return JSON.parse(
@@ -115,14 +30,12 @@ function getUsers() {
     }
 }
 
-
 function saveUsers(users) {
     localStorage.setItem(
         USERS_KEY,
         JSON.stringify(users)
     );
 }
-
 
 function getOrders() {
     try {
@@ -134,7 +47,6 @@ function getOrders() {
     }
 }
 
-
 function saveOrders(orders) {
     localStorage.setItem(
         ORDERS_KEY,
@@ -142,14 +54,12 @@ function saveOrders(orders) {
     );
 }
 
-
 function saveSession(user) {
     localStorage.setItem(
         SESSION_KEY,
         JSON.stringify(user)
     );
 }
-
 
 function getSession() {
     try {
@@ -161,29 +71,21 @@ function getSession() {
     }
 }
 
-
 function clearSession() {
     localStorage.removeItem(
         SESSION_KEY
     );
 }
 
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
 function isLoggedIn() {
     return !!currentUser;
 }
-
 
 function getInitial(name) {
     return name
         ? name.trim().charAt(0).toUpperCase()
         : "?";
 }
-
 
 function setText(id, value) {
     const el =
@@ -193,7 +95,6 @@ function setText(id, value) {
         el.textContent = value || "—";
     }
 }
-
 
 function escapeHTML(value) {
     if (!value) return "";
@@ -205,7 +106,6 @@ function escapeHTML(value) {
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
 }
-
 
 function showToast(message, icon = "✓") {
     const toast =
@@ -232,11 +132,6 @@ function showToast(message, icon = "✓") {
     }, 2200);
 }
 
-
-/* =========================================================
-   SCREEN NAVIGATION
-   ========================================================= */
-
 function showScreen(id) {
     document
         .querySelectorAll(".app-screen")
@@ -246,36 +141,29 @@ function showScreen(id) {
             );
         });
 
-
     const screen =
         document.getElementById(id);
 
     if (!screen) return;
 
-
     screen.classList.add(
         "active-screen"
     );
-
 
     window.scrollTo({
         top: 0,
         behavior: "smooth"
     });
 
-
     updateAccountUI();
-
 
     if (id === "orders") {
         renderOrders();
     }
 
-
     if (id === "order-review") {
         updateReview();
     }
-
 
     if (id === "order-details") {
         const order =
@@ -286,11 +174,6 @@ function showScreen(id) {
         }
     }
 }
-
-
-/* =========================================================
-   ACCOUNT UI
-   ========================================================= */
 
 function updateAccountUI() {
     const headerButton =
@@ -307,7 +190,6 @@ function updateAccountUI() {
         document.getElementById(
             "headerAccountName"
         );
-
 
     const homeCard =
         document.getElementById(
@@ -334,7 +216,6 @@ function updateAccountUI() {
             "homeAccountEmail"
         );
 
-
     const accountInitial =
         document.getElementById(
             "accountInitial"
@@ -350,14 +231,11 @@ function updateAccountUI() {
             "accountEmail"
         );
 
-
     if (currentUser) {
-
         const initial =
             getInitial(
                 currentUser.name
             );
-
 
         if (headerButton)
             headerButton.style.display =
@@ -370,7 +248,6 @@ function updateAccountUI() {
         if (headerName)
             headerName.textContent =
                 currentUser.name;
-
 
         if (homeCard)
             homeCard.style.display =
@@ -391,7 +268,6 @@ function updateAccountUI() {
         if (homeEmail)
             homeEmail.textContent =
                 currentUser.email;
-
 
         if (accountInitial)
             accountInitial.textContent =
@@ -421,18 +297,11 @@ function updateAccountUI() {
     }
 }
 
-
-/* =========================================================
-   SAVE CLIENT PROFILE
-   ========================================================= */
-
 function saveClientProfile() {
     if (!currentUser) return;
 
-
     const users =
         getUsers();
-
 
     const index =
         users.findIndex(
@@ -440,35 +309,28 @@ function saveClientProfile() {
                 user.id === currentUser.id
         );
 
-
     if (index === -1) return;
-
 
     const user =
         users[index];
 
-
     user.name =
         currentOrder.clientName ||
         user.name;
-
 
     user.gymName =
         currentOrder.gymName ||
         user.gymName ||
         "";
 
-
     user.instagram =
         currentOrder.instagram ||
         user.instagram ||
         "";
 
-
     users[index] = user;
 
     saveUsers(users);
-
 
     currentUser.name =
         user.name;
@@ -479,18 +341,11 @@ function saveClientProfile() {
     currentUser.instagram =
         user.instagram;
 
-
     saveSession(currentUser);
 }
 
-
-/* =========================================================
-   AUTO-FILL CLIENT DETAILS
-   ========================================================= */
-
 function fillClientDetails() {
     if (!currentUser) return;
-
 
     const name =
         document.getElementById(
@@ -507,18 +362,15 @@ function fillClientDetails() {
             "instagramHandle"
         );
 
-
     if (name) {
         name.value =
             currentUser.name || "";
     }
 
-
     if (gym) {
         gym.value =
             currentUser.gymName || "";
     }
-
 
     if (instagram) {
         instagram.value =
@@ -526,31 +378,17 @@ function fillClientDetails() {
     }
 }
 
-
-/* =========================================================
-   START ORDER
-   ========================================================= */
-
 function startOrder() {
-
     if (!currentUser) {
         showScreen("login");
         return;
     }
 
-
     fillClientDetails();
-
     showScreen("order");
 }
 
-
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
 function loginUser() {
-
     const emailInput =
         document.getElementById(
             "loginEmail"
@@ -561,31 +399,24 @@ function loginUser() {
             "loginPassword"
         );
 
-
     const email =
         emailInput.value
             .trim()
             .toLowerCase();
 
-
     const password =
         passwordInput.value;
 
-
     if (!email || !password) {
-
         showToast(
             "Enter email and password",
             "!"
         );
-
         return;
     }
 
-
     const users =
         getUsers();
-
 
     const user =
         users.find(
@@ -593,30 +424,23 @@ function loginUser() {
                 item.email === email
         );
 
-
     if (!user) {
-
         showToast(
             "Account not found",
             "!"
         );
-
         return;
     }
-
 
     if (
         user.password !== password
     ) {
-
         showToast(
             "Wrong password",
             "!"
         );
-
         return;
     }
-
 
     currentUser = {
         id: user.id,
@@ -626,41 +450,22 @@ function loginUser() {
         instagram: user.instagram || ""
     };
 
-
     saveSession(currentUser);
-
     updateAccountUI();
-
     fillClientDetails();
-
 
     emailInput.value = "";
     passwordInput.value = "";
-
 
     showToast(
         "Login successful",
         "✓"
     );
 
-
-    /*
-       IMPORTANT:
-       Login finished.
-       Go directly to Order.
-       Never show Login again.
-    */
-
     showScreen("order");
 }
 
-
-/* =========================================================
-   CREATE ACCOUNT
-   ========================================================= */
-
 function createAccount() {
-
     const nameInput =
         document.getElementById(
             "signupName"
@@ -676,46 +481,35 @@ function createAccount() {
             "signupPassword"
         );
 
-
     const name =
         nameInput.value.trim();
-
 
     const email =
         emailInput.value
             .trim()
             .toLowerCase();
 
-
     const password =
         passwordInput.value;
 
-
     if (!name || !email || !password) {
-
         showToast(
             "Please fill all details",
             "!"
         );
-
         return;
     }
 
-
     if (password.length < 6) {
-
         showToast(
             "Password must be at least 6 characters",
             "!"
         );
-
         return;
     }
 
-
     const users =
         getUsers();
-
 
     if (
         users.some(
@@ -723,18 +517,14 @@ function createAccount() {
                 user.email === email
         )
     ) {
-
         showToast(
             "Email already registered",
             "!"
         );
-
         return;
     }
 
-
     const newUser = {
-
         id:
             "USER-" +
             Date.now(),
@@ -756,17 +546,13 @@ function createAccount() {
 
         createdAt:
             new Date().toISOString()
-
     };
-
 
     users.push(newUser);
 
     saveUsers(users);
 
-
     currentUser = {
-
         id:
             newUser.id,
 
@@ -781,192 +567,115 @@ function createAccount() {
 
         instagram:
             ""
-
     };
-
 
     saveSession(
         currentUser
     );
 
-
     nameInput.value = "";
     emailInput.value = "";
     passwordInput.value = "";
 
-
     updateAccountUI();
-
     fillClientDetails();
-
 
     showToast(
         "Account created",
         "✓"
     );
 
-
     showScreen("order");
 }
 
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
 function logoutUser() {
-
     currentUser = null;
 
     clearSession();
 
-
     currentOrder = {
-
         service: "",
-
         plan: "",
-
         clientName: "",
-
         gymName: "",
-
         instagram: "",
-
         goal: "",
-
         notes: "",
-
         instructions: "",
-
         videos: []
-
     };
-
 
     currentOrderId = null;
 
-
     updateAccountUI();
-
 
     showToast(
         "Logged out",
         "✓"
     );
 
-
     showScreen("home");
 }
 
-
-/* =========================================================
-   SERVICE SELECTION
-   ========================================================= */
-
 function selectService(service) {
-
-    /*
-       ONLY TWO SERVICES.
-       Promotional Video removed.
-    */
-
     if (
         service !== "reel-editing" &&
         service !== "transformation"
     ) {
-
         return;
     }
-
 
     currentOrder.service =
         service;
 
-
     currentOrder.plan =
         "";
 
-
     if (
-        service ===
-        "reel-editing"
+        service === "reel-editing"
     ) {
-
         showScreen(
             "plan-reel-editing"
         );
-
         return;
     }
 
-
     if (
-        service ===
-        "transformation"
+        service === "transformation"
     ) {
-
         showScreen(
             "plan-transformation"
         );
-
         return;
     }
 }
-
-
-/* =========================================================
-   PLAN SELECTION
-   ========================================================= */
 
 function selectPlan(
     service,
     plan
 ) {
-
     if (
         service !== "reel-editing" &&
         service !== "transformation"
     ) {
-
         return;
     }
-
 
     currentOrder.service =
         service;
 
-
     currentOrder.plan =
         plan || "standard";
 
-
-    /*
-       Already logged in:
-       DIRECTLY ORDER.
-
-       Not logged in:
-       LOGIN ONCE.
-    */
-
     if (currentUser) {
-
         fillClientDetails();
-
         showScreen("order");
-
     } else {
-
         showScreen("login");
-
     }
-        }
-/* =========================================================
-   ORDER STEP 1
-   ========================================================= */
+}
 
 function saveStepOne() {
-
     const name =
         document.getElementById(
             "clientName"
@@ -982,9 +691,7 @@ function saveStepOne() {
             "instagramHandle"
         );
 
-
     if (!name || !gym) return false;
-
 
     currentOrder.clientName =
         name.value.trim();
@@ -997,52 +704,31 @@ function saveStepOne() {
             ? instagram.value.trim()
             : "";
 
-
-    /*
-       Save permanently to account.
-       So next order doesn't ask again.
-    */
-
     if (currentUser) {
-
         saveClientProfile();
-
     }
-
 
     return true;
 }
 
-
-/* =========================================================
-   ORDER NEXT
-   ========================================================= */
-
 function goOrderNext(step) {
-
 
     if (step === 2) {
 
         if (!saveStepOne()) {
-
             showToast(
                 "Please enter your details",
                 "!"
             );
-
             return;
-
         }
-
 
         showScreen(
             "order-project"
         );
 
         return;
-
     }
-
 
     if (step === 3) {
 
@@ -1056,7 +742,6 @@ function goOrderNext(step) {
                 "projectNotes"
             );
 
-
         currentOrder.goal =
             goal
                 ? goal.value
@@ -1067,15 +752,12 @@ function goOrderNext(step) {
                 ? notes.value.trim()
                 : "";
 
-
         showScreen(
             "order-upload"
         );
 
         return;
-
     }
-
 
     if (step === 4) {
 
@@ -1084,9 +766,7 @@ function goOrderNext(step) {
         );
 
         return;
-
     }
-
 
     if (step === 5) {
 
@@ -1095,70 +775,43 @@ function goOrderNext(step) {
                 "specialInstructions"
             );
 
-
         currentOrder.instructions =
             instructions
                 ? instructions.value.trim()
                 : "";
 
-
         updateReview();
-
 
         showScreen(
             "order-review"
         );
-
     }
-
 }
-
-
-/* =========================================================
-   ORDER BACK
-   ========================================================= */
 
 function goOrderBack(step) {
 
     if (step === 1) {
-
         showScreen("order");
-
     }
 
-
     if (step === 2) {
-
         showScreen(
             "order-project"
         );
-
     }
 
-
     if (step === 3) {
-
         showScreen(
             "order-upload"
         );
-
     }
 
-
     if (step === 4) {
-
         showScreen(
             "order-instructions"
         );
-
     }
-
 }
-
-
-/* =========================================================
-   VIDEO FILES
-   ========================================================= */
 
 function handleVideoFiles(files) {
 
@@ -1170,18 +823,14 @@ function handleVideoFiles(files) {
             })
         );
 
-
     const container =
         document.getElementById(
             "selectedFiles"
         );
 
-
     if (!container) return;
 
-
     container.innerHTML = "";
-
 
     currentOrder.videos.forEach(
         video => {
@@ -1191,30 +840,20 @@ function handleVideoFiles(files) {
                     "div"
                 );
 
-
             item.className =
                 "selected-file-item";
-
 
             item.innerHTML = `
                 <span>🎬</span>
                 <span>${escapeHTML(video.name)}</span>
             `;
 
-
             container.appendChild(
                 item
             );
-
         }
     );
-
 }
-
-
-/* =========================================================
-   REVIEW
-   ========================================================= */
 
 function updateReview() {
 
@@ -1227,106 +866,70 @@ function updateReview() {
                 ? "Transformation Reel"
                 : "—";
 
-
     const plan =
         currentOrder.plan ===
         "premium"
             ? "Premium"
             : "Standard";
 
-
     setText(
         "reviewService",
         service
     );
-
 
     setText(
         "reviewPlan",
         plan
     );
 
-
     setText(
         "reviewClient",
         currentOrder.clientName
     );
-
 
     setText(
         "reviewGym",
         currentOrder.gymName
     );
 
-
     setText(
         "reviewInstagram",
         currentOrder.instagram
     );
-
 
     setText(
         "reviewVideos",
         currentOrder.videos.length +
         " video(s)"
     );
-
 }
-
-
-/* =========================================================
-   SUBMIT ORDER
-   ========================================================= */
 
 function submitOrder() {
 
-    /*
-       NEVER redirect to Plan here.
-    */
-
     if (!currentUser) {
-
         showScreen("login");
-
         return;
-
     }
 
-
     if (!currentOrder.service) {
-
         showToast(
             "Please select a service",
             "!"
         );
 
-
         showScreen("services");
-
         return;
-
     }
-
 
     if (!currentOrder.plan) {
-
         currentOrder.plan =
             "standard";
-
     }
-
-
-    /*
-       Make sure client details
-       are saved before order.
-    */
 
     saveStepOne();
 
-
     const orders =
         getOrders();
-
 
     const order = {
 
@@ -1378,43 +981,24 @@ function submitOrder() {
 
         createdAt:
             new Date().toISOString()
-
     };
-
 
     orders.push(order);
 
-
     saveOrders(orders);
-
 
     currentOrderId =
         order.id;
-
-
-    /*
-       IMPORTANT:
-
-       Do NOT reset before navigating.
-       Go directly to Account.
-    */
 
     showToast(
         "Order submitted successfully",
         "✓"
     );
 
-
-    /*
-       Small delay only for toast.
-       Then Account.
-    */
-
     setTimeout(
         () => {
 
             renderOrders();
-
 
             showScreen(
                 "account"
@@ -1423,13 +1007,6 @@ function submitOrder() {
         },
         500
     );
-
-
-    /*
-       Prepare blank order AFTER
-       saving everything.
-       Client profile stays saved.
-    */
 
     currentOrder = {
 
@@ -1453,63 +1030,37 @@ function submitOrder() {
         instructions: "",
 
         videos: []
-
     };
-
 }
-
-
-/* =========================================================
-   FIND CURRENT ORDER
-   ========================================================= */
 
 function findCurrentOrder() {
 
     if (!currentOrderId) {
-
         return null;
-
     }
-
 
     const orders =
         getOrders();
-
 
     return orders.find(
         order =>
             order.id ===
             currentOrderId
     );
-
 }
-
-
-/* =========================================================
-   MY ORDERS
-   ========================================================= */
 
 function getMyOrders() {
 
     if (!currentUser) {
-
         return [];
-
     }
-
 
     return getOrders().filter(
         order =>
             order.userId ===
             currentUser.id
     );
-
 }
-
-
-/* =========================================================
-   RENDER ORDERS
-   ========================================================= */
 
 function renderOrders() {
 
@@ -1518,12 +1069,9 @@ function renderOrders() {
             "ordersList"
         );
 
-
     if (!list) return;
 
-
     list.innerHTML = "";
-
 
     if (!currentUser) {
 
@@ -1534,15 +1082,11 @@ function renderOrders() {
             </div>
         `;
 
-
         return;
-
     }
-
 
     const orders =
         getMyOrders();
-
 
     if (!orders.length) {
 
@@ -1554,11 +1098,8 @@ function renderOrders() {
             </div>
         `;
 
-
         return;
-
     }
-
 
     orders
         .slice()
@@ -1570,14 +1111,11 @@ function renderOrders() {
                     "button"
                 );
 
-
             card.type =
                 "button";
 
-
             card.className =
                 "order-history-card";
-
 
             const service =
                 order.service ===
@@ -1585,13 +1123,11 @@ function renderOrders() {
                     ? "Reel Editing"
                     : "Transformation Reel";
 
-
             const plan =
                 order.plan ===
                 "premium"
                     ? "Premium"
                     : "Standard";
-
 
             card.innerHTML = `
                 <div class="order-history-icon">
@@ -1622,7 +1158,6 @@ function renderOrders() {
                 </span>
             `;
 
-
             card.addEventListener(
                 "click",
                 () => {
@@ -1630,32 +1165,21 @@ function renderOrders() {
                     currentOrderId =
                         order.id;
 
-
                     renderOrderDetails(
                         order
                     );
 
-
                     showScreen(
                         "order-details"
                     );
-
                 }
             );
-
 
             list.appendChild(
                 card
             );
-
         });
-
 }
-
-
-/* =========================================================
-   ORDER DETAILS
-   ========================================================= */
 
 function renderOrderDetails(
     order
@@ -1663,20 +1187,17 @@ function renderOrderDetails(
 
     if (!order) return;
 
-
     const service =
         order.service ===
         "reel-editing"
             ? "Reel Editing"
             : "Transformation Reel";
 
-
     const plan =
         order.plan ===
         "premium"
             ? "Premium"
             : "Standard";
-
 
     setText(
         "detailOrderNumber",
@@ -1687,43 +1208,36 @@ function renderOrderDetails(
         )
     );
 
-
     setText(
         "detailOrderStatus",
         order.deliveryStatus ||
         order.status
     );
 
-
     setText(
         "detailService",
         service
     );
-
 
     setText(
         "detailPlan",
         plan
     );
 
-
     setText(
         "detailClient",
         order.clientName
     );
-
 
     setText(
         "detailGym",
         order.gymName
     );
 
-
     setText(
         "detailGoal",
         order.goal
     );
-
 
     setText(
         "detailVideos",
@@ -1733,25 +1247,17 @@ function renderOrderDetails(
             : "—"
     );
 
-
     setText(
         "detailInstructions",
         order.instructions ||
         "—"
     );
-
 }
-
-
-/* =========================================================
-   INITIALIZE
-   ========================================================= */
 
 function restoreSession() {
 
     const session =
         getSession();
-
 
     if (!session) {
 
@@ -1760,13 +1266,10 @@ function restoreSession() {
         updateAccountUI();
 
         return;
-
     }
-
 
     const users =
         getUsers();
-
 
     const user =
         users.find(
@@ -1774,7 +1277,6 @@ function restoreSession() {
                 item.id === session.id &&
                 item.email === session.email
         );
-
 
     if (!user) {
 
@@ -1785,9 +1287,7 @@ function restoreSession() {
         updateAccountUI();
 
         return;
-
     }
-
 
     currentUser = {
 
@@ -1805,18 +1305,10 @@ function restoreSession() {
 
         instagram:
             user.instagram || ""
-
     };
 
-
     updateAccountUI();
-
 }
-
-
-/* =========================================================
-   CLICK HANDLER
-   ========================================================= */
 
 document.addEventListener(
     "click",
@@ -1827,13 +1319,7 @@ document.addEventListener(
                 "button, a"
             );
 
-
         if (!button) return;
-
-
-        /* ================================================
-           ACCOUNT
-           ================================================ */
 
         if (
             button.dataset.screen ===
@@ -1842,11 +1328,9 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             if (currentUser) {
 
                 updateAccountUI();
-
 
                 showScreen(
                     "account"
@@ -1857,18 +1341,10 @@ document.addEventListener(
                 showScreen(
                     "login"
                 );
-
             }
 
-
             return;
-
         }
-
-
-        /* ================================================
-           ORDERS
-           ================================================ */
 
         if (
             button.dataset.screen ===
@@ -1877,35 +1353,23 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             if (!currentUser) {
 
                 showScreen(
                     "login"
                 );
 
-
                 return;
-
             }
 
-
             renderOrders();
-
 
             showScreen(
                 "orders"
             );
 
-
             return;
-
         }
-
-
-        /* ================================================
-           SERVICES
-           ================================================ */
 
         if (
             button.dataset.detail
@@ -1913,20 +1377,12 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             selectService(
                 button.dataset.detail
             );
 
-
             return;
-
         }
-
-
-        /* ================================================
-           PLAN DETAIL
-           ================================================ */
 
         if (
             button.dataset.planDetail
@@ -1934,10 +1390,8 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             const service =
                 button.dataset.planDetail;
-
 
             if (
                 service ===
@@ -1947,9 +1401,7 @@ document.addEventListener(
                 showScreen(
                     "plan-reel-editing"
                 );
-
             }
-
 
             if (
                 service ===
@@ -1959,18 +1411,10 @@ document.addEventListener(
                 showScreen(
                     "plan-transformation"
                 );
-
             }
 
-
             return;
-
         }
-
-
-        /* ================================================
-           START ORDER FROM PLAN
-           ================================================ */
 
         if (
             button.dataset.plan
@@ -1978,32 +1422,16 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             const service =
                 button.dataset.plan;
-
-
-            /*
-               Current HTML has one Start Order
-               per service.
-
-               Use Standard as default plan.
-            */
 
             selectPlan(
                 service,
                 "standard"
             );
 
-
             return;
-
         }
-
-
-        /* ================================================
-           ORDER NEXT
-           ================================================ */
 
         if (
             button.dataset.orderNext
@@ -2011,22 +1439,14 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             goOrderNext(
                 Number(
                     button.dataset.orderNext
                 )
             );
 
-
             return;
-
         }
-
-
-        /* ================================================
-           ORDER BACK
-           ================================================ */
 
         if (
             button.dataset.orderBack
@@ -2034,22 +1454,14 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             goOrderBack(
                 Number(
                     button.dataset.orderBack
                 )
             );
 
-
             return;
-
         }
-
-
-        /* ================================================
-           NORMAL SCREEN
-           ================================================ */
 
         if (
             button.dataset.screen
@@ -2057,1231 +1469,1427 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             showScreen(
                 button.dataset.screen
             );
 
-
             return;
-
         }
-
     }
+);}
 );
-
-
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
 document
-    .getElementById("loginButton")
-    ?.addEventListener(
-        "click",
-        loginUser
-    );
-
-
-/* =========================================================
-   SIGNUP
-   ========================================================= */
-
+.getElementById("loginButton")
+?.addEventListener(
+"click",
+loginUser
+);
 document
-    .getElementById("signupButton")
-    ?.addEventListener(
-        "click",
-        createAccount
-    );
-
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
+.getElementById("signupButton")
+?.addEventListener(
+"click",
+createAccount
+);
 document
-    .getElementById("logoutButton")
-    ?.addEventListener(
-        "click",
-        function(event) {
-
-            event.preventDefault();
-
-            logoutUser();
-
-        }
-    );
-
-
-/* =========================================================
-   LOGIN → SIGNUP
-   ========================================================= */
-
+.getElementById("logoutButton")
+?.addEventListener(
+"click",
+function(event) {
+event.preventDefault();
+logoutUser();
+}
+);
 document
-    .getElementById("goToSignup")
-    ?.addEventListener(
-        "click",
-        function(event) {
-
-            event.preventDefault();
-
-
-            showScreen(
-                "signup"
-            );
-
-        }
-    );
-
-
-/* =========================================================
-   SIGNUP → LOGIN
-   ========================================================= */
-
+.getElementById("goToSignup")
+?.addEventListener(
+"click",
+function(event) {
+event.preventDefault();
+showScreen(
+"signup"
+);
+}
+);
 document
-    .getElementById("goToLogin")
-    ?.addEventListener(
-        "click",
-        function(event) {
-
-            event.preventDefault();
-
-
-            showScreen(
-                "login"
-            );
-
-        }
-    );
-
-
-/* =========================================================
-   VIDEO INPUT
-   ========================================================= */
-
+.getElementById("goToLogin")
+?.addEventListener(
+"click",
+function(event) {
+event.preventDefault();
+showScreen(
+"login"
+);
+}
+);
 document
-    .getElementById("videoFiles")
-    ?.addEventListener(
-        "change",
-        function() {
-
-            handleVideoFiles(
-                this.files
-            );
-
-        }
-    );
-
-
-/* =========================================================
-   SUBMIT
-   ========================================================= */
-
+.getElementById("videoFiles")
+?.addEventListener(
+"change",
+function() {
+handleVideoFiles(
+this.files
+);
+}
+);
 document
-    .getElementById("submitOrderButton")
-    ?.addEventListener(
-        "click",
-        function(event) {
-
-            event.preventDefault();
-
-
-            submitOrder();
-
-        }
-    );
-
-
-/* =========================================================
-   RESTORE SESSION
-   ========================================================= */
-
+.getElementById("submitOrderButton")
+?.addEventListener(
+"click",
+function(event) {
+event.preventDefault();
+submitOrder();
+}
+);
 restoreSession();
-
-
-/* =========================================================
-   INITIAL SCREEN
-   ========================================================= */
-
 showScreen("home");
-/* =========================================================
-   FINAL VIDEO UPLOAD UPDATE
-   Fresh Upload + Gallery Style Video Preview
-   ========================================================= */
-
-
-/* ---------------------------------------------------------
-   Make sure multiple videos can be selected
-   --------------------------------------------------------- */
 
 const videoInput =
-    document.getElementById("videoFiles");
+document.getElementById("videoFiles");
 
 if (videoInput) {
+videoInput.setAttribute(
+"multiple",
+"multiple"
+);
 
-    videoInput.setAttribute(
-        "multiple",
-        "multiple"
-    );
-
-    videoInput.setAttribute(
-        "accept",
-        "video/*"
-    );
-
+videoInput.setAttribute(
+"accept",
+"video/*"
+);
 }
-
-
-/* ---------------------------------------------------------
-   Gallery preview styles
-   No CSS file editing required
-   --------------------------------------------------------- */
 
 if (!document.getElementById("videoGalleryStyles")) {
 
-    const style =
-        document.createElement("style");
+const style =
+document.createElement("style");
 
-    style.id =
-        "videoGalleryStyles";
+style.id =
+"videoGalleryStyles";
 
-    style.textContent = `
-
-        .video-gallery-preview {
-            display: grid;
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 18px;
-        }
-
-        .video-preview-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-            background: #15151c;
-            border: 1px solid rgba(145, 92, 255, 0.35);
-        }
-
-        .video-preview-card video {
-            display: block;
-            width: 100%;
-            aspect-ratio: 16 / 10;
-            object-fit: cover;
-            background: #08080c;
-        }
-
-        .video-preview-info {
-            padding: 9px 10px 11px;
-        }
-
-        .video-preview-name {
-            font-size: 12px;
-            line-height: 1.35;
-            color: #ffffff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .video-preview-number {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            min-width: 28px;
-            height: 28px;
-            padding: 0 8px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.75);
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .video-count-label {
-            margin-top: 14px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            background: rgba(145, 92, 255, 0.10);
-            color: #d8c7ff;
-            font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .video-empty-message {
-            margin-top: 16px;
-            padding: 18px;
-            border-radius: 14px;
-            text-align: center;
-            color: #8f8f9d;
-            background: rgba(255,255,255,0.03);
-            font-size: 14px;
-        }
-
-        @media (min-width: 600px) {
-
-            .video-gallery-preview {
-                grid-template-columns:
-                    repeat(3, minmax(0, 1fr));
-            }
-
-        }
-
-    `;
-
-    document.head.appendChild(style);
-
+style.textContent = `
+.video-gallery-preview {
+display: grid;
+grid-template-columns:
+repeat(2, minmax(0, 1fr));
+gap: 12px;
+margin-top: 18px;
 }
+.video-preview-card {
+position: relative;
+overflow: hidden;
+border-radius: 16px;
+background: #15151c;
+border: 1px solid rgba(145, 92, 255, 0.35);
+}
+.video-preview-card video {
+display: block;
+width: 100%;
+aspect-ratio: 16 / 10;
+object-fit: cover;
+background: #08080c;
+}
+.video-preview-info {
+padding: 9px 10px 11px;
+}
+.video-preview-name {
+font-size: 12px;
+line-height: 1.35;
+color: #ffffff;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+.video-preview-number {
+position: absolute;
+top: 8px;
+left: 8px;
+min-width: 28px;
+height: 28px;
+padding: 0 8px;
+border-radius: 14px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: rgba(0,0,0,0.75);
+color: #ffffff;
+font-size: 12px;
+font-weight: 700;
+}
+.video-count-label {
+margin-top: 14px;
+padding: 12px 14px;
+border-radius: 12px;
+background: rgba(145, 92, 255, 0.10);
+color: #d8c7ff;
+font-size: 14px;
+font-weight: 600;
+text-align: center;
+}
+.video-empty-message {
+margin-top: 16px;
+padding: 18px;
+border-radius: 14px;
+text-align: center;
+color: #8f8f9d;
+background: rgba(255,255,255,0.03);
+font-size: 14px;
+}
+@media (min-width: 600px) {
+.video-gallery-preview {
+grid-template-columns:
+repeat(3, minmax(0, 1fr));
+}
+}
+`;
 
-
-/* ---------------------------------------------------------
-   Clear upload selection
-   --------------------------------------------------------- */
+document.head.appendChild(style);
+}
 
 function clearFreshUpload() {
 
-    const input =
-        document.getElementById(
-            "videoFiles"
-        );
+const input =
+document.getElementById(
+"videoFiles"
+);
 
-    const selected =
-        document.getElementById(
-            "selectedFiles"
-        );
+const selected =
+document.getElementById(
+"selectedFiles"
+);
 
-
-    /*
-       Clear actual phone-file selection
-    */
-
-    if (input) {
-
-        input.value = "";
-
-    }
-
-
-    /*
-       Clear preview area
-    */
-
-    if (selected) {
-
-        selected.innerHTML = "";
-
-    }
-
-
-    /*
-       Clear current order video list
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos = [];
-
-    }
-
+if (input) {
+input.value = "";
 }
 
+if (selected) {
+selected.innerHTML = "";
+}
 
-/* ---------------------------------------------------------
-   Create gallery container
-   --------------------------------------------------------- */
+if (
+typeof currentOrder !==
+"undefined"
+) {
+currentOrder.videos = [];
+}
+}
 
 function getVideoGalleryContainer() {
 
-    const selected =
-        document.getElementById(
-            "selectedFiles"
-        );
+const selected =
+document.getElementById(
+"selectedFiles"
+);
 
-    if (!selected) return null;
+if (!selected) return null;
 
+selected.className =
+"video-gallery-wrapper";
 
-    /*
-       Reuse existing selectedFiles
-       element as our gallery container.
-    */
-
-    selected.className =
-        "video-gallery-wrapper";
-
-
-    return selected;
-
+return selected;
 }
-
-
-/* ---------------------------------------------------------
-   Format file size
-   --------------------------------------------------------- */
 
 function formatVideoSize(bytes) {
 
-    if (!bytes) return "";
+if (!bytes) return "";
 
+const mb =
+bytes / (1024 * 1024);
 
-    const mb =
-        bytes / (1024 * 1024);
-
-
-    if (mb < 1) {
-
-        return Math.round(
-            bytes / 1024
-        ) + " KB";
-
-    }
-
-
-    return mb.toFixed(1) + " MB";
-
+if (mb < 1) {
+return Math.round(
+bytes / 1024
+) + " KB";
 }
 
-
-/* ---------------------------------------------------------
-   Show selected videos
-   --------------------------------------------------------- */
+return mb.toFixed(1) + " MB";
+}
 
 function showVideoGallery(files) {
 
-    const container =
-        getVideoGalleryContainer();
+const container =
+getVideoGalleryContainer();
 
+if (!container) return;
 
-    if (!container) return;
+container.innerHTML = "";
 
+if (!files || files.length === 0) {
 
-    container.innerHTML = "";
+container.innerHTML = `
+<div class="video-empty-message">
+No videos selected yet.
+</div>
+`;
 
-
-    if (
-        !files ||
-        files.length === 0
-    ) {
-
-        container.innerHTML = `
-            <div class="video-empty-message">
-                No videos selected yet.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    /*
-       Gallery wrapper
-    */
-
-    const gallery =
-        document.createElement(
-            "div"
-        );
-
-
-    gallery.className =
-        "video-gallery-preview";
-
-
-    /*
-       Count label
-    */
-
-    const count =
-        document.createElement(
-            "div"
-        );
-
-
-    count.className =
-        "video-count-label";
-
-
-    count.textContent =
-        `${files.length} video${
-            files.length === 1
-                ? ""
-                : "s"
-        } selected`;
-
-
-    /*
-       Create each thumbnail
-    */
-
-    Array.from(files).forEach(
-        (file, index) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "video-preview-card";
-
-
-            /*
-               Number badge
-            */
-
-            const number =
-                document.createElement(
-                    "div"
-                );
-
-
-            number.className =
-                "video-preview-number";
-
-
-            number.textContent =
-                index + 1;
-
-
-            /*
-               Video thumbnail
-            */
-
-            const video =
-                document.createElement(
-                    "video"
-                );
-
-
-            video.muted = true;
-
-            video.playsInline = true;
-
-            video.preload =
-                "metadata";
-
-
-            video.setAttribute(
-                "playsinline",
-                ""
-            );
-
-
-            /*
-               Create temporary preview URL
-            */
-
-            const previewURL =
-                URL.createObjectURL(
-                    file
-                );
-
-
-            video.src =
-                previewURL;
-
-
-            /*
-               Show first frame
-            */
-
-            video.addEventListener(
-                "loadedmetadata",
-                function() {
-
-                    try {
-
-                        if (
-                            video.duration >
-                            0.5
-                        ) {
-
-                            video.currentTime =
-                                0.1;
-
-                        }
-
-                    } catch (error) {}
-
-                }
-            );
-
-
-            /*
-               Release URL after video
-               element is no longer needed
-            */
-
-            video.addEventListener(
-                "error",
-                function() {
-
-                    URL.revokeObjectURL(
-                        previewURL
-                    );
-
-                }
-            );
-
-
-            /*
-               File information
-            */
-
-            const info =
-                document.createElement(
-                    "div"
-                );
-
-
-            info.className =
-                "video-preview-info";
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-
-            name.className =
-                "video-preview-name";
-
-
-            name.textContent =
-                file.name;
-
-
-            const size =
-                document.createElement(
-                    "div"
-                );
-
-
-            size.style.cssText =
-                `
-                margin-top:4px;
-                font-size:11px;
-                color:#777783;
-                `;
-
-
-            size.textContent =
-                formatVideoSize(
-                    file.size
-                );
-
-
-            info.appendChild(name);
-
-            info.appendChild(size);
-
-
-            card.appendChild(
-                video
-            );
-
-            card.appendChild(
-                number
-            );
-
-            card.appendChild(
-                info
-            );
-
-
-            gallery.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    container.appendChild(
-        gallery
-    );
-
-
-    container.appendChild(
-        count
-    );
-
+return;
 }
 
+const gallery =
+document.createElement(
+"div"
+);
 
-/* ---------------------------------------------------------
-   NEW video selection handler
-   --------------------------------------------------------- */
+gallery.className =
+"video-gallery-preview";
 
-function newVideoSelectionHandler(
-    files
+const count =
+document.createElement(
+"div"
+);
+
+count.className =
+"video-count-label";
+
+count.textContent =
+`${files.length} video${
+files.length === 1
+? ""
+: "s"
+} selected`;
+
+Array.from(files).forEach(
+(file, index) => {
+
+const card =
+document.createElement(
+"div"
+);
+
+card.className =
+"video-preview-card";
+
+const number =
+document.createElement(
+"div"
+);
+
+number.className =
+"video-preview-number";
+
+number.textContent =
+index + 1;
+
+const video =
+document.createElement(
+"video"
+);
+
+video.muted = true;
+video.playsInline = true;
+video.preload =
+"metadata";
+
+video.setAttribute(
+"playsinline",
+""
+);
+
+const previewURL =
+URL.createObjectURL(
+file
+);
+
+video.src =
+previewURL;
+
+video.addEventListener(
+"loadedmetadata",
+function() {
+
+try {
+
+if (
+video.duration >
+0.5
 ) {
 
-    if (!files) return;
-
-
-    /*
-       Save ONLY the videos selected
-       for THIS current order.
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos =
-            Array.from(files).map(
-                file => ({
-
-                    name:
-                        file.name,
-
-                    size:
-                        file.size
-
-                })
-            );
-
-    }
-
-
-    /*
-       Show gallery
-    */
-
-    showVideoGallery(
-        files
-    );
-
-
-    /*
-       Small confirmation
-    */
-
-    if (
-        typeof showToast ===
-        "function"
-    ) {
-
-        showToast(
-            `${files.length} video${
-                files.length === 1
-                    ? ""
-                    : "s"
-            } selected`,
-            "✓"
-        );
-
-    }
+video.currentTime =
+0.1;
 
 }
 
+} catch (error) {}
 
-/* ---------------------------------------------------------
-   Replace / override old upload handler
-   --------------------------------------------------------- */
+}
+);
+
+video.addEventListener(
+"error",
+function() {
+
+URL.revokeObjectURL(
+previewURL
+);
+
+}
+);
+
+const info =
+document.createElement(
+"div"
+);
+
+info.className =
+"video-preview-info";
+
+const name =
+document.createElement(
+"div"
+);
+
+name.className =
+"video-preview-name";
+
+name.textContent =
+file.name;
+
+const size =
+document.createElement(
+"div"
+);
+
+size.style.cssText =
+`
+margin-top:4px;
+font-size:11px;
+color:#777783;
+`;
+
+size.textContent =
+formatVideoSize(
+file.size
+);
+
+info.appendChild(name);
+info.appendChild(size);
+
+card.appendChild(
+video
+);
+
+card.appendChild(
+number
+);
+
+card.appendChild(
+info
+);
+
+gallery.appendChild(
+card
+);
+
+}
+);
+
+container.appendChild(
+gallery
+);
+
+container.appendChild(
+count
+);
+
+}
+
+function newVideoSelectionHandler(
+files
+) {
+
+if (!files) return;
+
+if (
+typeof currentOrder !==
+"undefined"
+) {
+
+currentOrder.videos =
+Array.from(files).map(
+file => ({
+name:
+file.name,
+size:
+file.size
+})
+);
+
+}
+
+showVideoGallery(
+files
+);
+
+if (
+typeof showToast ===
+"function"
+) {
+
+showToast(
+`${files.length} video${
+files.length === 1
+? ""
+: "s"
+} selected`,
+"✓"
+);
+
+}
+}
 
 if (videoInput) {
 
-    videoInput.addEventListener(
-        "change",
-        function() {
+videoInput.addEventListener(
+"change",
+function() {
 
-            newVideoSelectionHandler(
-                this.files
-            );
-
-        }
-    );
+newVideoSelectionHandler(
+this.files
+);
 
 }
+);
 
-
-/* ---------------------------------------------------------
-   IMPORTANT:
-   Whenever Upload screen opens,
-   start with a completely fresh selection.
-   --------------------------------------------------------- */
+}
 
 if (
-    typeof showScreen ===
-    "function"
+typeof showScreen ===
+"function"
 ) {
 
-    const originalShowScreen =
-        showScreen;
+const originalShowScreen =
+showScreen;
 
+window.showScreen =
+function(screenId) {
 
-    window.showScreen =
-        function(screenId) {
+if (
+screenId ===
+"order-upload"
+) {
 
-            /*
-               Every time we enter Upload screen,
-               clear old selected videos.
-
-               So even if user presses Back
-               and returns again, it is empty.
-            */
-
-            if (
-                screenId ===
-                "order-upload"
-            ) {
-
-                clearFreshUpload();
-
-            }
-
-
-            originalShowScreen(
-                screenId
-            );
-
-        };
+clearFreshUpload();
 
 }
 
-
-/* ---------------------------------------------------------
-   Extra protection:
-   Start a completely fresh upload
-   whenever New Order is clicked.
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-screen]"
-            );
-
-
-        if (!button) return;
-
-
-        const target =
-            button.dataset.screen;
-
-
-        /*
-           New Order
-        */
-
-        if (
-            target === "order"
-        ) {
-
-            clearFreshUpload();
-
-        }
-
-    },
-    true
+originalShowScreen(
+screenId
 );
 
+};
 
-/* ---------------------------------------------------------
-   Clear upload after successful order
-   --------------------------------------------------------- */
+}
 
 document.addEventListener(
-    "click",
-    function(event) {
+"click",
+function(event) {
 
-        const button =
-            event.target.closest(
-                "#submitOrderButton"
-            );
-
-
-        if (!button) return;
-
-
-        /*
-           Wait until existing submit logic
-           finishes saving the order.
-        */
-
-        setTimeout(
-            function() {
-
-                clearFreshUpload();
-
-            },
-            700
-        );
-
-    },
-    true
+const button =
+event.target.closest(
+"[data-screen]"
 );
 
+if (!button) return;
 
-/* =========================================================
-   END VIDEO UPLOAD UPDATE
-   ========================================================= */
+const target =
+button.dataset.screen;
 
+if (
+target === "order"
+) {
 
-/* =========================================================
-   MULTI-SELECT VIDEO FIX
-   Add more videos without removing previous videos
-   ========================================================= */
+clearFreshUpload();
+
+}
+
+},
+true
+);
+
+document.addEventListener(
+"click",
+function(event) {
+
+const button =
+event.target.closest(
+"#submitOrderButton"
+);
+
+if (!button) return;
+
+setTimeout(
+function() {
+
+clearFreshUpload();
+
+},
+700
+);
+
+},
+true
+);
 
 window.GGHQ_SELECTED_VIDEO_FILES =
-    window.GGHQ_SELECTED_VIDEO_FILES ||
-    [];
-
-
-/* ---------------------------------------------------------
-   Render all selected videos
-   --------------------------------------------------------- */
+window.GGHQ_SELECTED_VIDEO_FILES || [];
 
 function GGHQ_renderAllVideos() {
 
-    const container =
-        document.getElementById(
-            "selectedFiles"
-        );
+const container =
+document.getElementById(
+"selectedFiles"
+);
 
+if (!container) return;
 
-    if (!container) return;
+container.innerHTML = "";
 
+const files =
+window.GGHQ_SELECTED_VIDEO_FILES;
 
-    container.innerHTML = "";
+if (!files.length) {
 
+container.innerHTML = `
+<div class="video-empty-message">
+No videos selected yet.
+</div>
+`;
 
-    const files =
-        window.GGHQ_SELECTED_VIDEO_FILES;
-
-
-    if (!files.length) {
-
-        container.innerHTML = `
-            <div class="video-empty-message">
-                No videos selected yet.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    const gallery =
-        document.createElement(
-            "div"
-        );
-
-
-    gallery.className =
-        "video-gallery-preview";
-
-
-    files.forEach(
-        (file, index) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "video-preview-card";
-
-
-            const number =
-                document.createElement(
-                    "div"
-                );
-
-
-            number.className =
-                "video-preview-number";
-
-
-            number.textContent =
-                index + 1;
-
-
-            const video =
-                document.createElement(
-                    "video"
-                );
-
-
-            video.muted = true;
-
-            video.playsInline = true;
-
-            video.preload =
-                "metadata";
-
-
-            video.setAttribute(
-                "playsinline",
-                ""
-            );
-
-
-            const previewURL =
-                URL.createObjectURL(
-                    file
-                );
-
-
-            video.src =
-                previewURL;
-
-
-            video.addEventListener(
-                "loadedmetadata",
-                function() {
-
-                    try {
-
-                        if (
-                            video.duration >
-                            0.2
-                        ) {
-
-                            video.currentTime =
-                                0.1;
-
-                        }
-
-                    } catch (e) {}
-
-                }
-            );
-
-
-            const info =
-                document.createElement(
-                    "div"
-                );
-
-
-            info.className =
-                "video-preview-info";
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-
-            name.className =
-                "video-preview-name";
-
-
-            name.textContent =
-                file.name;
-
-
-            info.appendChild(
-                name
-            );
-
-
-            card.appendChild(
-                video
-            );
-
-
-            card.appendChild(
-                number
-            );
-
-
-            card.appendChild(
-                info
-            );
-
-
-            gallery.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    container.appendChild(
-        gallery
-    );
-
-
-    const count =
-        document.createElement(
-            "div"
-        );
-
-
-    count.className =
-        "video-count-label";
-
-
-    count.textContent =
-        `${files.length} video${
-            files.length === 1
-                ? ""
-                : "s"
-        } selected`;
-
-
-    container.appendChild(
-        count
-    );
-
-
-    /*
-       Keep currentOrder in sync
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos =
-            files.map(
-                file => ({
-
-                    name:
-                        file.name,
-
-                    size:
-                        file.size
-
-                })
-            );
-
-    }
-
+return;
 }
 
+const gallery =
+document.createElement(
+"div"
+);
 
-/* ---------------------------------------------------------
-   File size
-   --------------------------------------------------------- */
+gallery.className =
+"video-gallery-preview";
 
-function GGHQ_formatFileSize(
-    bytes
+files.forEach(
+(file, index) => {
+
+const card =
+document.createElement(
+"div"
+);
+
+card.className =
+"video-preview-card";
+
+const number =
+document.createElement(
+"div"
+);
+
+number.className =
+"video-preview-number";
+
+number.textContent =
+index + 1;
+
+const video =
+document.createElement(
+"video"
+);
+
+video.muted = true;
+video.playsInline = true;
+video.preload =
+"metadata";
+
+video.setAttribute(
+"playsinline",
+""
+);
+
+const previewURL =
+URL.createObjectURL(
+file
+);
+
+video.src =
+previewURL;
+
+video.addEventListener(
+"loadedmetadata",
+function() {
+
+try {
+
+if (
+video.duration >
+0.2
 ) {
 
-    if (!bytes) return "";
-
-
-    const mb =
-        bytes /
-        (1024 * 1024);
-
-
-    if (mb <
-                    if (!exists) {
-
-                window
-                    .GGHQ_SELECTED_VIDEO_FILES
-                    .push(
-                        newFile
-                    );
-
-            }
-
-        }
-    );
-
-
-    /*
-       Keep current order synced.
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos =
-            window
-                .GGHQ_SELECTED_VIDEO_FILES
-                .map(
-                    file => ({
-
-                        name:
-                            file.name,
-
-                        size:
-                            file.size
-
-                    })
-                );
-
-    }
-
-
-    /*
-       SHOW CLEAR CONFIRMATION
-    */
-
-    GGHQ_renderSelectedConfirmation();
-
-
-    /*
-       Clear input so another
-       selection can be added.
-    */
-
-    this.value = "";
-
-
-    if (
-        typeof showToast ===
-        "function"
-    ) {
-
-        showToast(
-            `${
-                window
-                    .GGHQ_SELECTED_VIDEO_FILES
-                    .length
-            } videos selected`,
-            "✓"
-        );
-
-    }
-
-        }
-    );
+video.currentTime =
+0.1;
 
 }
 
+} catch (e) {}
 
-/* =========================================================
-   END SELECTED VIDEO CONFIRMATION
-   ========================================================= */
+}
+);
 
+const info =
+document.createElement(
+"div"
+);
 
-/* =========================================================
-   SUPABASE STATUS
-   ========================================================= */
+info.className =
+"video-preview-info";
 
-if (!supabaseReady()) {
+const name =
+document.createElement(
+"div"
+);
 
-    console.warn(
-        "GGHQ: Supabase URL is still missing. Add your Supabase Project URL."
-    );
+name.className =
+"video-preview-name";
 
-    }
+name.textContent =
+file.name;
+
+const size =
+document.createElement(
+"div"
+);
+
+size.style.cssText = `
+margin-top:4px;
+font-size:11px;
+color:#777783;
+`;
+
+size.textContent =
+GGHQ_formatFileSize(
+file.size
+);
+
+info.appendChild(
+name
+);
+
+info.appendChild(
+size
+);
+
+card.appendChild(
+video
+);
+
+card.appendChild(
+number
+);
+
+card.appendChild(
+info
+);
+
+gallery.appendChild(
+card
+);
+
+}
+);
+
+container.appendChild(
+gallery
+);
+
+const count =
+document.createElement(
+"div"
+);
+
+count.className =
+"video-count-label";
+
+count.textContent =
+`${files.length} video${
+files.length === 1
+? ""
+: "s"
+} selected`;
+
+container.appendChild(
+count
+);
+
+if (
+typeof currentOrder !==
+"undefined"
+) {
+
+currentOrder.videos =
+files.map(
+file => ({
+name:
+file.name,
+size:
+file.size
+})
+);
+
+}
+
+}
+
+function GGHQ_formatFileSize(
+bytes
+) {
+
+if (!bytes) return "";
+
+const mb =
+bytes /
+(1024 * 1024);
+
+if (mb < 1) {
+
+return Math.round(
+bytes / 1024
+) + " KB";
+
+}
+
+return mb.toFixed(1) +
+" MB";
+}
+
+const GGHQ_videoInput =
+document.getElementById(
+"videoFiles"
+);
+
+if (GGHQ_videoInput) {
+
+GGHQ_videoInput.addEventListener(
+"change",
+function() {
+
+const newFiles =
+Array.from(
+this.files || []
+);
+
+if (!newFiles.length) {
+return;
+}
+
+newFiles.forEach(
+newFile => {
+
+const alreadyExists =
+window
+.GGHQ_SELECTED_VIDEO_FILES
+.some(
+oldFile =>
+oldFile.name ===
+newFile.name &&
+oldFile.size ===
+newFile.size &&
+oldFile.lastModified ===
+newFile.lastModified
+);
+
+if (!alreadyExists) {
+
+window
+.GGHQ_SELECTED_VIDEO_FILES
+.push(
+newFile
+);
+
+}
+
+}
+);
+
+GGHQ_renderAllVideos();
+
+this.value = "";
+
+if (
+typeof showToast ===
+"function"
+) {
+
+const total =
+window
+.GGHQ_SELECTED_VIDEO_FILES
+.length;
+
+showToast(
+`${total} video${
+total === 1
+? ""
+: "s"
+} selected`,
+"✓"
+);
+
+}
+
+}
+);
+
+}
+
+function GGHQ_clearAllSelectedVideos() {
+
+window.GGHQ_SELECTED_VIDEO_FILES =
+[];
+
+const input =
+document.getElementById(
+"videoFiles"
+);
+
+if (input) {
+input.value = "";
+}
+
+const container =
+document.getElementById(
+"selectedFiles"
+);
+
+if (container) {
+container.innerHTML = "";
+}
+
+if (
+typeof currentOrder !==
+"undefined"
+) {
+
+currentOrder.videos = [];
+
+}
+
+}
+
+document.addEventListener(
+"click",
+function(event) {
+
+const button =
+event.target.closest(
+"[data-screen]"
+);
+
+if (!button) return;
+
+if (
+button.dataset.screen ===
+"order"
+) {
+
+GGHQ_clearAllSelectedVideos();
+
+}
+
+},
+true
+);
+
+document.addEventListener(
+"click",
+function(event) {
+
+const button =
+event.target.closest(
+"[data-order-next]"
+);
+
+if (!button) return;
+
+if (
+button.dataset.orderNext ===
+"3"
+) {
+
+GGHQ_clearAllSelectedVideos();
+
+}
+
+},
+true
+);
+
+document.addEventListener(
+"click",
+function(event) {
+
+const button =
+event.target.closest(
+"[data-order-back]"
+);
+
+if (!button) return;
+
+if (
+button.dataset.orderBack ===
+"2"
+) {
+
+GGHQ_clearAllSelectedVideos();
+
+}
+
+},
+true
+);
+
+document.addEventListener(
+"click",
+function(event) {
+
+const button =
+event.target.closest(
+"#submitOrderButton"
+);
+
+if (!button) return;
+
+setTimeout(
+function() {
+
+GGHQ_clearAllSelectedVideos();
+
+},
+1000
+);
+
+},
+true
+);
+
+if (!document.getElementById("gghq-selected-confirm-style")) {
+
+const style =
+document.createElement("style");
+
+style.id =
+"gghq-selected-confirm-style";
+
+style.textContent = `
+.video-gallery-preview {
+display: grid;
+grid-template-columns:
+repeat(2, minmax(0, 1fr));
+gap: 12px;
+margin-top: 16px;
+}
+
+.video-preview-card {
+position: relative;
+overflow: hidden;
+border-radius: 16px;
+background: #111118;
+border: 2px solid
+rgba(145, 92, 255, 0.65);
+box-shadow:
+0 0 0 2px
+rgba(145, 92, 255, 0.08);
+}
+
+.video-preview-card video {
+display: block;
+width: 100%;
+aspect-ratio: 16 / 10;
+object-fit: cover;
+background: #08080c;
+}
+
+.gghq-selected-badge {
+position: absolute;
+top: 8px;
+right: 8px;
+z-index: 5;
+padding:
+6px 9px;
+border-radius:
+20px;
+background:
+rgba(70, 220, 130, 0.95);
+color: #07140c;
+font-size: 11px;
+font-weight: 800;
+letter-spacing:
+0.3px;
+box-shadow:
+0 3px 10px
+rgba(0,0,0,0.35);
+}
+
+.video-preview-number {
+position: absolute;
+top: 8px;
+left: 8px;
+z-index: 5;
+width: 28px;
+height: 28px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+background:
+rgba(0,0,0,0.78);
+color: white;
+font-size: 12px;
+font-weight: 800;
+}
+
+.video-preview-info {
+padding:
+9px 10px 11px;
+}
+
+.video-preview-name {
+color: white;
+font-size: 12px;
+font-weight: 600;
+line-height: 1.35;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+.gghq-video-selected-count {
+margin-top: 16px;
+width: 100%;
+padding:
+14px 16px;
+border-radius:
+14px;
+background:
+rgba(145, 92, 255, 0.14);
+border:
+1px solid
+rgba(145, 92, 255, 0.45);
+color: white;
+text-align: center;
+font-size: 15px;
+font-weight: 800;
+}
+
+.gghq-video-selected-count span {
+color:
+#cdb5ff;
+}
+
+@media (min-width: 600px) {
+
+.video-gallery-preview {
+grid-template-columns:
+repeat(3, minmax(0, 1fr));
+}
+
+}
+`;
+
+document.head.appendChild(style);
+}
+
+function GGHQ_renderSelectedConfirmation() {
+
+const container =
+document.getElementById(
+"selectedFiles"
+);
+
+if (!container) return;
+
+const files =
+window.GGHQ_SELECTED_VIDEO_FILES ||
+[];
+
+container.innerHTML = "";
+
+if (!files.length) {
+
+container.innerHTML = `
+<div class="video-empty-message">
+No videos selected yet.
+</div>
+`;
+
+return;
+}
+
+const gallery =
+document.createElement(
+"div"
+);
+
+gallery.className =
+"video-gallery-preview";
+
+files.forEach(
+(file, index) => {
+
+const card =
+document.createElement(
+"div"
+);
+
+card.className =
+"video-preview-card";
+
+const number =
+document.createElement(
+"div"
+);
+
+number.className =
+"video-preview-number";
+
+number.textContent =
+index + 1;
+
+const selectedBadge =
+document.createElement(
+"div"
+);
+
+selectedBadge.className =
+"gghq-selected-badge";
+
+selectedBadge.textContent =
+"✓ SELECTED";
+
+const video =
+document.createElement(
+"video"
+);
+
+video.muted =
+true;
+
+video.playsInline =
+true;
+
+video.preload =
+"metadata";
+
+video.setAttribute(
+"playsinline",
+""
+);
+
+const previewURL =
+URL.createObjectURL(
+file
+);
+
+video.src =
+previewURL;
+
+video.addEventListener(
+"loadedmetadata",
+function() {
+
+try {
+
+if (
+video.duration >
+0.2
+) {
+
+video.currentTime =
+0.1;
+
+}
+
+} catch (e) {}
+
+}
+);
+
+const info =
+document.createElement(
+"div"
+);
+
+info.className =
+"video-preview-info";
+
+const name =
+document.createElement(
+"div"
+);
+
+name.className =
+"video-preview-name";
+
+name.textContent =
+file.name;
+
+info.appendChild(
+name
+);
+
+card.appendChild(
+video
+);
+
+card.appendChild(
+number
+);
+
+card.appendChild(
+selectedBadge
+);
+
+card.appendChild(
+info
+);
+
+gallery.appendChild(
+card
+);
+
+}
+);
+
+container.appendChild(
+gallery
+);
+
+const count =
+document.createElement(
+"div"
+);
+
+count.className =
+"gghq-video-selected-count";
+
+const number =
+document.createElement(
+"span"
+);
+
+number.textContent =
+files.length;
+
+count.appendChild(
+document.createTextNode(
+"✓ "
+)
+);
+
+count.appendChild(
+number
+);
+
+count.appendChild(
+document.createTextNode(
+files.length === 1
+? " VIDEO SELECTED"
+: " VIDEOS SELECTED"
+)
+);
+
+container.appendChild(
+count
+);
+}
+
+const GGHQ_confirmVideoInput =
+document.getElementById(
+"videoFiles"
+);
+
+if (GGHQ_confirmVideoInput) {
+
+GGHQ_confirmVideoInput.addEventListener(
+"change",
+function() {
+
+const selectedFiles =
+Array.from(
+this.files || []
+);
+
+if (!selectedFiles.length) {
+return;
+}
+
+window.GGHQ_SELECTED_VIDEO_FILES =
+window.GGHQ_SELECTED_VIDEO_FILES ||
+[];
+
+selectedFiles.forEach(
+newFile => {
+
+const exists =
+window
+.GGHQ_SELECTED_VIDEO_FILES
+.some(
+oldFile =>
+oldFile.name ===
+newFile.name &&
+oldFile.size ===
+newFile.size &&
+oldFile.lastModified ===
+newFile.lastModified
+);
+
+if (!exists) {
+
+window
+.GGHQ_SELECTED_VIDEO_FILES
+.push(
+newFile
+);
+
+}
+
+}
+);
+
+if (
+typeof currentOrder !==
+"undefined"
+) {
+
+currentOrder.videos =
+window
+.GGHQ_SELECTED_VIDEO_FILES
+.map(
+file => ({
+name:
+file.name,
+size:
+file.size
+})
+);
+
+}
+
+GGHQ_renderSelectedConfirmation();
+
+this.value = "";
+
+if (
+typeof showToast ===
+"function"
+) {
+
+showToast(
+`${
+window
+.GGHQ_SELECTED_VIDEO_FILES
+.length
+} videos selected`,
+"✓"
+);
+
+}
+
+}
+);
+
+}
