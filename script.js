@@ -1,7 +1,7 @@
 /* =========================================================
    GYM GROWTH HQ
-   FINAL JAVASCRIPT
-   LOGIN + PASSWORD + ACCOUNT + ORDERS
+   COMPLETE JAVASCRIPT
+   ACCOUNT + ORDERS + VIDEO DELIVERY
    ========================================================= */
 
 const STORAGE = {
@@ -10,16 +10,29 @@ const STORAGE = {
     LOGIN: "gym_growth_logged_in"
 };
 
+
+/* =========================================================
+   APP STATE
+   ========================================================= */
+
 const AppState = {
+
     currentScreen: "home",
+
     selectedService: "",
+
     selectedPlan: "",
+
     orderStep: 1,
+
     isLoggedIn: false,
+
     currentUser: null,
+
     currentOrderId: null,
 
     orderData: {
+
         clientName: "",
         gymName: "",
         instagram: "",
@@ -27,7 +40,9 @@ const AppState = {
         projectNotes: "",
         specialInstructions: "",
         videoFiles: []
+
     }
+
 };
 
 
@@ -36,11 +51,18 @@ const AppState = {
    ========================================================= */
 
 function $(selector) {
+
     return document.querySelector(selector);
+
 }
 
+
 function $all(selector) {
-    return Array.from(document.querySelectorAll(selector));
+
+    return Array.from(
+        document.querySelectorAll(selector)
+    );
+
 }
 
 
@@ -49,68 +71,115 @@ function $all(selector) {
    ========================================================= */
 
 function saveUser(user) {
+
     localStorage.setItem(
         STORAGE.USER,
         JSON.stringify(user)
     );
+
 }
 
+
 function getSavedUser() {
-    const data = localStorage.getItem(STORAGE.USER);
+
+    const data =
+        localStorage.getItem(
+            STORAGE.USER
+        );
 
     if (!data) return null;
 
     try {
+
         return JSON.parse(data);
+
     } catch {
+
         return null;
+
     }
+
 }
 
+
 function saveOrders(orders) {
+
     localStorage.setItem(
         STORAGE.ORDERS,
         JSON.stringify(orders)
     );
+
 }
 
+
 function getOrders() {
-    const data = localStorage.getItem(STORAGE.ORDERS);
+
+    const data =
+        localStorage.getItem(
+            STORAGE.ORDERS
+        );
 
     if (!data) return [];
 
     try {
+
         return JSON.parse(data);
+
     } catch {
+
         return [];
+
     }
+
 }
+
 
 function setLoggedIn(value) {
+
     localStorage.setItem(
         STORAGE.LOGIN,
-        value ? "true" : "false"
+        value
+            ? "true"
+            : "false"
     );
+
 }
 
+
 function isStoredLoggedIn() {
+
     return (
-        localStorage.getItem(STORAGE.LOGIN) === "true"
+        localStorage.getItem(
+            STORAGE.LOGIN
+        ) === "true"
     );
+
 }
 
 
 /* =========================================================
-   SCREEN SYSTEM
+   SCREEN MAP
    ========================================================= */
 
 const screens = {
-    home: "home",
-    services: "services",
-    "reel-editing": "reel-editing",
-    transformation: "transformation",
-    "gym-promotion": "gym-promotion",
-    pricing: "pricing",
+
+    home:
+        "home",
+
+    services:
+        "services",
+
+    "reel-editing":
+        "reel-editing",
+
+    transformation:
+        "transformation",
+
+    "gym-promotion":
+        "gym-promotion",
+
+    pricing:
+        "pricing",
 
     "plan-reel-editing":
         "plan-reel-editing",
@@ -121,35 +190,60 @@ const screens = {
     "plan-gym-promotion":
         "plan-gym-promotion",
 
-    login: "login",
-    signup: "signup",
+    login:
+        "login",
 
-    order: "order",
-    "order-project": "order-project",
-    "order-upload": "order-upload",
+    signup:
+        "signup",
+
+    order:
+        "order",
+
+    "order-project":
+        "order-project",
+
+    "order-upload":
+        "order-upload",
+
     "order-instructions":
         "order-instructions",
+
     "order-review":
         "order-review",
 
     "order-success":
         "order-success",
 
-    account: "account",
-    orders: "orders",
+    account:
+        "account",
+
+    orders:
+        "orders",
+
     "order-details":
         "order-details",
 
-    support: "support"
+    "video-delivery":
+        "video-delivery",
+
+    support:
+        "support"
+
 };
 
 
 function getScreen(name) {
+
     return document.getElementById(
         screens[name] || name
     );
+
 }
 
+
+/* =========================================================
+   SCREEN SYSTEM
+   ========================================================= */
 
 function hideAllScreens() {
 
@@ -167,67 +261,109 @@ function hideAllScreens() {
 
             screen.style.display =
                 "none";
+
         }
     );
+
 }
 
 
 function showScreen(name) {
 
-    const screen = getScreen(name);
+    const screen =
+        getScreen(name);
+
 
     if (!screen) {
+
         console.error(
             "Screen not found:",
             name
         );
+
         return;
+
     }
 
+
     hideAllScreens();
+
 
     screen.classList.add(
         "active-screen"
     );
+
 
     screen.setAttribute(
         "aria-hidden",
         "false"
     );
 
+
     screen.style.display =
         "block";
+
 
     AppState.currentScreen =
         screen.id;
 
-    window.scrollTo(0, 0);
+
+    window.scrollTo(
+        0,
+        0
+    );
+
 
     updateFloatingHome(
         screen.id
     );
 
+
     updateAccountUI();
 
-    if (screen.id === "orders") {
-        updateOrdersList();
-    }
 
     if (
-        screen.id === "order-review"
+        screen.id ===
+        "orders"
     ) {
-        updateReview();
+
+        updateOrdersList();
+
     }
+
+
+    if (
+        screen.id ===
+        "order-review"
+    ) {
+
+        updateReview();
+
+    }
+
+
+    if (
+        screen.id ===
+        "video-delivery"
+    ) {
+
+        updateVideoDelivery();
+
+    }
+
 }
 
 
 /* =========================================================
-   SERVICE / PLAN NAMES
+   SERVICE NAMES
    ========================================================= */
 
-function getServiceName(service) {
+function getServiceName(
+    service
+) {
 
     const names = {
+
         "reel-editing":
             "Reel Editing",
 
@@ -236,18 +372,24 @@ function getServiceName(service) {
 
         "gym-promotion":
             "Gym Promotion"
+
     };
+
 
     return (
         names[service] ||
         "Not selected"
     );
+
 }
 
 
-function getPlanName(plan) {
+function getPlanName(
+    plan
+) {
 
     const names = {
+
         "reel-editing":
             "Standard Reel",
 
@@ -256,12 +398,15 @@ function getPlanName(plan) {
 
         "gym-promotion":
             "Promotional Video"
+
     };
+
 
     return (
         names[plan] ||
         "Not selected"
     );
+
 }
 
 
@@ -280,35 +425,60 @@ function setupScreenButtons() {
                     "[data-screen]"
                 );
 
+
             if (!button) return;
 
+
             event.preventDefault();
+
 
             const target =
                 button.dataset.screen;
 
-            if (button.dataset.service) {
+
+            if (
+                button.dataset.service
+            ) {
+
                 AppState.selectedService =
                     button.dataset.service;
+
             }
 
-            if (button.dataset.plan) {
+
+            if (
+                button.dataset.plan
+            ) {
+
                 AppState.selectedPlan =
                     button.dataset.plan;
+
             }
 
-            if (target === "order") {
+
+            if (
+                target ===
+                "order"
+            ) {
 
                 if (
                     AppState.isLoggedIn
                 ) {
+
                     startOrder();
+
                 } else {
-                    showScreen("login");
+
+                    showScreen(
+                        "login"
+                    );
+
                 }
 
                 return;
+
             }
+
 
             if (
                 target === "account" ||
@@ -318,19 +488,30 @@ function setupScreenButtons() {
                 if (
                     !AppState.isLoggedIn
                 ) {
-                    showScreen("login");
+
+                    showScreen(
+                        "login"
+                    );
+
                     return;
+
                 }
+
             }
 
-            showScreen(target);
+
+            showScreen(
+                target
+            );
+
         }
     );
+
 }
 
 
 /* =========================================================
-   SERVICES
+   SERVICE BUTTONS
    ========================================================= */
 
 function setupServiceButtons() {
@@ -344,24 +525,29 @@ function setupServiceButtons() {
                     "[data-detail]"
                 );
 
+
             if (!button) return;
+
 
             event.preventDefault();
 
-            const service =
-                button.dataset.detail;
 
             AppState.selectedService =
-                service;
+                button.dataset.detail;
 
-            showScreen(service);
+
+            showScreen(
+                AppState.selectedService
+            );
+
         }
     );
+
 }
 
 
 /* =========================================================
-   PRICING
+   PLAN BUTTONS
    ========================================================= */
 
 function setupPlanButtons() {
@@ -375,82 +561,131 @@ function setupPlanButtons() {
                     "[data-plan-detail]"
                 );
 
+
             if (!button) return;
+
 
             event.preventDefault();
 
-            const plan =
-                button.dataset.planDetail;
 
             AppState.selectedPlan =
-                plan;
+                button.dataset.planDetail;
+
 
             showScreen(
-                `plan-${plan}`
+                `plan-${AppState.selectedPlan}`
             );
+
         }
     );
+
 }
 
 
 /* =========================================================
-   ORDER
+   ORDER START
    ========================================================= */
-
-const orderRooms = {
-    1: "order",
-    2: "order-project",
-    3: "order-upload",
-    4: "order-instructions",
-    5: "order-review"
-};
-
 
 function startOrder() {
 
-    if (!AppState.isLoggedIn) {
-        showScreen("login");
+    if (
+        !AppState.isLoggedIn
+    ) {
+
+        showScreen(
+            "login"
+        );
+
         return;
+
     }
 
-    AppState.orderStep = 1;
+
+    AppState.orderStep =
+        1;
+
 
     const clientName =
         $("#clientName");
+
 
     if (
         clientName &&
         AppState.currentUser
     ) {
+
         clientName.value =
             AppState.currentUser.name || "";
+
     }
 
-    showScreen("order");
+
+    showScreen(
+        "order"
+    );
+
 }
 
 
-function goToOrderStep(step) {
+/* =========================================================
+   ORDER ROOMS
+   ========================================================= */
 
-    const number = Number(step);
+const orderRooms = {
+
+    1:
+        "order",
+
+    2:
+        "order-project",
+
+    3:
+        "order-upload",
+
+    4:
+        "order-instructions",
+
+    5:
+        "order-review"
+
+};
+
+
+function goToOrderStep(
+    step
+) {
+
+    const number =
+        Number(step);
+
 
     if (
         number < 1 ||
         number > 5
     ) {
+
         return;
+
     }
 
+
     collectOrderData();
+
 
     AppState.orderStep =
         number;
 
+
     showScreen(
         orderRooms[number]
     );
+
 }
 
+
+/* =========================================================
+   ORDER NEXT
+   ========================================================= */
 
 function setupOrderNextButtons() {
 
@@ -463,25 +698,37 @@ function setupOrderNextButtons() {
                     "[data-order-next]"
                 );
 
+
             if (!button) return;
 
+
             event.preventDefault();
+
 
             if (
                 !validateOrderStep(
                     AppState.orderStep
                 )
             ) {
+
                 return;
+
             }
+
 
             goToOrderStep(
                 button.dataset.orderNext
             );
+
         }
     );
+
 }
 
+
+/* =========================================================
+   ORDER BACK
+   ========================================================= */
 
 function setupOrderBackButtons() {
 
@@ -494,20 +741,25 @@ function setupOrderBackButtons() {
                     "[data-order-back]"
                 );
 
+
             if (!button) return;
 
+
             event.preventDefault();
+
 
             goToOrderStep(
                 button.dataset.orderBack
             );
+
         }
     );
+
 }
 
 
 /* =========================================================
-   ORDER DATA
+   COLLECT ORDER DATA
    ========================================================= */
 
 function collectOrderData() {
@@ -530,35 +782,54 @@ function collectOrderData() {
     const specialInstructions =
         $("#specialInstructions");
 
+
     if (clientName) {
+
         AppState.orderData.clientName =
             clientName.value.trim();
+
     }
+
 
     if (gymName) {
+
         AppState.orderData.gymName =
             gymName.value.trim();
+
     }
+
 
     if (instagram) {
+
         AppState.orderData.instagram =
             instagram.value.trim();
+
     }
+
 
     if (projectGoal) {
+
         AppState.orderData.projectGoal =
             projectGoal.value;
+
     }
+
 
     if (projectNotes) {
+
         AppState.orderData.projectNotes =
             projectNotes.value.trim();
+
     }
 
+
     if (specialInstructions) {
+
         AppState.orderData.specialInstructions =
             specialInstructions.value.trim();
+
     }
+
 }
 
 
@@ -566,11 +837,16 @@ function collectOrderData() {
    ORDER VALIDATION
    ========================================================= */
 
-function validateOrderStep(step) {
+function validateOrderStep(
+    step
+) {
 
     collectOrderData();
 
-    if (step === 1) {
+
+    if (
+        step === 1
+    ) {
 
         if (
             !AppState.orderData.clientName
@@ -584,7 +860,9 @@ function validateOrderStep(step) {
             $("#clientName")?.focus();
 
             return false;
+
         }
+
 
         if (
             !AppState.orderData.gymName
@@ -598,7 +876,9 @@ function validateOrderStep(step) {
             $("#gymName")?.focus();
 
             return false;
+
         }
+
 
         if (
             !AppState.orderData.instagram
@@ -612,10 +892,15 @@ function validateOrderStep(step) {
             $("#instagramHandle")?.focus();
 
             return false;
+
         }
+
     }
 
-    if (step === 2) {
+
+    if (
+        step === 2
+    ) {
 
         if (
             !AppState.orderData.projectGoal
@@ -629,10 +914,14 @@ function validateOrderStep(step) {
             $("#projectGoal")?.focus();
 
             return false;
+
         }
+
     }
 
+
     return true;
+
 }
 
 
@@ -648,7 +937,16 @@ function setupVideoUpload() {
     const output =
         $("#selectedFiles");
 
-    if (!input || !output) return;
+
+    if (
+        !input ||
+        !output
+    ) {
+
+        return;
+
+    }
+
 
     input.addEventListener(
         "change",
@@ -659,10 +957,14 @@ function setupVideoUpload() {
                     input.files
                 );
 
+
             AppState.orderData.videoFiles =
                 files;
 
-            output.innerHTML = "";
+
+            output.innerHTML =
+                "";
+
 
             files.forEach(
                 file => {
@@ -672,27 +974,37 @@ function setupVideoUpload() {
                             "div"
                         );
 
+
                     item.className =
                         "selected-file";
+
 
                     item.textContent =
                         `✓ ${file.name}`;
 
+
                     output.appendChild(
                         item
                     );
+
                 }
             );
 
-            if (files.length) {
+
+            if (
+                files.length
+            ) {
 
                 showToast(
                     `${files.length} video${files.length > 1 ? "s" : ""} selected.`,
                     "✓"
                 );
+
             }
+
         }
     );
+
 }
 
 
@@ -704,53 +1016,79 @@ function updateReview() {
 
     collectOrderData();
 
+
     if ($("#reviewService")) {
-        $("#reviewService").textContent =
+
+        $("#reviewService")
+            .textContent =
             getServiceName(
                 AppState.selectedService
             );
+
     }
 
+
     if ($("#reviewPlan")) {
-        $("#reviewPlan").textContent =
+
+        $("#reviewPlan")
+            .textContent =
             getPlanName(
                 AppState.selectedPlan
             );
+
     }
+
 
     if ($("#reviewClient")) {
-        $("#reviewClient").textContent =
+
+        $("#reviewClient")
+            .textContent =
             AppState.orderData.clientName ||
             "Not provided";
+
     }
+
 
     if ($("#reviewGym")) {
-        $("#reviewGym").textContent =
+
+        $("#reviewGym")
+            .textContent =
             AppState.orderData.gymName ||
             "Not provided";
+
     }
 
+
     if ($("#reviewInstagram")) {
-        $("#reviewInstagram").textContent =
+
+        $("#reviewInstagram")
+            .textContent =
             AppState.orderData.instagram ||
             "Not provided";
+
     }
+
 
     const count =
         AppState.orderData
             .videoFiles.length;
 
+
     if ($("#reviewVideos")) {
-        $("#reviewVideos").textContent =
+
+        $("#reviewVideos")
+            .textContent =
             count
                 ? `${count} video${count > 1 ? "s" : ""} selected`
                 : "No videos selected";
+
     }
+
 }
 
 
 /* =========================================================
-   SIGN UP
+   SIGNUP
    ========================================================= */
 
 function setupSignup() {
@@ -761,6 +1099,7 @@ function setupSignup() {
     const loginButton =
         $("#goToLogin");
 
+
     if (loginButton) {
 
         loginButton.addEventListener(
@@ -769,18 +1108,25 @@ function setupSignup() {
 
                 event.preventDefault();
 
-                showScreen("login");
+                showScreen(
+                    "login"
+                );
+
             }
         );
+
     }
 
+
     if (!signupButton) return;
+
 
     signupButton.addEventListener(
         "click",
         event => {
 
             event.preventDefault();
+
 
             const name =
                 $("#signupName");
@@ -790,6 +1136,7 @@ function setupSignup() {
 
             const password =
                 $("#signupPassword");
+
 
             if (
                 !name ||
@@ -804,7 +1151,9 @@ function setupSignup() {
                 name?.focus();
 
                 return;
+
             }
+
 
             if (
                 !email ||
@@ -819,9 +1168,12 @@ function setupSignup() {
                 email?.focus();
 
                 return;
+
             }
 
+
             if (
+                !password ||
                 password.value.length < 6
             ) {
 
@@ -833,14 +1185,29 @@ function setupSignup() {
                 password?.focus();
 
                 return;
+
             }
 
 
-            /*
-             * IMPORTANT:
-             * Password is now saved with the
-             * account for this demo version.
-             */
+            const existingUser =
+                getSavedUser();
+
+
+            if (
+                existingUser &&
+                existingUser.email ===
+                email.value.trim()
+            ) {
+
+                showToast(
+                    "This account already exists. Please login.",
+                    "!"
+                );
+
+                return;
+
+            }
+
 
             const user = {
 
@@ -856,16 +1223,23 @@ function setupSignup() {
             };
 
 
-            saveUser(user);
+            saveUser(
+                user
+            );
 
 
             AppState.currentUser =
                 user;
 
+
             AppState.isLoggedIn =
                 true;
 
-            setLoggedIn(true);
+
+            setLoggedIn(
+                true
+            );
+
 
             updateAccountUI();
 
@@ -878,12 +1252,16 @@ function setupSignup() {
 
             setTimeout(
                 () => {
+
                     startOrder();
+
                 },
                 450
             );
+
         }
     );
+
 }
 
 
@@ -908,9 +1286,13 @@ function setupLogin() {
 
                 event.preventDefault();
 
-                showScreen("signup");
+                showScreen(
+                    "signup"
+                );
+
             }
         );
+
     }
 
 
@@ -944,6 +1326,7 @@ function setupLogin() {
                 email?.focus();
 
                 return;
+
             }
 
 
@@ -960,20 +1343,13 @@ function setupLogin() {
                 password?.focus();
 
                 return;
+
             }
 
-
-            /*
-             * Get saved account.
-             */
 
             const savedUser =
                 getSavedUser();
 
-
-            /*
-             * No account exists.
-             */
 
             if (!savedUser) {
 
@@ -983,30 +1359,19 @@ function setupLogin() {
                 );
 
                 return;
+
             }
 
-
-            /*
-             * EMAIL CHECK
-             */
 
             const emailCorrect =
                 savedUser.email ===
                 email.value.trim();
 
 
-            /*
-             * PASSWORD CHECK
-             */
-
             const passwordCorrect =
                 savedUser.password ===
                 password.value;
 
-
-            /*
-             * BOTH MUST BE CORRECT.
-             */
 
             if (
                 !emailCorrect ||
@@ -1019,20 +1384,22 @@ function setupLogin() {
                 );
 
                 return;
+
             }
 
-
-            /*
-             * LOGIN SUCCESS
-             */
 
             AppState.currentUser =
                 savedUser;
 
+
             AppState.isLoggedIn =
                 true;
 
-            setLoggedIn(true);
+
+            setLoggedIn(
+                true
+            );
+
 
             updateAccountUI();
 
@@ -1045,12 +1412,16 @@ function setupLogin() {
 
             setTimeout(
                 () => {
+
                     startOrder();
+
                 },
                 450
             );
+
         }
     );
+
 }
 
 
@@ -1062,6 +1433,7 @@ function updateAccountUI() {
 
     const user =
         AppState.currentUser;
+
 
     const loggedIn =
         AppState.isLoggedIn &&
@@ -1084,6 +1456,7 @@ function updateAccountUI() {
             loggedIn
                 ? "flex"
                 : "none";
+
     }
 
 
@@ -1093,6 +1466,7 @@ function updateAccountUI() {
             loggedIn
                 ? "flex"
                 : "none";
+
     }
 
 
@@ -1102,6 +1476,7 @@ function updateAccountUI() {
             loggedIn
                 ? "👤 My Account"
                 : "👤 Login / Create Account";
+
     }
 
 
@@ -1112,9 +1487,11 @@ function updateAccountUI() {
         user.name ||
         "Account";
 
+
     const email =
         user.email ||
         "";
+
 
     const initial =
         name
@@ -1122,68 +1499,93 @@ function updateAccountUI() {
             .toUpperCase();
 
 
-    if ($("#headerAccountInitial")) {
+    if (
+        $("#headerAccountInitial")
+    ) {
 
         $("#headerAccountInitial")
             .textContent =
             initial;
+
     }
 
 
-    if ($("#headerAccountName")) {
+    if (
+        $("#headerAccountName")
+    ) {
 
         $("#headerAccountName")
             .textContent =
             name;
+
     }
 
 
-    if ($("#homeAccountInitial")) {
+    if (
+        $("#homeAccountInitial")
+    ) {
 
         $("#homeAccountInitial")
             .textContent =
             initial;
+
     }
 
 
-    if ($("#homeAccountName")) {
+    if (
+        $("#homeAccountName")
+    ) {
 
         $("#homeAccountName")
             .textContent =
             name;
+
     }
 
 
-    if ($("#homeAccountEmail")) {
+    if (
+        $("#homeAccountEmail")
+    ) {
 
         $("#homeAccountEmail")
             .textContent =
             email;
+
     }
 
 
-    if ($("#accountInitial")) {
+    if (
+        $("#accountInitial")
+    ) {
 
         $("#accountInitial")
             .textContent =
             initial;
+
     }
 
 
-    if ($("#accountName")) {
+    if (
+        $("#accountName")
+    ) {
 
         $("#accountName")
             .textContent =
             name;
+
     }
 
 
-    if ($("#accountEmail")) {
+    if (
+        $("#accountEmail")
+    ) {
 
         $("#accountEmail")
             .textContent =
             email;
+
     }
+
 }
 
 
@@ -1195,6 +1597,7 @@ function setupLogout() {
 
     const button =
         $("#logoutButton");
+
 
     if (!button) return;
 
@@ -1209,10 +1612,14 @@ function setupLogout() {
             AppState.isLoggedIn =
                 false;
 
+
             AppState.currentUser =
                 null;
 
-            setLoggedIn(false);
+
+            setLoggedIn(
+                false
+            );
 
 
             updateAccountUI();
@@ -1226,12 +1633,18 @@ function setupLogout() {
 
             setTimeout(
                 () => {
-                    showScreen("home");
+
+                    showScreen(
+                        "home"
+                    );
+
                 },
                 400
             );
+
         }
     );
+
 }
 
 
@@ -1300,6 +1713,12 @@ function createOrder() {
         status:
             "Submitted",
 
+        videoReady:
+            false,
+
+        videoUrl:
+            "",
+
         date:
             new Date().toLocaleDateString(
                 "en-IN"
@@ -1307,18 +1726,26 @@ function createOrder() {
 
         createdAt:
             new Date().toISOString()
+
     };
 
 
-    orders.push(order);
+    orders.push(
+        order
+    );
 
-    saveOrders(orders);
+
+    saveOrders(
+        orders
+    );
+
 
     AppState.currentOrderId =
         order.id;
 
 
     return order;
+
 }
 
 
@@ -1330,6 +1757,7 @@ function setupSubmitOrder() {
 
     const button =
         $("#submitOrderButton");
+
 
     if (!button) return;
 
@@ -1345,19 +1773,12 @@ function setupSubmitOrder() {
                 !AppState.isLoggedIn
             ) {
 
-                showScreen("login");
+                showScreen(
+                    "login"
+                );
 
                 return;
-            }
 
-
-            if (
-                !validateOrderStep(1)
-            ) {
-
-                goToOrderStep(1);
-
-                return;
             }
 
 
@@ -1387,13 +1808,15 @@ function setupSubmitOrder() {
                 },
                 500
             );
+
         }
     );
+
 }
 
 
 /* =========================================================
-   USER ORDERS
+   CURRENT USER ORDERS
    ========================================================= */
 
 function getCurrentUserOrders() {
@@ -1402,8 +1825,12 @@ function getCurrentUserOrders() {
         getOrders();
 
 
-    if (!AppState.currentUser) {
+    if (
+        !AppState.currentUser
+    ) {
+
         return [];
+
     }
 
 
@@ -1413,8 +1840,10 @@ function getCurrentUserOrders() {
 
     return orders.filter(
         order =>
-            order.userEmail === email
+            order.userEmail ===
+            email
     );
+
 }
 
 
@@ -1427,10 +1856,12 @@ function updateOrdersList() {
     const container =
         $("#ordersList");
 
+
     if (!container) return;
 
 
-    container.innerHTML = "";
+    container.innerHTML =
+        "";
 
 
     const orders =
@@ -1463,6 +1894,7 @@ function updateOrdersList() {
         `;
 
         return;
+
     }
 
 
@@ -1479,6 +1911,12 @@ function updateOrdersList() {
 
                 card.className =
                     "order-card";
+
+
+                const status =
+                    order.videoReady
+                        ? "VIDEO READY"
+                        : "IN PROGRESS";
 
 
                 card.innerHTML = `
@@ -1502,9 +1940,7 @@ function updateOrdersList() {
                         </div>
 
                         <span class="order-status">
-                            ${escapeHTML(
-                                order.status
-                            )}
+                            ${status}
                         </span>
 
                     </div>
@@ -1562,8 +1998,10 @@ function updateOrdersList() {
                 container.appendChild(
                     card
                 );
+
             }
         );
+
 }
 
 
@@ -1582,19 +2020,26 @@ function setupOrderViewButtons() {
                     "[data-view-order]"
                 );
 
+
             if (!button) return;
 
+
             event.preventDefault();
+
 
             openOrderDetails(
                 button.dataset.viewOrder
             );
+
         }
     );
+
 }
 
 
-function openOrderDetails(orderId) {
+function openOrderDetails(
+    orderId
+) {
 
     const orders =
         getCurrentUserOrders();
@@ -1615,6 +2060,7 @@ function openOrderDetails(orderId) {
         );
 
         return;
+
     }
 
 
@@ -1622,209 +2068,377 @@ function openOrderDetails(orderId) {
         order.id;
 
 
-    if ($("#detailOrderNumber")) {
+    if (
+        $("#detailOrderNumber")
+    ) {
+
         $("#detailOrderNumber")
             .textContent =
             order.id;
+
     }
 
 
-    if ($("#detailOrderStatus")) {
+    if (
+        $("#detailOrderStatus")
+    ) {
+
         $("#detailOrderStatus")
             .textContent =
-            order.status;
+            order.videoReady
+                ? "Video Ready"
+                : "In Progress";
+
     }
 
 
-    if ($("#detailService")) {
+    if (
+        $("#detailService")
+    ) {
+
         $("#detailService")
             .textContent =
             getServiceName(
                 order.service
             );
+
     }
 
 
-    if ($("#detailPlan")) {
+    if (
+        $("#detailPlan")
+    ) {
+
         $("#detailPlan")
             .textContent =
             getPlanName(
                 order.plan
             );
+
     }
 
 
-    if ($("#detailClient")) {
+    if (
+        $("#detailClient")
+    ) {
+
         $("#detailClient")
             .textContent =
             order.clientName ||
             "—";
+
     }
 
 
-    if ($("#detailGym")) {
+    if (
+        $("#detailGym")
+    ) {
+
         $("#detailGym")
             .textContent =
             order.gymName ||
             "—";
+
     }
 
 
-    if ($("#detailGoal")) {
+    if (
+        $("#detailGoal")
+    ) {
+
         $("#detailGoal")
             .textContent =
             order.projectGoal ||
             "—";
+
     }
 
 
-    if ($("#detailVideos")) {
+    if (
+        $("#detailVideos")
+    ) {
+
         $("#detailVideos")
             .textContent =
             order.videoCount
                 ? `${order.videoCount} video${order.videoCount > 1 ? "s" : ""} uploaded`
                 : "No videos";
+
     }
 
 
-    if ($("#detailInstructions")) {
+    if (
+        $("#detailInstructions")
+    ) {
+
         $("#detailInstructions")
             .textContent =
             order.specialInstructions ||
             order.projectNotes ||
             "No special instructions";
+
     }
 
 
     showScreen(
         "order-details"
     );
+
 }
 
 
 /* =========================================================
-   LOGOUT / SESSION
+   VIDEO DELIVERY
    ========================================================= */
 
-function restoreSession() {
+function updateVideoDelivery() {
 
-    const savedUser =
-        getSavedUser();
+    const orders =
+        getCurrentUserOrders();
 
-    const loggedIn =
-        isStoredLoggedIn();
 
+    const order =
+        orders.find(
+            item =>
+                item.id ===
+                AppState.currentOrderId
+        );
+
+
+    const processingCard =
+        $("#videoProcessingCard");
+
+    const readyCard =
+        $("#videoReadyCard");
+
+    const title =
+        $("#deliveryTitle");
+
+    const subtitle =
+        $("#deliverySubtitle");
+
+    const player =
+        $("#finalVideoPlayer");
+
+    const download =
+        $("#downloadVideoButton");
+
+
+    if (!order) {
+
+        if (processingCard) {
+            processingCard.style.display =
+                "block";
+        }
+
+        if (readyCard) {
+            readyCard.style.display =
+                "none";
+        }
+
+        return;
+
+    }
+
+
+    /*
+     * VIDEO READY
+     */
 
     if (
-        savedUser &&
-        loggedIn
+        order.videoReady &&
+        order.videoUrl
     ) {
 
-        AppState.currentUser =
-            savedUser;
+        if (processingCard) {
 
-        AppState.isLoggedIn =
-            true;
+            processingCard.style.display =
+                "none";
 
-    } else {
+        }
 
-        AppState.currentUser =
-            null;
 
-        AppState.isLoggedIn =
-            false;
+        if (readyCard) {
+
+            readyCard.style.display =
+                "block";
+
+        }
+
+
+        if (title) {
+
+            title.textContent =
+                "Ready!";
+
+        }
+
+
+        if (subtitle) {
+
+            subtitle.textContent =
+                "Your edited video is ready to watch and download.";
+
+        }
+
+
+        if (player) {
+
+            player.src =
+                order.videoUrl;
+
+            player.load();
+
+        }
+
+
+        if (download) {
+
+            download.href =
+                order.videoUrl;
+
+            download.setAttribute(
+                "download",
+                `Gym-Growth-HQ-${order.id}.mp4`
+            );
+
+        }
+
+
+        return;
+
     }
 
 
-    updateAccountUI();
+    /*
+     * STILL EDITING
+     */
+
+    if (processingCard) {
+
+        processingCard.style.display =
+            "block";
+
+    }
+
+
+    if (readyCard) {
+
+        readyCard.style.display =
+            "none";
+
+    }
+
+
+    if (title) {
+
+        title.textContent =
+            "Being Edited.";
+
+    }
+
+
+    if (subtitle) {
+
+        subtitle.textContent =
+            "We'll make your finished video available here when it is ready.";
+
+    }
+
 }
 
 
 /* =========================================================
-   TOAST
+   OPEN VIDEO DELIVERY
    ========================================================= */
 
-let toastTimer = null;
+function setupVideoDeliveryButton() {
+
+    const button =
+        $("#openVideoDeliveryButton");
 
 
-function showToast(
-    message,
-    icon = "✓"
-) {
-
-    const toast =
-        $("#toast");
-
-    if (!toast) return;
+    if (!button) return;
 
 
-    if ($("#toastMessage")) {
-        $("#toastMessage")
-            .textContent =
-            message;
-    }
+    button.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
 
 
-    if ($("#toastIcon")) {
-        $("#toastIcon")
-            .textContent =
-            icon;
-    }
+            if (
+                !AppState.isLoggedIn
+            ) {
 
-
-    toast.classList.add(
-        "visible"
-    );
-
-
-    clearTimeout(
-        toastTimer
-    );
-
-
-    toastTimer =
-        setTimeout(
-            () => {
-
-                toast.classList.remove(
-                    "visible"
+                showScreen(
+                    "login"
                 );
 
-            },
-            2500
-        );
+                return;
+
+            }
+
+
+            updateVideoDelivery();
+
+
+            showScreen(
+                "video-delivery"
+            );
+
+        }
+    );
+
 }
 
 
 /* =========================================================
-   ESCAPE HTML
+   FLOATING HOME
    ========================================================= */
 
-function escapeHTML(value) {
+function updateFloatingHome(
+    currentScreen
+) {
 
-    return String(
-        value ?? ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    const button =
+        $("#floatingHomeButton");
+
+
+    if (!button) return;
+
+
+    button.style.display =
+        currentScreen === "home"
+            ? "none"
+            : "flex";
+
+}
+
+
+function setupFloatingHome() {
+
+    const button =
+        $("#floatingHomeButton");
+
+
+    if (!button) return;
+
+
+    button.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+            showScreen(
+                "home"
+            );
+
+        }
+    );
+
 }
 
 
@@ -1837,29 +2451,6 @@ function setupBrandButton() {
     const button =
         $(".brand-button");
 
-    if (!button) return;
-
-
-    button.addEventListener(
-        "click",
-        event => {
-
-            event.preventDefault();
-
-            showScreen("home");
-        }
-    );
-}
-
-
-/* =========================================================
-   FLOATING HOME
-   ========================================================= */
-
-function setupFloatingHome() {
-
-    const button =
-        $("#floatingHomeButton");
 
     if (!button) return;
 
@@ -1870,26 +2461,13 @@ function setupFloatingHome() {
 
             event.preventDefault();
 
-            showScreen("home");
+            showScreen(
+                "home"
+            );
+
         }
     );
-}
 
-
-function updateFloatingHome(
-    currentScreen
-) {
-
-    const button =
-        $("#floatingHomeButton");
-
-    if (!button) return;
-
-
-    button.style.display =
-        currentScreen === "home"
-            ? "none"
-            : "flex";
 }
 
 
@@ -1901,6 +2479,7 @@ function setupAccountHeader() {
 
     const button =
         $("#accountHeaderButton");
+
 
     if (!button) return;
 
@@ -1925,9 +2504,154 @@ function setupAccountHeader() {
                 showScreen(
                     "login"
                 );
+
             }
+
         }
     );
+
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+let toastTimer = null;
+
+
+function showToast(
+    message,
+    icon = "✓"
+) {
+
+    const toast =
+        $("#toast");
+
+
+    if (!toast) return;
+
+
+    if (
+        $("#toastMessage")
+    ) {
+
+        $("#toastMessage")
+            .textContent =
+            message;
+
+    }
+
+
+    if (
+        $("#toastIcon")
+    ) {
+
+        $("#toastIcon")
+            .textContent =
+            icon;
+
+    }
+
+
+    toast.classList.add(
+        "visible"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            () => {
+
+                toast.classList.remove(
+                    "visible"
+                );
+
+            },
+            2500
+        );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHTML(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   RESTORE SESSION
+   ========================================================= */
+
+function restoreSession() {
+
+    const savedUser =
+        getSavedUser();
+
+
+    const loggedIn =
+        isStoredLoggedIn();
+
+
+    if (
+        savedUser &&
+        loggedIn
+    ) {
+
+        AppState.currentUser =
+            savedUser;
+
+        AppState.isLoggedIn =
+            true;
+
+    } else {
+
+        AppState.currentUser =
+            null;
+
+        AppState.isLoggedIn =
+            false;
+
+    }
+
+
+    updateAccountUI();
+
 }
 
 
@@ -1939,10 +2663,14 @@ function initializeApp() {
 
     restoreSession();
 
+
     hideAllScreens();
 
+
     const home =
-        getScreen("home");
+        getScreen(
+            "home"
+        );
 
 
     if (home) {
@@ -1958,6 +2686,7 @@ function initializeApp() {
 
         home.style.display =
             "block";
+
     }
 
 
@@ -1987,6 +2716,8 @@ function initializeApp() {
 
     setupOrderViewButtons();
 
+    setupVideoDeliveryButton();
+
     setupBrandButton();
 
     setupFloatingHome();
@@ -2002,13 +2733,14 @@ function initializeApp() {
 
 
     console.log(
-        "Gym Growth HQ — LOGIN + PASSWORD SYSTEM READY"
+        "Gym Growth HQ — COMPLETE CLIENT DELIVERY SYSTEM READY"
     );
+
 }
 
 
 /* =========================================================
-   START
+   START APP
    ========================================================= */
 
 if (
@@ -2032,7 +2764,7 @@ if (
 
 
 /* =========================================================
-   GLOBAL
+   GLOBAL ACCESS
    ========================================================= */
 
 window.GymGrowthHQ = {
@@ -2044,6 +2776,8 @@ window.GymGrowthHQ = {
     goToOrderStep,
 
     openOrderDetails,
+
+    updateVideoDelivery,
 
     getOrders,
 
