@@ -1,6 +1,7 @@
 /* =========================================================
    GYM GROWTH HQ
    FINAL JAVASCRIPT
+   LOGIN + SIGNUP + ORDER FLOW
    ========================================================= */
 
 
@@ -18,13 +19,20 @@ const AppState = {
 
     orderStep: 1,
 
+    isLoggedIn: false,
+
+    currentUser: null,
+
     orderData: {
 
         clientName: "",
+
         gymName: "",
+
         instagram: "",
 
         projectGoal: "",
+
         projectNotes: "",
 
         specialInstructions: "",
@@ -83,6 +91,10 @@ const screens = {
     "plan-gym-promotion":
         "plan-gym-promotion",
 
+    login: "login",
+
+    signup: "signup",
+
     order: "order",
 
     "order-project":
@@ -120,7 +132,7 @@ function getScreen(name) {
 
 
 /* =========================================================
-   HIDE EVERY SCREEN
+   HIDE ALL SCREENS
    ========================================================= */
 
 function hideAllScreens() {
@@ -138,9 +150,8 @@ function hideAllScreens() {
             );
 
             /*
-             * This also guarantees that
-             * multiple pages do not appear
-             * together even before CSS loads.
+             * Important:
+             * Only one screen is visible.
              */
 
             screen.style.display =
@@ -247,6 +258,66 @@ function updateFloatingHome(
 
 
 /* =========================================================
+   SERVICE NAME
+   ========================================================= */
+
+function getServiceName(
+    service
+) {
+
+    const names = {
+
+        "reel-editing":
+            "Reel Editing",
+
+        transformation:
+            "Transformation Reel",
+
+        "gym-promotion":
+            "Gym Promotion"
+
+    };
+
+
+    return (
+        names[service] ||
+        "Not selected"
+    );
+
+}
+
+
+/* =========================================================
+   PLAN NAME
+   ========================================================= */
+
+function getPlanName(
+    plan
+) {
+
+    const names = {
+
+        "reel-editing":
+            "Standard Reel",
+
+        transformation:
+            "Transformation Reel",
+
+        "gym-promotion":
+            "Promotional Video"
+
+    };
+
+
+    return (
+        names[plan] ||
+        "Not selected"
+    );
+
+}
+
+
+/* =========================================================
    GENERIC SCREEN BUTTONS
    ========================================================= */
 
@@ -277,7 +348,7 @@ function setupScreenButtons() {
 
 
             /*
-             * Save selected service
+             * Save selected service.
              */
 
             if (
@@ -291,7 +362,7 @@ function setupScreenButtons() {
 
 
             /*
-             * Save selected plan
+             * Save selected plan.
              */
 
             if (
@@ -305,15 +376,28 @@ function setupScreenButtons() {
 
 
             /*
-             * Starting Order
+             * Start Order.
+             *
+             * Login must happen first.
              */
 
             if (
-                target ===
-                "order"
+                target === "order"
             ) {
 
-                startOrder();
+                if (
+                    AppState.isLoggedIn
+                ) {
+
+                    startOrder();
+
+                } else {
+
+                    showScreen(
+                        "login"
+                    );
+
+                }
 
                 return;
 
@@ -331,7 +415,7 @@ function setupScreenButtons() {
 
 
 /* =========================================================
-   SERVICE SELECTION
+   SERVICE BUTTONS
    ========================================================= */
 
 function setupServiceButtons() {
@@ -364,14 +448,6 @@ function setupServiceButtons() {
                 service;
 
 
-            /*
-             * SERVICES
-             *     ↓
-             * SELECT SERVICE
-             *     ↓
-             * SERVICE DETAILS
-             */
-
             showScreen(
                 service
             );
@@ -383,7 +459,7 @@ function setupServiceButtons() {
 
 
 /* =========================================================
-   PLAN DETAILS
+   PLAN BUTTONS
    ========================================================= */
 
 function setupPlanButtons() {
@@ -416,12 +492,8 @@ function setupPlanButtons() {
                 plan;
 
 
-            const target =
-                `plan-${plan}`;
-
-
             showScreen(
-                target
+                `plan-${plan}`
             );
 
         }
@@ -435,6 +507,19 @@ function setupPlanButtons() {
    ========================================================= */
 
 function startOrder() {
+
+    if (
+        !AppState.isLoggedIn
+    ) {
+
+        showScreen(
+            "login"
+        );
+
+        return;
+
+    }
+
 
     AppState.orderStep =
         1;
@@ -451,7 +536,7 @@ function startOrder() {
 
 
 /* =========================================================
-   ORDER ROOM MAP
+   ORDER ROOMS
    ========================================================= */
 
 const orderRooms = {
@@ -492,8 +577,8 @@ function goToOrderStep(
 
 
     /*
-     * Save current room data
-     * before moving forward.
+     * Save current information
+     * before moving to next room.
      */
 
     collectOrderData();
@@ -515,11 +600,6 @@ function goToOrderStep(
     updateOrderProgress();
 
 
-    /*
-     * Review page needs
-     * fresh information.
-     */
-
     if (
         number === 5
     ) {
@@ -532,7 +612,7 @@ function goToOrderStep(
 
 
 /* =========================================================
-   ORDER NEXT BUTTON
+   ORDER NEXT
    ========================================================= */
 
 function setupOrderNextButtons() {
@@ -563,6 +643,21 @@ function setupOrderNextButtons() {
                 );
 
 
+            /*
+             * Validate current room.
+             */
+
+            if (
+                !validateOrderStep(
+                    AppState.orderStep
+                )
+            ) {
+
+                return;
+
+            }
+
+
             goToOrderStep(
                 next
             );
@@ -574,7 +669,7 @@ function setupOrderNextButtons() {
 
 
 /* =========================================================
-   ORDER BACK BUTTON
+   ORDER BACK
    ========================================================= */
 
 function setupOrderBackButtons() {
@@ -616,16 +711,174 @@ function setupOrderBackButtons() {
 
 
 /* =========================================================
+   ORDER VALIDATION
+   ========================================================= */
+
+function validateOrderStep(
+    step
+) {
+
+    collectOrderData();
+
+
+    /*
+     * STEP 1
+     * Client Details
+     */
+
+    if (
+        step === 1
+    ) {
+
+        if (
+            !AppState.orderData.clientName
+        ) {
+
+            showToast(
+                "Please enter your name.",
+                "!"
+            );
+
+
+            const field =
+                $("#clientName");
+
+
+            if (field) {
+
+                field.focus();
+
+            }
+
+
+            return false;
+
+        }
+
+
+        if (
+            !AppState.orderData.gymName
+        ) {
+
+            showToast(
+                "Please enter your gym name.",
+                "!"
+            );
+
+
+            const field =
+                $("#gymName");
+
+
+            if (field) {
+
+                field.focus();
+
+            }
+
+
+            return false;
+
+        }
+
+
+        if (
+            !AppState.orderData.instagram
+        ) {
+
+            showToast(
+                "Please enter your Instagram.",
+                "!"
+            );
+
+
+            const field =
+                $("#instagramHandle");
+
+
+            if (field) {
+
+                field.focus();
+
+            }
+
+
+            return false;
+
+        }
+
+    }
+
+
+    /*
+     * STEP 2
+     * Project Details
+     */
+
+    if (
+        step === 2
+    ) {
+
+        if (
+            !AppState.orderData.projectGoal
+        ) {
+
+            showToast(
+                "Please select your project goal.",
+                "!"
+            );
+
+
+            const field =
+                $("#projectGoal");
+
+
+            if (field) {
+
+                field.focus();
+
+            }
+
+
+            return false;
+
+        }
+
+    }
+
+
+    /*
+     * STEP 3
+     * Video Upload
+     *
+     * We do not force upload yet.
+     * Client can continue if needed.
+     */
+
+    if (
+        step === 3
+    ) {
+
+        /*
+         * Upload is optional for now.
+         *
+         * Real cloud upload will be
+         * connected later.
+         */
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
    ORDER PROGRESS
    ========================================================= */
 
 function updateOrderProgress() {
-
-    /*
-     * New HTML does not need visible
-     * progress circles, but we keep
-     * this function for future use.
-     */
 
     document.documentElement
         .setAttribute(
@@ -790,7 +1043,7 @@ function setupVideoUpload() {
 
 
             showToast(
-                `${files.length} video file${files.length > 1 ? "s" : ""} selected.`,
+                `${files.length} video${files.length > 1 ? "s" : ""} selected.`,
                 "✓"
             );
 
@@ -878,8 +1131,7 @@ function updateReview() {
     if (videos) {
 
         const count =
-            AppState.orderData
-                .videoFiles
+            AppState.orderData.videoFiles
                 .length;
 
 
@@ -894,66 +1146,398 @@ function updateReview() {
 
 
 /* =========================================================
-   SERVICE NAME
+   LOGIN
    ========================================================= */
 
-function getServiceName(
-    service
-) {
+function setupLogin() {
 
-    const names = {
+    const loginButton =
+        $("#loginButton");
 
-        "reel-editing":
-            "Reel Editing",
-
-        "transformation":
-            "Transformation Reel",
-
-        "gym-promotion":
-            "Gym Promotion"
-
-    };
+    const signupButton =
+        $("#goToSignup");
 
 
-    return (
-        names[service] ||
-        "Not selected"
+    /*
+     * Go to signup
+     */
+
+    if (signupButton) {
+
+        signupButton.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                showScreen(
+                    "signup"
+                );
+
+            }
+        );
+
+    }
+
+
+    if (!loginButton) {
+
+        return;
+
+    }
+
+
+    loginButton.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            const email =
+                $("#loginEmail");
+
+            const password =
+                $("#loginPassword");
+
+
+            if (
+                !email ||
+                !email.value.trim()
+            ) {
+
+                showToast(
+                    "Please enter your email.",
+                    "!"
+                );
+
+
+                if (email) {
+
+                    email.focus();
+
+                }
+
+
+                return;
+
+            }
+
+
+            if (
+                !password ||
+                !password.value.trim()
+            ) {
+
+                showToast(
+                    "Please enter your password.",
+                    "!"
+                );
+
+
+                if (password) {
+
+                    password.focus();
+
+                }
+
+
+                return;
+
+            }
+
+
+            /*
+             * TEMPORARY LOGIN
+             *
+             * Real authentication will
+             * be connected later.
+             */
+
+            AppState.isLoggedIn =
+                true;
+
+
+            AppState.currentUser = {
+
+                email:
+                    email.value.trim()
+
+            };
+
+
+            showToast(
+                "Login successful.",
+                "✓"
+            );
+
+
+            setTimeout(
+                () => {
+
+                    startOrder();
+
+                },
+                450
+            );
+
+        }
     );
 
 }
 
 
 /* =========================================================
-   PLAN NAME
+   SIGN UP
    ========================================================= */
 
-function getPlanName(
-    plan
-) {
+function setupSignup() {
 
-    const names = {
+    const signupButton =
+        $("#signupButton");
 
-        "reel-editing":
-            "Standard Reel",
-
-        "transformation":
-            "Transformation Reel",
-
-        "gym-promotion":
-            "Promotional Video",
-
-        "standard":
-            "Standard",
-
-        "premium":
-            "Premium"
-
-    };
+    const loginButton =
+        $("#goToLogin");
 
 
-    return (
-        names[plan] ||
-        "Not selected"
+    /*
+     * Already have account
+     */
+
+    if (loginButton) {
+
+        loginButton.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                showScreen(
+                    "login"
+                );
+
+            }
+        );
+
+    }
+
+
+    if (!signupButton) {
+
+        return;
+
+    }
+
+
+    signupButton.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            const name =
+                $("#signupName");
+
+            const email =
+                $("#signupEmail");
+
+            const password =
+                $("#signupPassword");
+
+
+            if (
+                !name ||
+                !name.value.trim()
+            ) {
+
+                showToast(
+                    "Please enter your name.",
+                    "!"
+                );
+
+
+                if (name) {
+
+                    name.focus();
+
+                }
+
+
+                return;
+
+            }
+
+
+            if (
+                !email ||
+                !email.value.trim()
+            ) {
+
+                showToast(
+                    "Please enter your email.",
+                    "!"
+                );
+
+
+                if (email) {
+
+                    email.focus();
+
+                }
+
+
+                return;
+
+            }
+
+
+            if (
+                !password ||
+                password.value.length < 6
+            ) {
+
+                showToast(
+                    "Password must be at least 6 characters.",
+                    "!"
+                );
+
+
+                if (password) {
+
+                    password.focus();
+
+                }
+
+
+                return;
+
+            }
+
+
+            /*
+             * TEMPORARY ACCOUNT
+             *
+             * Real authentication will
+             * be connected later.
+             */
+
+            AppState.isLoggedIn =
+                true;
+
+
+            AppState.currentUser = {
+
+                name:
+                    name.value.trim(),
+
+                email:
+                    email.value.trim()
+
+            };
+
+
+            /*
+             * Automatically put the
+             * signup name into order.
+             */
+
+            const clientName =
+                $("#clientName");
+
+
+            if (clientName) {
+
+                clientName.value =
+                    AppState.currentUser.name;
+
+            }
+
+
+            showToast(
+                "Account created successfully.",
+                "✓"
+            );
+
+
+            setTimeout(
+                () => {
+
+                    startOrder();
+
+                },
+                450
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   BRAND BUTTON
+   ========================================================= */
+
+function setupBrandButton() {
+
+    const brand =
+        $(".brand-button");
+
+
+    if (!brand) {
+
+        return;
+
+    }
+
+
+    brand.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            showScreen(
+                "home"
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FLOATING HOME
+   ========================================================= */
+
+function setupFloatingHome() {
+
+    const button =
+        $("#floatingHomeButton");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            showScreen(
+                "home"
+            );
+
+        }
     );
 
 }
@@ -983,125 +1567,57 @@ function setupSubmitOrder() {
             event.preventDefault();
 
 
+            /*
+             * Validate final order.
+             */
+
+            if (
+                !validateOrderStep(
+                    1
+                )
+            ) {
+
+                goToOrderStep(
+                    1
+                );
+
+                return;
+
+            }
+
+
             collectOrderData();
 
 
             /*
-             * Basic validation
-             */
-
-            if (
-                !AppState.orderData.clientName
-            ) {
-
-                showToast(
-                    "Please enter your name.",
-                    "!"
-                );
-
-
-                goToOrderStep(
-                    1
-                );
-
-
-                const field =
-                    $("#clientName");
-
-
-                if (field) {
-
-                    field.focus();
-
-                }
-
-
-                return;
-
-            }
-
-
-            if (
-                !AppState.orderData.gymName
-            ) {
-
-                showToast(
-                    "Please enter your gym name.",
-                    "!"
-                );
-
-
-                goToOrderStep(
-                    1
-                );
-
-
-                const field =
-                    $("#gymName");
-
-
-                if (field) {
-
-                    field.focus();
-
-                }
-
-
-                return;
-
-            }
-
-
-            if (
-                !AppState.orderData.instagram
-            ) {
-
-                showToast(
-                    "Please enter your Instagram.",
-                    "!"
-                );
-
-
-                goToOrderStep(
-                    1
-                );
-
-
-                const field =
-                    $("#instagramHandle");
-
-
-                if (field) {
-
-                    field.focus();
-
-                }
-
-
-                return;
-
-            }
-
-
-            /*
-             * For now this is the
-             * front-end success state.
+             * Front-end only for now.
              *
-             * Later we connect this
-             * to backend/database/payment.
+             * Later this data will be
+             * sent to our backend.
              */
+
+            const finalOrder = {
+
+                service:
+                    AppState.selectedService,
+
+                plan:
+                    AppState.selectedPlan,
+
+                user:
+                    AppState.currentUser,
+
+                order:
+                    {
+                        ...AppState.orderData
+                    }
+
+            };
+
 
             console.log(
-                "ORDER DATA:",
-                {
-                    service:
-                        AppState.selectedService,
-
-                    plan:
-                        AppState.selectedPlan,
-
-                    ...AppState.orderData
-                }
+                "FINAL ORDER:",
+                finalOrder
             );
 
 
@@ -1220,72 +1736,6 @@ function resetOrder() {
 
 
 /* =========================================================
-   FLOATING HOME
-   ========================================================= */
-
-function setupFloatingHome() {
-
-    const button =
-        $("#floatingHomeButton");
-
-
-    if (!button) {
-
-        return;
-
-    }
-
-
-    button.addEventListener(
-        "click",
-        event => {
-
-            event.preventDefault();
-
-
-            resetOrder();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   BRAND HOME
-   ========================================================= */
-
-function setupBrandButton() {
-
-    const button =
-        $(".brand-button");
-
-
-    if (!button) {
-
-        return;
-
-    }
-
-
-    button.addEventListener(
-        "click",
-        event => {
-
-            event.preventDefault();
-
-
-            showScreen(
-                "home"
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
    TOAST
    ========================================================= */
 
@@ -1369,93 +1819,21 @@ function showToast(
 
 
 /* =========================================================
-   KEYBOARD ESCAPE
-   ========================================================= */
-
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if (
-            event.key !==
-            "Escape"
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-         * Escape returns to the
-         * previous logical place.
-         */
-
-        const current =
-            AppState.currentScreen;
-
-
-        if (
-            current ===
-            "order-project"
-        ) {
-
-            goToOrderStep(
-                1
-            );
-
-        }
-
-        else if (
-            current ===
-            "order-upload"
-        ) {
-
-            goToOrderStep(
-                2
-            );
-
-        }
-
-        else if (
-            current ===
-            "order-instructions"
-        ) {
-
-            goToOrderStep(
-                3
-            );
-
-        }
-
-        else if (
-            current ===
-            "order-review"
-        ) {
-
-            goToOrderStep(
-                4
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   INITIALIZE
+   INITIALIZE APP
    ========================================================= */
 
 function initializeApp() {
 
     /*
-     * Make absolutely sure that
-     * only Home appears initially.
+     * Hide everything first.
      */
 
     hideAllScreens();
 
+
+    /*
+     * Home is the only initial screen.
+     */
 
     const home =
         getScreen("home");
@@ -1467,10 +1845,12 @@ function initializeApp() {
             "active-screen"
         );
 
+
         home.setAttribute(
             "aria-hidden",
             "false"
         );
+
 
         home.style.display =
             "block";
@@ -1481,6 +1861,10 @@ function initializeApp() {
     AppState.currentScreen =
         "home";
 
+
+    /*
+     * Setup all systems.
+     */
 
     setupScreenButtons();
 
@@ -1494,11 +1878,15 @@ function initializeApp() {
 
     setupVideoUpload();
 
+    setupLogin();
+
+    setupSignup();
+
     setupSubmitOrder();
 
-    setupFloatingHome();
-
     setupBrandButton();
+
+    setupFloatingHome();
 
 
     updateFloatingHome(
@@ -1507,14 +1895,14 @@ function initializeApp() {
 
 
     console.log(
-        "Gym Growth HQ — JavaScript Ready"
+        "Gym Growth HQ — FINAL APP READY"
     );
 
 }
 
 
 /* =========================================================
-   START
+   START APP
    ========================================================= */
 
 if (
@@ -1554,6 +1942,7 @@ window.GymGrowthHQ = {
     getState() {
 
         return {
+
             ...AppState,
 
             orderData: {
