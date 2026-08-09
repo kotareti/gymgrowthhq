@@ -2132,3 +2132,708 @@ restoreSession();
    ========================================================= */
 
 showScreen("home");
+/* =========================================================
+   FINAL VIDEO UPLOAD UPDATE
+   Fresh Upload + Gallery Style Video Preview
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   Make sure multiple videos can be selected
+   --------------------------------------------------------- */
+
+const videoInput =
+    document.getElementById("videoFiles");
+
+if (videoInput) {
+
+    videoInput.setAttribute(
+        "multiple",
+        "multiple"
+    );
+
+    videoInput.setAttribute(
+        "accept",
+        "video/*"
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   Gallery preview styles
+   No CSS file editing required
+   --------------------------------------------------------- */
+
+if (!document.getElementById("videoGalleryStyles")) {
+
+    const style =
+        document.createElement("style");
+
+    style.id =
+        "videoGalleryStyles";
+
+    style.textContent = `
+
+        .video-gallery-preview {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .video-preview-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #15151c;
+            border: 1px solid rgba(145, 92, 255, 0.35);
+        }
+
+        .video-preview-card video {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            object-fit: cover;
+            background: #08080c;
+        }
+
+        .video-preview-info {
+            padding: 9px 10px 11px;
+        }
+
+        .video-preview-name {
+            font-size: 12px;
+            line-height: 1.35;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .video-preview-number {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            min-width: 28px;
+            height: 28px;
+            padding: 0 8px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.75);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .video-count-label {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(145, 92, 255, 0.10);
+            color: #d8c7ff;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .video-empty-message {
+            margin-top: 16px;
+            padding: 18px;
+            border-radius: 14px;
+            text-align: center;
+            color: #8f8f9d;
+            background: rgba(255,255,255,0.03);
+            font-size: 14px;
+        }
+
+        @media (min-width: 600px) {
+
+            .video-gallery-preview {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+            }
+
+        }
+
+    `;
+
+    document.head.appendChild(style);
+
+}
+
+
+/* ---------------------------------------------------------
+   Clear upload selection
+   --------------------------------------------------------- */
+
+function clearFreshUpload() {
+
+    const input =
+        document.getElementById(
+            "videoFiles"
+        );
+
+    const selected =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+
+    /*
+       Clear actual phone-file selection
+    */
+
+    if (input) {
+
+        input.value = "";
+
+    }
+
+
+    /*
+       Clear preview area
+    */
+
+    if (selected) {
+
+        selected.innerHTML = "";
+
+    }
+
+
+    /*
+       Clear current order video list
+    */
+
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+
+        currentOrder.videos = [];
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Create gallery container
+   --------------------------------------------------------- */
+
+function getVideoGalleryContainer() {
+
+    const selected =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+    if (!selected) return null;
+
+
+    /*
+       Reuse existing selectedFiles
+       element as our gallery container.
+    */
+
+    selected.className =
+        "video-gallery-wrapper";
+
+
+    return selected;
+
+}
+
+
+/* ---------------------------------------------------------
+   Format file size
+   --------------------------------------------------------- */
+
+function formatVideoSize(bytes) {
+
+    if (!bytes) return "";
+
+    const mb =
+        bytes / (1024 * 1024);
+
+    if (mb < 1) {
+
+        return Math.round(
+            bytes / 1024
+        ) + " KB";
+
+    }
+
+    return mb.toFixed(1) + " MB";
+
+}
+
+
+/* ---------------------------------------------------------
+   Show selected videos
+   --------------------------------------------------------- */
+
+function showVideoGallery(files) {
+
+    const container =
+        getVideoGalleryContainer();
+
+
+    if (!container) return;
+
+
+    container.innerHTML = "";
+
+
+    if (!files || files.length === 0) {
+
+        container.innerHTML = `
+            <div class="video-empty-message">
+                No videos selected yet.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    /*
+       Gallery wrapper
+    */
+
+    const gallery =
+        document.createElement(
+            "div"
+        );
+
+    gallery.className =
+        "video-gallery-preview";
+
+
+    /*
+       Count label
+    */
+
+    const count =
+        document.createElement(
+            "div"
+        );
+
+    count.className =
+        "video-count-label";
+
+    count.textContent =
+        `${files.length} video${
+            files.length === 1
+                ? ""
+                : "s"
+        } selected`;
+
+
+    /*
+       Create each thumbnail
+    */
+
+    Array.from(files).forEach(
+        (file, index) => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+            card.className =
+                "video-preview-card";
+
+
+            /*
+               Number badge
+            */
+
+            const number =
+                document.createElement(
+                    "div"
+                );
+
+            number.className =
+                "video-preview-number";
+
+            number.textContent =
+                index + 1;
+
+
+            /*
+               Video thumbnail
+            */
+
+            const video =
+                document.createElement(
+                    "video"
+                );
+
+            video.muted = true;
+
+            video.playsInline = true;
+
+            video.preload =
+                "metadata";
+
+            video.setAttribute(
+                "playsinline",
+                ""
+            );
+
+
+            /*
+               Create temporary preview URL
+            */
+
+            const previewURL =
+                URL.createObjectURL(
+                    file
+                );
+
+
+            video.src =
+                previewURL;
+
+
+            /*
+               Show first frame
+            */
+
+            video.addEventListener(
+                "loadedmetadata",
+                function() {
+
+                    try {
+
+                        if (
+                            video.duration >
+                            0.5
+                        ) {
+
+                            video.currentTime =
+                                0.1;
+
+                        }
+
+                    } catch (error) {}
+
+                }
+            );
+
+
+            /*
+               Release URL after video
+               element is no longer needed
+            */
+
+            video.addEventListener(
+                "error",
+                function() {
+
+                    URL.revokeObjectURL(
+                        previewURL
+                    );
+
+                }
+            );
+
+
+            /*
+               File information
+            */
+
+            const info =
+                document.createElement(
+                    "div"
+                );
+
+            info.className =
+                "video-preview-info";
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+            name.className =
+                "video-preview-name";
+
+            name.textContent =
+                file.name;
+
+
+            const size =
+                document.createElement(
+                    "div"
+                );
+
+            size.style.cssText =
+                `
+                margin-top:4px;
+                font-size:11px;
+                color:#777783;
+                `;
+
+            size.textContent =
+                formatVideoSize(
+                    file.size
+                );
+
+
+            info.appendChild(name);
+
+            info.appendChild(size);
+
+
+            card.appendChild(
+                video
+            );
+
+            card.appendChild(
+                number
+            );
+
+            card.appendChild(
+                info
+            );
+
+
+            gallery.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    container.appendChild(
+        gallery
+    );
+
+    container.appendChild(
+        count
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   NEW video selection handler
+   --------------------------------------------------------- */
+
+function newVideoSelectionHandler(
+    files
+) {
+
+    if (!files) return;
+
+
+    /*
+       Save ONLY the videos selected
+       for THIS current order.
+    */
+
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+
+        currentOrder.videos =
+            Array.from(files).map(
+                file => ({
+                    name:
+                        file.name,
+
+                    size:
+                        file.size
+                })
+            );
+
+    }
+
+
+    /*
+       Show gallery
+    */
+
+    showVideoGallery(
+        files
+    );
+
+
+    /*
+       Small confirmation
+    */
+
+    if (
+        typeof showToast ===
+        "function"
+    ) {
+
+        showToast(
+            `${files.length} video${
+                files.length === 1
+                    ? ""
+                    : "s"
+            } selected`,
+            "✓"
+        );
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Replace / override old upload handler
+   --------------------------------------------------------- */
+
+if (videoInput) {
+
+    videoInput.addEventListener(
+        "change",
+        function() {
+
+            newVideoSelectionHandler(
+                this.files
+            );
+
+        }
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   IMPORTANT:
+   Whenever Upload screen opens,
+   start with a completely fresh selection.
+   --------------------------------------------------------- */
+
+if (
+    typeof showScreen ===
+    "function"
+) {
+
+    const originalShowScreen =
+        showScreen;
+
+
+    window.showScreen =
+        function(screenId) {
+
+            /*
+               Every time we enter Upload screen,
+               clear old selected videos.
+
+               So even if user presses Back
+               and returns again, it is empty.
+            */
+
+            if (
+                screenId ===
+                "order-upload"
+            ) {
+
+                clearFreshUpload();
+
+            }
+
+
+            originalShowScreen(
+                screenId
+            );
+
+        };
+
+}
+
+
+/* ---------------------------------------------------------
+   Extra protection:
+   Start a completely fresh upload
+   whenever New Order is clicked.
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const button =
+            event.target.closest(
+                "[data-screen]"
+            );
+
+
+        if (!button) return;
+
+
+        const target =
+            button.dataset.screen;
+
+
+        /*
+           New Order
+        */
+
+        if (
+            target === "order"
+        ) {
+
+            clearFreshUpload();
+
+        }
+
+    },
+    true
+);
+
+
+/* ---------------------------------------------------------
+   Clear upload after successful order
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const button =
+            event.target.closest(
+                "#submitOrderButton"
+            );
+
+
+        if (!button) return;
+
+
+        /*
+           Wait until existing submit logic
+           finishes saving the order.
+        */
+
+        setTimeout(
+            function() {
+
+                clearFreshUpload();
+
+            },
+            700
+        );
+
+    },
+    true
+);
+
+
+/* =========================================================
+   END VIDEO UPLOAD UPDATE
+   ========================================================= */
