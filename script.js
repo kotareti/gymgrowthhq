@@ -1,23 +1,14 @@
 /* =========================================================
    GYM GROWTH HQ
-   MAIN APP SCRIPT
-   ========================================================= */
-
-
-/* =========================================================
-   STORAGE KEYS
+   FINAL FLOW SCRIPT
    ========================================================= */
 
 const USERS_KEY = "gghq_users";
 const SESSION_KEY = "gghq_session";
 const ORDERS_KEY = "gghq_orders";
 
-
-/* =========================================================
-   APP STATE
-   ========================================================= */
-
 let currentUser = null;
+
 let currentOrder = {
     service: "",
     plan: "",
@@ -34,23 +25,18 @@ let currentOrderId = null;
 
 
 /* =========================================================
-   HELPERS
+   STORAGE
    ========================================================= */
 
 function getUsers() {
 
     try {
-
         return JSON.parse(
             localStorage.getItem(USERS_KEY)
         ) || [];
-
     } catch {
-
         return [];
-
     }
-
 }
 
 
@@ -67,15 +53,11 @@ function saveUsers(users) {
 function getOrders() {
 
     try {
-
         return JSON.parse(
             localStorage.getItem(ORDERS_KEY)
         ) || [];
-
     } catch {
-
         return [];
-
     }
 
 }
@@ -86,6 +68,16 @@ function saveOrders(orders) {
     localStorage.setItem(
         ORDERS_KEY,
         JSON.stringify(orders)
+    );
+
+}
+
+
+function saveSession(user) {
+
+    localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify(user)
     );
 
 }
@@ -108,98 +100,17 @@ function getSession() {
 }
 
 
-function saveSession(user) {
+function clearSession() {
 
-    localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify(user)
+    localStorage.removeItem(
+        SESSION_KEY
     );
 
 }
 
 
-function clearSession() {
-
-    localStorage.removeItem(SESSION_KEY);
-
-}
-
-
-function getInitial(name) {
-
-    if (!name) return "?";
-
-    return name
-        .trim()
-        .charAt(0)
-        .toUpperCase();
-
-}
-
-
-function showToast(message, icon = "✓") {
-
-    const toast =
-        document.getElementById("toast");
-
-    const toastMessage =
-        document.getElementById("toastMessage");
-
-    const toastIcon =
-        document.getElementById("toastIcon");
-
-    if (!toast) return;
-
-    toastMessage.textContent = message;
-    toastIcon.textContent = icon;
-
-    toast.classList.add("show");
-
-    setTimeout(() => {
-
-        toast.classList.remove("show");
-
-    }, 2500);
-
-}
-
-
 /* =========================================================
-   SCREEN NAVIGATION
-   ========================================================= */
-
-function showScreen(screenId) {
-
-    const screens =
-        document.querySelectorAll(".app-screen");
-
-    screens.forEach(screen => {
-
-        screen.classList.remove("active-screen");
-
-    });
-
-
-    const target =
-        document.getElementById(screenId);
-
-    if (!target) return;
-
-    target.classList.add("active-screen");
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-
-    updateAccountUI();
-
-}
-
-
-/* =========================================================
-   AUTH CHECK
+   HELPERS
    ========================================================= */
 
 function isLoggedIn() {
@@ -209,24 +120,126 @@ function isLoggedIn() {
 }
 
 
-/*
-   IMPORTANT:
+function getInitial(name) {
 
-   If user is already logged in,
-   NEVER send them to Login again.
-*/
+    return name
+        ? name.trim().charAt(0).toUpperCase()
+        : "?";
 
-function goToOrder() {
+}
 
-    if (isLoggedIn()) {
 
-        showScreen("order");
+function setText(id, value) {
 
-        fillLoggedInClientDetails();
+    const el =
+        document.getElementById(id);
 
-    } else {
+    if (el) {
+        el.textContent = value || "—";
+    }
 
-        showScreen("login");
+}
+
+
+function escapeHTML(value) {
+
+    if (!value) return "";
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+function showToast(message, icon = "✓") {
+
+    const toast =
+        document.getElementById("toast");
+
+    const text =
+        document.getElementById("toastMessage");
+
+    const iconEl =
+        document.getElementById("toastIcon");
+
+    if (!toast) return;
+
+    if (text)
+        text.textContent = message;
+
+    if (iconEl)
+        iconEl.textContent = icon;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 2200);
+
+}
+
+
+/* =========================================================
+   SCREEN NAVIGATION
+   ========================================================= */
+
+function showScreen(id) {
+
+    document
+        .querySelectorAll(".app-screen")
+        .forEach(screen => {
+
+            screen.classList.remove(
+                "active-screen"
+            );
+
+        });
+
+
+    const screen =
+        document.getElementById(id);
+
+    if (!screen) return;
+
+
+    screen.classList.add(
+        "active-screen"
+    );
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+
+    updateAccountUI();
+
+
+    if (id === "orders") {
+        renderOrders();
+    }
+
+
+    if (id === "order-review") {
+        updateReview();
+    }
+
+
+    if (id === "order-details") {
+
+        const order =
+            findCurrentOrder();
+
+        if (order) {
+            renderOrderDetails(order);
+        }
 
     }
 
@@ -260,7 +273,7 @@ function updateAccountUI() {
             "loggedInHomeCard"
         );
 
-    const homeAccountButton =
+    const homeButton =
         document.getElementById(
             "homeAccountButton"
         );
@@ -300,10 +313,10 @@ function updateAccountUI() {
     if (currentUser) {
 
         const initial =
-            getInitial(currentUser.name);
+            getInitial(
+                currentUser.name
+            );
 
-
-        /* HEADER */
 
         if (headerButton)
             headerButton.style.display =
@@ -318,14 +331,12 @@ function updateAccountUI() {
                 currentUser.name;
 
 
-        /* HOME */
-
         if (homeCard)
             homeCard.style.display =
                 "flex";
 
-        if (homeAccountButton)
-            homeAccountButton.style.display =
+        if (homeButton)
+            homeButton.style.display =
                 "none";
 
         if (homeInitial)
@@ -341,8 +352,6 @@ function updateAccountUI() {
                 currentUser.email;
 
 
-        /* ACCOUNT */
-
         if (accountInitial)
             accountInitial.textContent =
                 initial;
@@ -357,21 +366,16 @@ function updateAccountUI() {
 
     } else {
 
-        /* HEADER */
-
         if (headerButton)
             headerButton.style.display =
                 "none";
-
-
-        /* HOME */
 
         if (homeCard)
             homeCard.style.display =
                 "none";
 
-        if (homeAccountButton)
-            homeAccountButton.style.display =
+        if (homeButton)
+            homeButton.style.display =
                 "flex";
 
     }
@@ -380,27 +384,138 @@ function updateAccountUI() {
 
 
 /* =========================================================
-   FILL CLIENT DETAILS
+   SAVE CLIENT PROFILE
    ========================================================= */
 
-function fillLoggedInClientDetails() {
+function saveClientProfile() {
 
     if (!currentUser) return;
 
-    const nameInput =
+
+    const users =
+        getUsers();
+
+
+    const index =
+        users.findIndex(
+            user =>
+                user.id === currentUser.id
+        );
+
+
+    if (index === -1) return;
+
+
+    const user =
+        users[index];
+
+
+    user.name =
+        currentOrder.clientName ||
+        user.name;
+
+
+    user.gymName =
+        currentOrder.gymName ||
+        user.gymName ||
+        "";
+
+
+    user.instagram =
+        currentOrder.instagram ||
+        user.instagram ||
+        "";
+
+
+    users[index] = user;
+
+    saveUsers(users);
+
+
+    currentUser.name =
+        user.name;
+
+    currentUser.gymName =
+        user.gymName;
+
+    currentUser.instagram =
+        user.instagram;
+
+
+    saveSession(currentUser);
+
+}
+
+
+/* =========================================================
+   AUTO-FILL CLIENT DETAILS
+   ========================================================= */
+
+function fillClientDetails() {
+
+    if (!currentUser) return;
+
+
+    const name =
         document.getElementById(
             "clientName"
         );
 
-    if (
-        nameInput &&
-        !nameInput.value
-    ) {
+    const gym =
+        document.getElementById(
+            "gymName"
+        );
 
-        nameInput.value =
+    const instagram =
+        document.getElementById(
+            "instagramHandle"
+        );
+
+
+    if (name) {
+
+        name.value =
             currentUser.name || "";
 
     }
+
+
+    if (gym) {
+
+        gym.value =
+            currentUser.gymName || "";
+
+    }
+
+
+    if (instagram) {
+
+        instagram.value =
+            currentUser.instagram || "";
+
+    }
+
+}
+
+
+/* =========================================================
+   START ORDER
+   ========================================================= */
+
+function startOrder() {
+
+    if (!currentUser) {
+
+        showScreen("login");
+
+        return;
+
+    }
+
+
+    fillClientDetails();
+
+    showScreen("order");
 
 }
 
@@ -443,7 +558,8 @@ function loginUser() {
     }
 
 
-    const users = getUsers();
+    const users =
+        getUsers();
 
 
     const user =
@@ -465,8 +581,6 @@ function loginUser() {
     }
 
 
-    /* REAL PASSWORD CHECK */
-
     if (
         user.password !== password
     ) {
@@ -484,7 +598,9 @@ function loginUser() {
     currentUser = {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        gymName: user.gymName || "",
+        instagram: user.instagram || ""
     };
 
 
@@ -492,7 +608,7 @@ function loginUser() {
 
     updateAccountUI();
 
-    fillLoggedInClientDetails();
+    fillClientDetails();
 
 
     emailInput.value = "";
@@ -507,11 +623,9 @@ function loginUser() {
 
     /*
        IMPORTANT:
-
-       Login complete.
-       Go directly to the order.
-
-       NO SECOND LOGIN.
+       Login finished.
+       Go directly to Order.
+       Never show Login again.
     */
 
     showScreen("order");
@@ -568,7 +682,7 @@ function createAccount() {
     if (password.length < 6) {
 
         showToast(
-            "Password must be 6+ characters",
+            "Password must be at least 6 characters",
             "!"
         );
 
@@ -577,17 +691,16 @@ function createAccount() {
     }
 
 
-    const users = getUsers();
+    const users =
+        getUsers();
 
 
-    const existing =
-        users.find(
+    if (
+        users.some(
             user =>
                 user.email === email
-        );
-
-
-    if (existing) {
+        )
+    ) {
 
         showToast(
             "Email already registered",
@@ -605,11 +718,20 @@ function createAccount() {
             "USER-" +
             Date.now(),
 
-        name: name,
+        name:
+            name,
 
-        email: email,
+        email:
+            email,
 
-        password: password,
+        password:
+            password,
+
+        gymName:
+            "",
+
+        instagram:
+            "",
 
         createdAt:
             new Date().toISOString()
@@ -624,20 +746,27 @@ function createAccount() {
 
     currentUser = {
 
-        id: newUser.id,
+        id:
+            newUser.id,
 
-        name: newUser.name,
+        name:
+            newUser.name,
 
-        email: newUser.email
+        email:
+            newUser.email,
+
+        gymName:
+            "",
+
+        instagram:
+            ""
 
     };
 
 
-    saveSession(currentUser);
-
-    updateAccountUI();
-
-    fillLoggedInClientDetails();
+    saveSession(
+        currentUser
+    );
 
 
     nameInput.value = "";
@@ -645,16 +774,16 @@ function createAccount() {
     passwordInput.value = "";
 
 
+    updateAccountUI();
+
+    fillClientDetails();
+
+
     showToast(
         "Account created",
         "✓"
     );
 
-
-    /*
-       Directly continue to order.
-       No second login page.
-    */
 
     showScreen("order");
 
@@ -672,6 +801,7 @@ function logoutUser() {
     clearSession();
 
     currentOrder = {
+
         service: "",
         plan: "",
         clientName: "",
@@ -681,9 +811,12 @@ function logoutUser() {
         notes: "",
         instructions: "",
         videos: []
+
     };
 
+
     currentOrderId = null;
+
 
     updateAccountUI();
 
@@ -691,6 +824,7 @@ function logoutUser() {
         "Logged out",
         "✓"
     );
+
 
     showScreen("home");
 
@@ -704,7 +838,8 @@ function logoutUser() {
 function selectService(service) {
 
     /*
-       Promotional Video intentionally removed.
+       ONLY TWO SERVICES.
+       Promotional Video removed.
     */
 
     if (
@@ -720,8 +855,8 @@ function selectService(service) {
     currentOrder.service =
         service;
 
-
-    currentOrder.plan = "";
+    currentOrder.plan =
+        "";
 
 
     if (
@@ -761,23 +896,9 @@ function selectPlan(
     plan
 ) {
 
-    /*
-       Only valid services.
-    */
-
     if (
         service !== "reel-editing" &&
         service !== "transformation"
-    ) {
-
-        return;
-
-    }
-
-
-    if (
-        plan !== "standard" &&
-        plan !== "premium"
     ) {
 
         return;
@@ -789,22 +910,22 @@ function selectPlan(
         service;
 
     currentOrder.plan =
-        plan;
+        plan || "standard";
 
 
     /*
-       Already logged in?
-       → Go directly to Order.
+       Already logged in:
+       DIRECTLY ORDER.
 
-       Not logged in?
-       → Login first.
+       Not logged in:
+       LOGIN ONCE.
     */
 
-    if (isLoggedIn()) {
+    if (currentUser) {
+
+        fillClientDetails();
 
         showScreen("order");
-
-        fillLoggedInClientDetails();
 
     } else {
 
@@ -816,47 +937,78 @@ function selectPlan(
 
 
 /* =========================================================
-   ORDER NAVIGATION
+   ORDER STEP 1
+   ========================================================= */
+
+function saveStepOne() {
+
+    const name =
+        document.getElementById(
+            "clientName"
+        );
+
+    const gym =
+        document.getElementById(
+            "gymName"
+        );
+
+    const instagram =
+        document.getElementById(
+            "instagramHandle"
+        );
+
+
+    if (!name || !gym) return false;
+
+
+    currentOrder.clientName =
+        name.value.trim();
+
+    currentOrder.gymName =
+        gym.value.trim();
+
+    currentOrder.instagram =
+        instagram
+            ? instagram.value.trim()
+            : "";
+
+
+    /*
+       Save permanently to account.
+       So next order doesn't ask again.
+    */
+
+    if (currentUser) {
+
+        saveClientProfile();
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   ORDER NEXT
    ========================================================= */
 
 function goOrderNext(step) {
 
+
     if (step === 2) {
 
-        const name =
-            document.getElementById(
-                "clientName"
-            ).value.trim();
-
-        const gym =
-            document.getElementById(
-                "gymName"
-            ).value.trim();
-
-
-        if (!name || !gym) {
+        if (!saveStepOne()) {
 
             showToast(
-                "Please enter your name and gym",
+                "Please enter your details",
                 "!"
             );
 
             return;
 
         }
-
-
-        currentOrder.clientName =
-            name;
-
-        currentOrder.gymName =
-            gym;
-
-
-        currentOrder.instagram =
-            document.getElementById(
-                "instagramHandle"
-            ).value.trim();
 
 
         showScreen(
@@ -870,16 +1022,27 @@ function goOrderNext(step) {
 
     if (step === 3) {
 
-        currentOrder.goal =
+        const goal =
             document.getElementById(
                 "projectGoal"
-            ).value;
+            );
+
+        const notes =
+            document.getElementById(
+                "projectNotes"
+            );
+
+
+        currentOrder.goal =
+            goal
+                ? goal.value
+                : "";
 
 
         currentOrder.notes =
-            document.getElementById(
-                "projectNotes"
-            ).value.trim();
+            notes
+                ? notes.value.trim()
+                : "";
 
 
         showScreen(
@@ -904,10 +1067,16 @@ function goOrderNext(step) {
 
     if (step === 5) {
 
-        currentOrder.instructions =
+        const instructions =
             document.getElementById(
                 "specialInstructions"
-            ).value.trim();
+            );
+
+
+        currentOrder.instructions =
+            instructions
+                ? instructions.value.trim()
+                : "";
 
 
         updateReview();
@@ -961,36 +1130,40 @@ function goOrderBack(step) {
 
 
 /* =========================================================
-   FILE UPLOAD DISPLAY
+   VIDEO FILES
    ========================================================= */
 
 function handleVideoFiles(files) {
 
-    currentOrder.videos = [];
+    currentOrder.videos =
+        Array.from(files).map(
+            file => ({
+                name: file.name,
+                size: file.size
+            })
+        );
 
-    const selected =
+
+    const container =
         document.getElementById(
             "selectedFiles"
         );
 
-    if (!selected) return;
 
-    selected.innerHTML = "";
+    if (!container) return;
 
 
-    Array.from(files).forEach(
-        (file, index) => {
+    container.innerHTML = "";
 
-            currentOrder.videos.push({
-                name: file.name,
-                size: file.size
-            });
 
+    currentOrder.videos.forEach(
+        video => {
 
             const item =
                 document.createElement(
                     "div"
                 );
+
 
             item.className =
                 "selected-file-item";
@@ -998,24 +1171,16 @@ function handleVideoFiles(files) {
 
             item.innerHTML = `
                 <span>🎬</span>
-                <span>${escapeHTML(file.name)}</span>
+                <span>${escapeHTML(video.name)}</span>
             `;
 
 
-            selected.appendChild(item);
+            container.appendChild(
+                item
+            );
 
         }
     );
-
-
-    if (files.length > 0) {
-
-        showToast(
-            `${files.length} video(s) selected`,
-            "✓"
-        );
-
-    }
 
 }
 
@@ -1026,7 +1191,7 @@ function handleVideoFiles(files) {
 
 function updateReview() {
 
-    const serviceText =
+    const service =
         currentOrder.service ===
         "reel-editing"
             ? "Reel Editing"
@@ -1036,42 +1201,36 @@ function updateReview() {
                 : "—";
 
 
-    const planText =
+    const plan =
         currentOrder.plan ===
-        "standard"
-            ? "Standard"
-            : currentOrder.plan ===
-              "premium"
-                ? "Premium"
-                : "—";
+        "premium"
+            ? "Premium"
+            : "Standard";
 
 
     setText(
         "reviewService",
-        serviceText
+        service
     );
 
     setText(
         "reviewPlan",
-        planText
+        plan
     );
 
     setText(
         "reviewClient",
-        currentOrder.clientName ||
-        "—"
+        currentOrder.clientName
     );
 
     setText(
         "reviewGym",
-        currentOrder.gymName ||
-        "—"
+        currentOrder.gymName
     );
 
     setText(
         "reviewInstagram",
-        currentOrder.instagram ||
-        "—"
+        currentOrder.instagram
     );
 
     setText(
@@ -1089,12 +1248,11 @@ function updateReview() {
 
 function submitOrder() {
 
-    if (!isLoggedIn()) {
+    /*
+       NEVER redirect to Plan here.
+    */
 
-        showToast(
-            "Please login first",
-            "!"
-        );
+    if (!currentUser) {
 
         showScreen("login");
 
@@ -1119,18 +1277,18 @@ function submitOrder() {
 
     if (!currentOrder.plan) {
 
-        showToast(
-            "Please select a plan",
-            "!"
-        );
-
-        selectService(
-            currentOrder.service
-        );
-
-        return;
+        currentOrder.plan =
+            "standard";
 
     }
+
+
+    /*
+       Make sure client details
+       are saved before order.
+    */
+
+    saveStepOne();
 
 
     const orders =
@@ -1195,42 +1353,59 @@ function submitOrder() {
 
     saveOrders(orders);
 
+
     currentOrderId =
         order.id;
 
 
+    /*
+       IMPORTANT:
+
+       Do NOT reset before navigating.
+       Go directly to Account.
+    */
+
     showToast(
-        "Order submitted",
+        "Order submitted successfully",
         "✓"
     );
 
 
-    showScreen(
-        "order-success"
+    /*
+       Small delay only for toast.
+       Then Account.
+    */
+
+    setTimeout(
+        () => {
+
+            renderOrders();
+
+            showScreen(
+                "account"
+            );
+
+        },
+        500
     );
 
 
-    resetOrder();
-
-}
-
-
-/* =========================================================
-   RESET ORDER
-   ========================================================= */
-
-function resetOrder() {
+    /*
+       Prepare blank order AFTER
+       saving everything.
+       Client profile stays saved.
+    */
 
     currentOrder = {
 
         service: "",
         plan: "",
         clientName:
-            currentUser
-                ? currentUser.name
-                : "",
-        gymName: "",
-        instagram: "",
+            currentUser.name || "",
+        gymName:
+            currentUser.gymName || "",
+        instagram:
+            currentUser.instagram || "",
         goal: "",
         notes: "",
         instructions: "",
@@ -1242,7 +1417,51 @@ function resetOrder() {
 
 
 /* =========================================================
+   FIND CURRENT ORDER
+   ========================================================= */
+
+function findCurrentOrder() {
+
+    if (!currentOrderId) {
+        return null;
+    }
+
+
+    const orders =
+        getOrders();
+
+
+    return orders.find(
+        order =>
+            order.id ===
+            currentOrderId
+    );
+
+}
+
+
+/* =========================================================
    MY ORDERS
+   ========================================================= */
+
+function getMyOrders() {
+
+    if (!currentUser) {
+        return [];
+    }
+
+
+    return getOrders().filter(
+        order =>
+            order.userId ===
+            currentUser.id
+    );
+
+}
+
+
+/* =========================================================
+   RENDER ORDERS
    ========================================================= */
 
 function renderOrders() {
@@ -1251,6 +1470,7 @@ function renderOrders() {
         document.getElementById(
             "ordersList"
         );
+
 
     if (!list) return;
 
@@ -1273,20 +1493,16 @@ function renderOrders() {
 
 
     const orders =
-        getOrders().filter(
-            order =>
-                order.userId ===
-                currentUser.id
-        );
+        getMyOrders();
 
 
-    if (orders.length === 0) {
+    if (!orders.length) {
 
         list.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">📦</div>
                 <h3>No Orders Yet</h3>
-                <p>Your orders will appear here.</p>
+                <p>Your submitted orders will appear here.</p>
             </div>
         `;
 
@@ -1300,20 +1516,6 @@ function renderOrders() {
         .reverse()
         .forEach(order => {
 
-            const service =
-                order.service ===
-                "reel-editing"
-                    ? "Reel Editing"
-                    : "Transformation Reel";
-
-
-            const plan =
-                order.plan ===
-                "standard"
-                    ? "Standard"
-                    : "Premium";
-
-
             const card =
                 document.createElement(
                     "button"
@@ -1324,6 +1526,20 @@ function renderOrders() {
 
             card.className =
                 "order-history-card";
+
+
+            const service =
+                order.service ===
+                "reel-editing"
+                    ? "Reel Editing"
+                    : "Transformation Reel";
+
+
+            const plan =
+                order.plan ===
+                "premium"
+                    ? "Premium"
+                    : "Standard";
 
 
             card.innerHTML = `
@@ -1339,11 +1555,14 @@ function renderOrders() {
                     </strong>
 
                     <small>
-                        ${plan} • ${escapeHTML(order.gymName)}
+                        ${plan} •
+                        ${escapeHTML(order.gymName)}
                     </small>
 
                     <span class="order-status-small">
-                        ${escapeHTML(order.deliveryStatus)}
+                        ${escapeHTML(
+                            order.deliveryStatus
+                        )}
                     </span>
 
                 </div>
@@ -1359,15 +1578,24 @@ function renderOrders() {
                 "click",
                 () => {
 
-                    openOrderDetails(
-                        order.id
+                    currentOrderId =
+                        order.id;
+
+                    renderOrderDetails(
+                        order
+                    );
+
+                    showScreen(
+                        "order-details"
                     );
 
                 }
             );
 
 
-            list.appendChild(card);
+            list.appendChild(
+                card
+            );
 
         });
 
@@ -1375,38 +1603,14 @@ function renderOrders() {
 
 
 /* =========================================================
-   OPEN ORDER DETAILS
+   ORDER DETAILS
    ========================================================= */
 
-function openOrderDetails(
-    orderId
+function renderOrderDetails(
+    order
 ) {
 
-    const orders =
-        getOrders();
-
-
-    const order =
-        orders.find(
-            item =>
-                item.id === orderId
-        );
-
-
-    if (!order) {
-
-        showToast(
-            "Order not found",
-            "!"
-        );
-
-        return;
-
-    }
-
-
-    currentOrderId =
-        order.id;
+    if (!order) return;
 
 
     const service =
@@ -1418,9 +1622,9 @@ function openOrderDetails(
 
     const plan =
         order.plan ===
-        "standard"
-            ? "Standard"
-            : "Premium";
+        "premium"
+            ? "Premium"
+            : "Standard";
 
 
     setText(
@@ -1436,8 +1640,7 @@ function openOrderDetails(
     setText(
         "detailOrderStatus",
         order.deliveryStatus ||
-        order.status ||
-        "Submitted"
+        order.status
     );
 
 
@@ -1455,22 +1658,19 @@ function openOrderDetails(
 
     setText(
         "detailClient",
-        order.clientName ||
-        "—"
+        order.clientName
     );
 
 
     setText(
         "detailGym",
-        order.gymName ||
-        "—"
+        order.gymName
     );
 
 
     setText(
         "detailGoal",
-        order.goal ||
-        "—"
+        order.goal
     );
 
 
@@ -1490,176 +1690,82 @@ function openOrderDetails(
     );
 
 
-    updateDeliveryScreen(
-        order
-    );
-
-
-    showScreen(
-        "order-details"
-    );
-
 }
 
 
 /* =========================================================
-   DELIVERY SCREEN
+   INITIALIZE
    ========================================================= */
 
-function updateDeliveryScreen(
-    order
-) {
+function restoreSession() {
 
-    const processing =
-        document.getElementById(
-            "videoProcessingCard"
-        );
-
-    const ready =
-        document.getElementById(
-            "videoReadyCard"
-        );
-
-    const title =
-        document.getElementById(
-            "deliveryTitle"
-        );
-
-    const subtitle =
-        document.getElementById(
-            "deliverySubtitle"
-        );
+    const session =
+        getSession();
 
 
-    const player =
-        document.getElementById(
-            "finalVideoPlayer"
-        );
+    if (!session) {
 
-    const download =
-        document.getElementById(
-            "downloadVideoButton"
-        );
+        currentUser = null;
 
-
-    if (
-        order.finalVideo
-    ) {
-
-        if (processing)
-            processing.style.display =
-                "none";
-
-        if (ready)
-            ready.style.display =
-                "block";
-
-
-        if (title)
-            title.textContent =
-                "Ready!";
-
-
-        if (subtitle)
-            subtitle.textContent =
-                "Your finished video is ready to watch and download.";
-
-
-        if (player)
-            player.src =
-                order.finalVideo;
-
-
-        if (download)
-            download.href =
-                order.finalVideo;
-
-    } else {
-
-        if (processing)
-            processing.style.display =
-                "block";
-
-        if (ready)
-            ready.style.display =
-                "none";
-
-
-        if (title)
-            title.textContent =
-                "Being Edited.";
-
-
-        if (subtitle)
-            subtitle.textContent =
-                "We'll make your finished video available here when it is ready.";
-
-    }
-
-}
-
-
-/* =========================================================
-   ACCOUNT → ORDERS
-   ========================================================= */
-
-function openMyOrders() {
-
-    if (!isLoggedIn()) {
-
-        showScreen("login");
+        updateAccountUI();
 
         return;
 
     }
 
 
-    renderOrders();
+    const users =
+        getUsers();
 
-    showScreen("orders");
+
+    const user =
+        users.find(
+            item =>
+                item.id === session.id &&
+                item.email === session.email
+        );
+
+
+    if (!user) {
+
+        clearSession();
+
+        currentUser = null;
+
+        updateAccountUI();
+
+        return;
+
+    }
+
+
+    currentUser = {
+
+        id:
+            user.id,
+
+        name:
+            user.name,
+
+        email:
+            user.email,
+
+        gymName:
+            user.gymName || "",
+
+        instagram:
+            user.instagram || ""
+
+    };
+
+
+    updateAccountUI();
 
 }
 
 
 /* =========================================================
-   ESCAPE HTML
-   ========================================================= */
-
-function escapeHTML(value) {
-
-    if (!value) return "";
-
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
-}
-
-
-/* =========================================================
-   SET TEXT
-   ========================================================= */
-
-function setText(
-    id,
-    value
-) {
-
-    const element =
-        document.getElementById(id);
-
-    if (element)
-        element.textContent =
-            value;
-
-}
-
-
-/* =========================================================
-   GENERIC BUTTON EVENTS
+   CLICK HANDLER
    ========================================================= */
 
 document.addEventListener(
@@ -1668,26 +1774,25 @@ document.addEventListener(
 
         const button =
             event.target.closest(
-                "[data-screen]"
+                "button, a"
             );
 
 
         if (!button) return;
 
 
-        const screen =
-            button.dataset.screen;
-
-
-        /*
-           MY ACCOUNT
-        */
+        /* ================================================
+           ACCOUNT
+           ================================================ */
 
         if (
-            screen === "account"
+            button.dataset.screen ===
+            "account"
         ) {
 
-            if (isLoggedIn()) {
+            event.preventDefault();
+
+            if (currentUser) {
 
                 updateAccountUI();
 
@@ -1708,191 +1813,189 @@ document.addEventListener(
         }
 
 
-        /*
+        /* ================================================
            ORDERS
-        */
+           ================================================ */
 
         if (
-            screen === "orders"
+            button.dataset.screen ===
+            "orders"
         ) {
 
-            openMyOrders();
+            event.preventDefault();
 
-            return;
+            if (!currentUser) {
 
-        }
+                showScreen(
+                    "login"
+                );
 
-
-        /*
-           START ORDER / ORDER
-        */
-
-        if (
-            screen === "order"
-        ) {
-
-            goToOrder();
-
-            return;
-
-        }
-
-
-        /*
-           NORMAL SCREEN
-        */
-
-        showScreen(screen);
-
-    }
-);
-
-
-/* =========================================================
-   SERVICE BUTTON EVENTS
-   ========================================================= */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-detail]"
-            );
-
-
-        if (!button) return;
-
-
-        const service =
-            button.dataset.detail;
-
-
-        /*
-           ONLY TWO SERVICES.
-           PROMOTIONAL VIDEO REMOVED.
-        */
-
-        if (
-            service ===
-            "reel-editing"
-        ) {
-
-            selectService(
-                "reel-editing"
-            );
-
-        }
-
-
-        if (
-            service ===
-            "transformation"
-        ) {
-
-            selectService(
-                "transformation"
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   PLAN DETAILS BUTTON EVENTS
-   ========================================================= */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-plan-detail]"
-            );
-
-
-        if (!button) return;
-
-
-        const service =
-            button.dataset.planDetail;
-
-
-        if (
-            service ===
-            "reel-editing"
-        ) {
-
-            showScreen(
-                "plan-reel-editing"
-            );
-
-        }
-
-
-        if (
-            service ===
-            "transformation"
-        ) {
-
-            showScreen(
-                "plan-transformation"
-            );
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   START ORDER FROM PLAN
-   ========================================================= */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-plan]"
-            );
-
-
-        if (!button) return;
-
-
-        const service =
-            button.dataset.plan;
-
-        /*
-           Plan buttons from the HTML
-           can be connected here later.
-
-           Current safe behavior:
-           respect existing service selection.
-        */
-
-        if (
-            currentOrder.service
-        ) {
-
-            if (isLoggedIn()) {
-
-                showScreen("order");
-
-                fillLoggedInClientDetails();
-
-            } else {
-
-                showScreen("login");
+                return;
 
             }
 
+            renderOrders();
+
+            showScreen(
+                "orders"
+            );
+
+            return;
+
+        }
+
+
+        /* ================================================
+           SERVICES
+           ================================================ */
+
+        if (
+            button.dataset.detail
+        ) {
+
+            event.preventDefault();
+
+            selectService(
+                button.dataset.detail
+            );
+
+            return;
+
+        }
+
+
+        /* ================================================
+           PLAN DETAIL
+           ================================================ */
+
+        if (
+            button.dataset.planDetail
+        ) {
+
+            event.preventDefault();
+
+            const service =
+                button.dataset.planDetail;
+
+
+            if (
+                service ===
+                "reel-editing"
+            ) {
+
+                showScreen(
+                    "plan-reel-editing"
+                );
+
+            }
+
+
+            if (
+                service ===
+                "transformation"
+            ) {
+
+                showScreen(
+                    "plan-transformation"
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        /* ================================================
+           START ORDER FROM PLAN
+           ================================================ */
+
+        if (
+            button.dataset.plan
+        ) {
+
+            event.preventDefault();
+
+
+            const service =
+                button.dataset.plan;
+
+
+            /*
+               Current HTML has one Start Order
+               per service.
+
+               Use Standard as default plan.
+            */
+
+            selectPlan(
+                service,
+                "standard"
+            );
+
+            return;
+
+        }
+
+
+        /* ================================================
+           ORDER NEXT
+           ================================================ */
+
+        if (
+            button.dataset.orderNext
+        ) {
+
+            event.preventDefault();
+
+            goOrderNext(
+                Number(
+                    button.dataset.orderNext
+                )
+            );
+
+            return;
+
+        }
+
+
+        /* ================================================
+           ORDER BACK
+           ================================================ */
+
+        if (
+            button.dataset.orderBack
+        ) {
+
+            event.preventDefault();
+
+            goOrderBack(
+                Number(
+                    button.dataset.orderBack
+                )
+            );
+
+            return;
+
+        }
+
+
+        /* ================================================
+           NORMAL SCREEN
+           ================================================ */
+
+        if (
+            button.dataset.screen
+        ) {
+
+            event.preventDefault();
+
+            showScreen(
+                button.dataset.screen
+            );
+
+            return;
+
         }
 
     }
@@ -1900,118 +2003,58 @@ document.addEventListener(
 
 
 /* =========================================================
-   ORDER NEXT BUTTONS
+   LOGIN
    ========================================================= */
 
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-order-next]"
-            );
-
-
-        if (!button) return;
-
-
-        const step =
-            Number(
-                button.dataset.orderNext
-            );
-
-
-        goOrderNext(step);
-
-    }
-);
-
-
-/* =========================================================
-   ORDER BACK BUTTONS
-   ========================================================= */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-order-back]"
-            );
-
-
-        if (!button) return;
-
-
-        const step =
-            Number(
-                button.dataset.orderBack
-            );
-
-
-        goOrderBack(step);
-
-    }
-);
-
-
-/* =========================================================
-   LOGIN BUTTON
-   ========================================================= */
-
-const loginButton =
-    document.getElementById(
-        "loginButton"
-    );
-
-
-if (loginButton) {
-
-    loginButton.addEventListener(
+document
+    .getElementById("loginButton")
+    ?.addEventListener(
         "click",
         loginUser
     );
 
-}
-
 
 /* =========================================================
-   SIGNUP BUTTON
+   SIGNUP
    ========================================================= */
 
-const signupButton =
-    document.getElementById(
-        "signupButton"
-    );
-
-
-if (signupButton) {
-
-    signupButton.addEventListener(
+document
+    .getElementById("signupButton")
+    ?.addEventListener(
         "click",
         createAccount
     );
 
-}
-
 
 /* =========================================================
-   LOGIN ↔ SIGNUP
+   LOGOUT
    ========================================================= */
 
-const goToSignup =
-    document.getElementById(
-        "goToSignup"
+document
+    .getElementById("logoutButton")
+    ?.addEventListener(
+        "click",
+        function(event) {
+
+            event.preventDefault();
+
+            logoutUser();
+
+        }
     );
 
 
-if (goToSignup) {
+/* =========================================================
+   LOGIN → SIGNUP
+   ========================================================= */
 
-    goToSignup.addEventListener(
+document
+    .getElementById("goToSignup")
+    ?.addEventListener(
         "click",
-        () => {
+        function(event) {
+
+            event.preventDefault();
 
             showScreen(
                 "signup"
@@ -2020,20 +2063,18 @@ if (goToSignup) {
         }
     );
 
-}
 
+/* =========================================================
+   SIGNUP → LOGIN
+   ========================================================= */
 
-const goToLogin =
-    document.getElementById(
-        "goToLogin"
-    );
-
-
-if (goToLogin) {
-
-    goToLogin.addEventListener(
+document
+    .getElementById("goToLogin")
+    ?.addEventListener(
         "click",
-        () => {
+        function(event) {
+
+            event.preventDefault();
 
             showScreen(
                 "login"
@@ -2042,42 +2083,14 @@ if (goToLogin) {
         }
     );
 
-}
-
 
 /* =========================================================
-   LOGOUT
+   VIDEO INPUT
    ========================================================= */
 
-const logoutButton =
-    document.getElementById(
-        "logoutButton"
-    );
-
-
-if (logoutButton) {
-
-    logoutButton.addEventListener(
-        "click",
-        logoutUser
-    );
-
-}
-
-
-/* =========================================================
-   VIDEO FILE INPUT
-   ========================================================= */
-
-const videoFiles =
-    document.getElementById(
-        "videoFiles"
-    );
-
-
-if (videoFiles) {
-
-    videoFiles.addEventListener(
+document
+    .getElementById("videoFiles")
+    ?.addEventListener(
         "change",
         function() {
 
@@ -2088,199 +2101,34 @@ if (videoFiles) {
         }
     );
 
-}
-
 
 /* =========================================================
-   SUBMIT ORDER
+   SUBMIT
    ========================================================= */
 
-const submitOrderButton =
-    document.getElementById(
-        "submitOrderButton"
-    );
-
-
-if (submitOrderButton) {
-
-    submitOrderButton.addEventListener(
+document
+    .getElementById("submitOrderButton")
+    ?.addEventListener(
         "click",
-        submitOrder
+        function(event) {
+
+            event.preventDefault();
+
+            submitOrder();
+
+        }
     );
 
-}
-
 
 /* =========================================================
-   PLAN BUTTONS
-   ========================================================= */
-
-/*
-   Standard / Premium plan buttons
-   can be identified by text and
-   current service.
-
-   We use event delegation.
-*/
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                ".pricing-card button"
-            );
-
-
-        if (!button) return;
-
-
-        const card =
-            button.closest(
-                ".pricing-card"
-            );
-
-
-        if (!card) return;
-
-
-        const label =
-            card.querySelector(
-                ".plan-label"
-            );
-
-
-        if (!label) return;
-
-
-        const serviceText =
-            label.textContent
-                .trim()
-                .toLowerCase();
-
-
-        let service = "";
-
-
-        if (
-            serviceText.includes(
-                "reel editing"
-            )
-        ) {
-
-            service =
-                "reel-editing";
-
-        }
-
-
-        if (
-            serviceText.includes(
-                "transformation"
-            )
-        ) {
-
-            service =
-                "transformation";
-
-        }
-
-
-        if (!service) return;
-
-
-        /*
-           This version does NOT
-           show Promotional Video.
-        */
-
-        showScreen(
-            service ===
-            "reel-editing"
-                ? "plan-reel-editing"
-                : "plan-transformation"
-        );
-
-    }
-);
-
-
-/* =========================================================
-   RESTORE LOGIN SESSION
-   ========================================================= */
-
-function restoreSession() {
-
-    const session =
-        getSession();
-
-
-    if (
-        session &&
-        session.id &&
-        session.email
-    ) {
-
-        const users =
-            getUsers();
-
-
-        const realUser =
-            users.find(
-                user =>
-                    user.id ===
-                    session.id &&
-                    user.email ===
-                    session.email
-            );
-
-
-        if (realUser) {
-
-            currentUser = {
-
-                id:
-                    realUser.id,
-
-                name:
-                    realUser.name,
-
-                email:
-                    realUser.email
-
-            };
-
-        } else {
-
-            /*
-               Old/broken session
-               is removed.
-            */
-
-            clearSession();
-
-            currentUser = null;
-
-        }
-
-    }
-
-
-    updateAccountUI();
-
-}
-
-
-/* =========================================================
-   INITIALIZE APP
+   RESTORE SESSION
    ========================================================= */
 
 restoreSession();
 
 
 /* =========================================================
-   START SCREEN
+   INITIAL SCREEN
    ========================================================= */
 
 showScreen("home");
