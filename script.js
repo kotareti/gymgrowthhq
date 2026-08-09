@@ -1,4 +1,4 @@
-Gym Growth HQ — Fixed script.js Copy All Code
+
 /* =========================================================
    GYM GROWTH HQ
    FINAL FLOW SCRIPT
