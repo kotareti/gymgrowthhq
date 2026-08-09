@@ -22,16 +22,10 @@
 
     <title>Gym Growth HQ</title>
 
-
-    <!-- Main stylesheet -->
-
     <link
         rel="stylesheet"
         href="style.css"
     >
-
-
-    <!-- Google Fonts -->
 
     <link
         rel="preconnect"
@@ -54,1223 +48,1212 @@
 
 <body>
 
-
-    <!-- =========================================================
-         APP WRAPPER
-         ========================================================= -->
-
-    <div class="app">
+<div class="app">
 
 
-        <!-- =====================================================
-             TOP BAR
-             ===================================================== -->
+<!-- =========================================================
+     TOP BAR
+     ========================================================= -->
 
-        <header class="top-bar">
+<header class="top-bar">
 
-            <button
-                class="brand-button"
-                type="button"
-                data-screen="home"
-                aria-label="Go to Home"
+    <button
+        class="brand-button"
+        type="button"
+        data-screen="home"
+        aria-label="Go to Home"
+    >
+
+        <div class="brand-logo">
+
+            <img
+                src="gym-growth-hq-logo.png"
+                alt="Gym Growth HQ Logo"
             >
 
-                <div class="brand-logo">
+        </div>
 
-                    <img
-                        src="gym-growth-hq-logo.png"
-                        alt="Gym Growth HQ Logo"
-                    >
+        <div class="brand-text">
 
-                </div>
+            <span class="brand-name">
+                Gym Growth HQ
+            </span>
+
+            <span class="brand-tagline">
+                Content • Growth • Reels
+            </span>
+
+        </div>
+
+    </button>
+
+</header>
 
 
-                <div class="brand-text">
+<main class="app-content">
 
-                    <span class="brand-name">
-                        Gym Growth HQ
+
+<!-- =========================================================
+     1. HOME
+     ========================================================= -->
+
+<section
+    id="home"
+    class="app-screen home-screen active-screen"
+    data-screen-section="home"
+>
+
+    <div class="screen-inner">
+
+        <div class="content-placeholder home-placeholder">
+
+            <span class="eyebrow">
+                GYM GROWTH HQ
+            </span>
+
+            <h1>
+                Grow Your Gym
+                <span>
+                    With Better Reels.
+                </span>
+            </h1>
+
+            <p>
+                Professional short-form content
+                designed for gyms and fitness brands.
+            </p>
+
+            <div class="home-actions">
+
+                <!-- HOME → SERVICES ONLY -->
+
+                <button
+                    class="primary-button"
+                    type="button"
+                    data-screen="services"
+                >
+
+                    Explore Services
+
+                    <span class="button-arrow">
+                        →
                     </span>
 
-                    <span class="brand-tagline">
-                        Content • Growth • Reels
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     2. SERVICES
+     ========================================================= -->
+
+<section
+    id="services"
+    class="app-screen services-screen"
+    data-screen-section="services"
+>
+
+    <div class="screen-inner">
+
+        <div class="section-heading">
+
+            <span class="eyebrow">
+                WHAT WE DO
+            </span>
+
+            <h2>
+                Choose What
+                <span>You Need.</span>
+            </h2>
+
+            <p>
+                Choose one service to continue.
+            </p>
+
+        </div>
+
+
+        <div class="service-list">
+
+
+            <!-- SERVICE 1 -->
+
+            <article class="service-card">
+
+                <div class="service-icon">
+                    🎬
+                </div>
+
+                <div class="service-content">
+
+                    <span class="service-number">
+                        SERVICE 01
                     </span>
 
-                </div>
-
-            </button>
-
-        </header>
-
-
-        <!-- =====================================================
-             MAIN APP CONTENT
-             ===================================================== -->
-
-        <main class="app-content">
-
-
-            <!-- =================================================
-                 SCREEN 1
-                 HOME
-                 ================================================= -->
-
-            <section
-                id="home"
-                class="app-screen home-screen active-screen"
-                data-screen-section="home"
-            >
-
-                <div class="screen-inner">
-
-
-                    <div class="content-placeholder home-placeholder">
-
-                        <span class="eyebrow">
-                            GYM GROWTH HQ
-                        </span>
-
-
-                        <h1>
-
-                            Grow Your Gym
-
-                            <span>
-                                With Better Reels.
-                            </span>
-
-                        </h1>
-
-
-                        <p>
-                            Professional short-form content
-                            designed for gyms and fitness brands.
-                        </p>
-
-
-                        <div class="home-actions">
-
-
-                            <button
-                                class="primary-button"
-                                type="button"
-                                data-screen="services"
-                            >
-
-                                Explore Services
-
-                                <span class="button-arrow">
-                                    →
-                                </span>
-
-                            </button>
-
-
-                            <button
-                                class="secondary-button"
-                                type="button"
-                                data-screen="pricing"
-                            >
-
-                                View Pricing
-
-                            </button>
-
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 SERVICES SCREEN
-                 ================================================= -->
-
-            <section
-                id="services"
-                class="app-screen services-screen"
-                data-screen-section="services"
-            >
-
-                <div class="screen-inner">
-
-
-                    <div class="section-heading">
-
-                        <span class="eyebrow">
-                            WHAT WE DO
-                        </span>
-
-
-                        <h2>
-
-                            Choose What
-
-                            <span>
-                                You Need.
-                            </span>
-
-                        </h2>
-
-
-                        <p>
-                            Start with one service.
-                            Open the details only when you need them.
-                        </p>
-
-                    </div>
-
-
-                    <!-- SERVICES LIST -->
-
-                    <div class="service-list">
-
-
-                        <!-- SERVICE 1 -->
-
-                        <article
-                            class="service-card"
-                            data-service="reel-editing"
-                        >
-
-                            <div class="service-card-top">
-
-                                <div class="service-icon">
-                                    🎬
-                                </div>
-
-                                <span class="service-arrow">
-                                    →
-                                </span>
-
-                            </div>
-
-
-                            <div class="service-card-content">
-
-                                <span class="service-number">
-                                    01
-                                </span>
-
-
-                                <h3>
-                                    Reel Editing
-                                </h3>
-
-
-                                <p>
-                                    Clean, engaging short-form
-                                    videos made for Instagram.
-                                </p>
-
-                            </div>
-
-
-                            <button
-                                class="text-button"
-                                type="button"
-                                data-detail="reel-editing"
-                            >
-
-                                View Details
-
-                                <span>
-                                    →
-                                </span>
-
-                            </button>
-
-                        </article>
-
-
-                        <!-- SERVICE 2 -->
-
-                        <article
-                            class="service-card"
-                            data-service="transformation"
-                        >
-
-                            <div class="service-card-top">
-
-                                <div class="service-icon">
-                                    🔥
-                                </div>
-
-                                <span class="service-arrow">
-                                    →
-                                </span>
-
-                            </div>
-
-
-                            <div class="service-card-content">
-
-                                <span class="service-number">
-                                    02
-                                </span>
-
-
-                                <h3>
-                                    Transformation Reel
-                                </h3>
-
-
-                                <p>
-                                    Before-and-after stories
-                                    built to grab attention.
-                                </p>
-
-                            </div>
-
-
-                            <button
-                                class="text-button"
-                                type="button"
-                                data-detail="transformation"
-                            >
-
-                                View Details
-
-                                <span>
-                                    →
-                                </span>
-
-                            </button>
-
-                        </article>
-
-
-                        <!-- SERVICE 3 -->
-
-                        <article
-                            class="service-card"
-                            data-service="gym-promotion"
-                        >
-
-                            <div class="service-card-top">
-
-                                <div class="service-icon">
-                                    📈
-                                </div>
-
-                                <span class="service-arrow">
-                                    →
-                                </span>
-
-                            </div>
-
-
-                            <div class="service-card-content">
-
-                                <span class="service-number">
-                                    03
-                                </span>
-
-
-                                <h3>
-                                    Gym Promotion
-                                </h3>
-
-
-                                <p>
-                                    Promotional content designed
-                                    to showcase your gym.
-                                </p>
-
-                            </div>
-
-
-                            <button
-                                class="text-button"
-                                type="button"
-                                data-detail="gym-promotion"
-                            >
-
-                                View Details
-
-                                <span>
-                                    →
-                                </span>
-
-                            </button>
-
-                        </article>
-
-
-                    </div>
-
-
-                    <div class="micro-note">
-
-                        <span class="micro-note-icon">
-                            ✦
-                        </span>
-
-                        <p>
-                            Tap a service to see its details.
-                        </p>
-
-                    </div>
-
-
-                </div>
-
-                            </section>
-                                        <!-- =================================================
-                 SERVICE DETAIL SCREEN
-                 REEL EDITING
-                 ================================================= -->
-
-            <section
-                id="reel-editing"
-                class="app-screen detail-screen"
-                data-detail-section="reel-editing"
-            >
-
-                <div class="screen-inner">
+                    <h3>
+                        Reel Editing
+                    </h3>
+
+                    <p>
+                        Professional short-form
+                        editing for regular gym reels.
+                    </p>
 
                     <button
-                        class="back-button"
+                        class="outline-button full-button"
                         type="button"
-                        data-back="services"
+                        data-detail="reel-editing"
                     >
-                        <span>←</span>
-                        Back to Services
+
+                        Choose Reel Editing
+
+                        <span>
+                            →
+                        </span>
+
                     </button>
-
-
-                    <div class="detail-header">
-
-                        <div class="large-detail-icon">
-                            🎬
-                        </div>
-
-                        <span class="eyebrow">
-                            SERVICE 01
-                        </span>
-
-                        <h2>
-                            Reel Editing
-                        </h2>
-
-                        <p>
-                            Professional editing for short-form
-                            gym and fitness content.
-                        </p>
-
-                    </div>
-
-
-                    <div class="detail-price-card">
-
-                        <span class="price-label">
-                            Starting from
-                        </span>
-
-                        <strong class="detail-price">
-                            ₹199
-                        </strong>
-
-                        <span class="price-unit">
-                            / reel
-                        </span>
-
-                    </div>
-
-
-                    <div class="detail-actions">
-
-                        <button
-                            class="primary-button full-button"
-                            type="button"
-                            data-plan="reel-editing"
-                            data-screen="order"
-                        >
-                            Order This Service
-
-                            <span class="button-arrow">
-                                →
-                            </span>
-
-                        </button>
-
-                    </div>
 
                 </div>
 
-            </section>
+            </article>
 
 
-            <!-- =================================================
-                 SERVICE DETAIL SCREEN
-                 TRANSFORMATION
-                 ================================================= -->
+            <!-- SERVICE 2 -->
 
-            <section
-                id="transformation"
-                class="app-screen detail-screen"
-                data-detail-section="transformation"
-            >
+            <article class="service-card">
 
-                <div class="screen-inner">
+                <div class="service-icon">
+                    🔥
+                </div>
+
+                <div class="service-content">
+
+                    <span class="service-number">
+                        SERVICE 02
+                    </span>
+
+                    <h3>
+                        Transformation Reel
+                    </h3>
+
+                    <p>
+                        Before-and-after transformation
+                        reels designed for impact.
+                    </p>
 
                     <button
-                        class="back-button"
+                        class="outline-button full-button"
                         type="button"
-                        data-back="services"
+                        data-detail="transformation"
                     >
-                        <span>←</span>
-                        Back to Services
+
+                        Choose Transformation
+
+                        <span>
+                            →
+                        </span>
+
                     </button>
-
-
-                    <div class="detail-header">
-
-                        <div class="large-detail-icon">
-                            🔥
-                        </div>
-
-                        <span class="eyebrow">
-                            SERVICE 02
-                        </span>
-
-                        <h2>
-                            Transformation Reel
-                        </h2>
-
-                        <p>
-                            A focused before-and-after reel
-                            designed to make transformation
-                            stories stand out.
-                        </p>
-
-                    </div>
-
-
-                    <div class="detail-price-card">
-
-                        <span class="price-label">
-                            Starting from
-                        </span>
-
-                        <strong class="detail-price">
-                            ₹299
-                        </strong>
-
-                        <span class="price-unit">
-                            / reel
-                        </span>
-
-                    </div>
-
-
-                    <div class="detail-actions">
-
-                        <button
-                            class="primary-button full-button"
-                            type="button"
-                            data-plan="transformation"
-                            data-screen="order"
-                        >
-                            Order This Service
-
-                            <span class="button-arrow">
-                                →
-                            </span>
-
-                        </button>
-
-                    </div>
 
                 </div>
 
-            </section>
+            </article>
 
 
-            <!-- =================================================
-                 SERVICE DETAIL SCREEN
-                 GYM PROMOTION
-                 ================================================= -->
+            <!-- SERVICE 3 -->
 
-            <section
-                id="gym-promotion"
-                class="app-screen detail-screen"
-                data-detail-section="gym-promotion"
-            >
+            <article class="service-card">
 
-                <div class="screen-inner">
+                <div class="service-icon">
+                    📈
+                </div>
+
+                <div class="service-content">
+
+                    <span class="service-number">
+                        SERVICE 03
+                    </span>
+
+                    <h3>
+                        Gym Promotion
+                    </h3>
+
+                    <p>
+                        Promotional content for your
+                        gym, offers and campaigns.
+                    </p>
 
                     <button
-                        class="back-button"
+                        class="outline-button full-button"
                         type="button"
-                        data-back="services"
+                        data-detail="gym-promotion"
                     >
-                        <span>←</span>
-                        Back to Services
+
+                        Choose Gym Promotion
+
+                        <span>
+                            →
+                        </span>
+
                     </button>
-
-
-                    <div class="detail-header">
-
-                        <div class="large-detail-icon">
-                            📈
-                        </div>
-
-                        <span class="eyebrow">
-                            SERVICE 03
-                        </span>
-
-                        <h2>
-                            Gym Promotion
-                        </h2>
-
-                        <p>
-                            Promotional video content that
-                            helps present your gym, offers,
-                            equipment and atmosphere.
-                        </p>
-
-                    </div>
-
-
-                    <div class="detail-price-card">
-
-                        <span class="price-label">
-                            Starting from
-                        </span>
-
-                        <strong class="detail-price">
-                            ₹499
-                        </strong>
-
-                        <span class="price-unit">
-                            / video
-                        </span>
-
-                    </div>
-
-
-                    <div class="detail-actions">
-
-                        <button
-                            class="primary-button full-button"
-                            type="button"
-                            data-plan="gym-promotion"
-                            data-screen="order"
-                        >
-                            Order This Service
-
-                            <span class="button-arrow">
-                                →
-                            </span>
-
-                        </button>
-
-                    </div>
 
                 </div>
 
-            </section>
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
 
 
-            <!-- =================================================
-                 PART 3 WILL CONTINUE HERE
-                 ================================================= -->
+<!-- =========================================================
+     3. REEL EDITING DETAILS
+     ========================================================= -->
 
-            <!--
-                Part 3 will continue with:
-                PRICING SCREEN
-                PLAN DETAILS
-            -->
+<section
+    id="reel-editing"
+    class="app-screen detail-screen"
+    data-detail-section="reel-editing"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-back="services"
+        >
+            <span>←</span>
+            Back to Services
+        </button>
 
 
-            <!-- =================================================
-                 SCREEN 3
-                 PRICING
-                 ================================================= -->
+        <div class="detail-header">
 
-            <section
-                id="pricing"
-                class="app-screen pricing-screen"
-                data-screen-section="pricing"
+            <div class="large-detail-icon">
+                🎬
+            </div>
+
+            <span class="eyebrow">
+                SERVICE 01
+            </span>
+
+            <h2>
+                Reel Editing
+            </h2>
+
+            <p>
+                Professional editing for your
+                regular gym reels.
+            </p>
+
+        </div>
+
+
+        <div class="detail-price-card">
+
+            <span class="price-label">
+                Starting from
+            </span>
+
+            <strong class="detail-price">
+                ₹199
+            </strong>
+
+            <span class="price-unit">
+                / reel
+            </span>
+
+        </div>
+
+
+        <div class="information-block">
+
+            <div class="information-title">
+
+                <span class="info-icon">
+                    ✓
+                </span>
+
+                <h3>
+                    What You Get
+                </h3>
+
+            </div>
+
+            <ul class="detail-list">
+
+                <li>
+                    <span>✓</span>
+                    Clean professional cuts
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Music and beat matching
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Captions when required
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Instagram-ready vertical format
+                </li>
+
+            </ul>
+
+        </div>
+
+
+        <!-- SERVICE DETAILS → PRICING -->
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-screen="pricing"
+            data-service="reel-editing"
+        >
+
+            View Pricing & Plans
+
+            <span class="button-arrow">
+                →
+            </span>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     4. TRANSFORMATION DETAILS
+     ========================================================= -->
+
+<section
+    id="transformation"
+    class="app-screen detail-screen"
+    data-detail-section="transformation"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-back="services"
+        >
+            <span>←</span>
+            Back to Services
+        </button>
+
+
+        <div class="detail-header">
+
+            <div class="large-detail-icon">
+                🔥
+            </div>
+
+            <span class="eyebrow">
+                SERVICE 02
+            </span>
+
+            <h2>
+                Transformation Reel
+            </h2>
+
+            <p>
+                Before-and-after transformation
+                content designed to stand out.
+            </p>
+
+        </div>
+
+
+        <div class="detail-price-card">
+
+            <span class="price-label">
+                Starting from
+            </span>
+
+            <strong class="detail-price">
+                ₹299
+            </strong>
+
+            <span class="price-unit">
+                / reel
+            </span>
+
+        </div>
+
+
+        <div class="information-block">
+
+            <div class="information-title">
+
+                <span class="info-icon">
+                    ✓
+                </span>
+
+                <h3>
+                    What You Get
+                </h3>
+
+            </div>
+
+            <ul class="detail-list">
+
+                <li>
+                    <span>✓</span>
+                    Before-and-after structure
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Strong visual pacing
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Music and beat matching
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Instagram-ready format
+                </li>
+
+            </ul>
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-screen="pricing"
+            data-service="transformation"
+        >
+
+            View Pricing & Plans
+
+            <span class="button-arrow">
+                →
+            </span>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     5. GYM PROMOTION DETAILS
+     ========================================================= -->
+
+<section
+    id="gym-promotion"
+    class="app-screen detail-screen"
+    data-detail-section="gym-promotion"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-back="services"
+        >
+            <span>←</span>
+            Back to Services
+        </button>
+
+
+        <div class="detail-header">
+
+            <div class="large-detail-icon">
+                📈
+            </div>
+
+            <span class="eyebrow">
+                SERVICE 03
+            </span>
+
+            <h2>
+                Gym Promotion
+            </h2>
+
+            <p>
+                Promotional video content for your
+                gym, offers, equipment and atmosphere.
+            </p>
+
+        </div>
+
+
+        <div class="detail-price-card">
+
+            <span class="price-label">
+                Starting from
+            </span>
+
+            <strong class="detail-price">
+                ₹499
+            </strong>
+
+            <span class="price-unit">
+                / video
+            </span>
+
+        </div>
+
+
+        <div class="information-block">
+
+            <div class="information-title">
+
+                <span class="info-icon">
+                    ✓
+                </span>
+
+                <h3>
+                    What You Get
+                </h3>
+
+            </div>
+
+            <ul class="detail-list">
+
+                <li>
+                    <span>✓</span>
+                    Gym promotional editing
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Offer and campaign highlights
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Music and pacing
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Social-media-ready video
+                </li>
+
+            </ul>
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-screen="pricing"
+            data-service="gym-promotion"
+        >
+
+            View Pricing & Plans
+
+            <span class="button-arrow">
+                →
+            </span>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     6. PRICING / PLAN
+     ========================================================= -->
+
+<section
+    id="pricing"
+    class="app-screen pricing-screen"
+    data-screen-section="pricing"
+>
+
+    <div class="screen-inner">
+
+        <div class="section-heading">
+
+            <span class="eyebrow">
+                SIMPLE PRICING
+            </span>
+
+            <h2>
+                Choose Your
+                <span>Plan.</span>
+            </h2>
+
+            <p>
+                Select the plan you want to explore.
+            </p>
+
+        </div>
+
+
+        <div class="pricing-list">
+
+
+            <!-- PLAN 1 -->
+
+            <article
+                class="pricing-card featured-plan"
+                data-plan-card="reel-editing"
             >
 
-                <div class="screen-inner">
+                <div class="pricing-card-header">
 
-                    <div class="section-heading">
+                    <div>
 
-                        <span class="eyebrow">
-                            SIMPLE PRICING
-                        </span>
-
-                        <h2>
-                            Choose Your
-                            <span>Plan.</span>
-                        </h2>
-
-                        <p>
-                            See the price first.
-                            Open a plan only when you want more details.
-                        </p>
-
-                    </div>
-
-
-                    <!-- PRICING CARDS -->
-
-                    <div class="pricing-list">
-
-
-                        <!-- PLAN 1 -->
-
-                        <article
-                            class="pricing-card featured-plan"
-                            data-plan-card="reel-editing"
-                        >
-
-                            <div class="pricing-card-header">
-
-                                <div>
-
-                                    <span class="plan-label">
-                                        REEL EDITING
-                                    </span>
-
-                                    <h3>
-                                        Standard Reel
-                                    </h3>
-
-                                </div>
-
-                                <span class="plan-badge">
-                                    POPULAR
-                                </span>
-
-                            </div>
-
-
-                            <div class="pricing-main">
-
-                                <span class="currency">
-                                    ₹
-                                </span>
-
-                                <strong class="plan-price">
-                                    199
-                                </strong>
-
-                                <span class="plan-unit">
-                                    / reel
-                                </span>
-
-                            </div>
-
-
-                            <p class="pricing-short-description">
-                                Professional editing for your
-                                regular gym reels.
-                            </p>
-
-
-                            <button
-                                class="outline-button full-button"
-                                type="button"
-                                data-plan-detail="reel-editing"
-                            >
-                                View Plan Details
-                                <span>→</span>
-                            </button>
-
-                        </article>
-
-
-                        <!-- PLAN 2 -->
-
-                        <article
-                            class="pricing-card"
-                            data-plan-card="transformation"
-                        >
-
-                            <div class="pricing-card-header">
-
-                                <div>
-
-                                    <span class="plan-label">
-                                        TRANSFORMATION
-                                    </span>
-
-                                    <h3>
-                                        Transformation Reel
-                                    </h3>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="pricing-main">
-
-                                <span class="currency">
-                                    ₹
-                                </span>
-
-                                <strong class="plan-price">
-                                    299
-                                </strong>
-
-                                <span class="plan-unit">
-                                    / reel
-                                </span>
-
-                            </div>
-
-
-                            <p class="pricing-short-description">
-                                Built for before-and-after
-                                transformation stories.
-                            </p>
-
-
-                            <button
-                                class="outline-button full-button"
-                                type="button"
-                                data-plan-detail="transformation"
-                            >
-                                View Plan Details
-                                <span>→</span>
-                            </button>
-
-                        </article>
-
-
-                        <!-- PLAN 3 -->
-
-                        <article
-                            class="pricing-card"
-                            data-plan-card="gym-promotion"
-                        >
-
-                            <div class="pricing-card-header">
-
-                                <div>
-
-                                    <span class="plan-label">
-                                        GYM PROMOTION
-                                    </span>
-
-                                    <h3>
-                                        Promotional Video
-                                    </h3>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="pricing-main">
-
-                                <span class="currency">
-                                    ₹
-                                </span>
-
-                                <strong class="plan-price">
-                                    499
-                                </strong>
-
-                                <span class="plan-unit">
-                                    / video
-                                </span>
-
-                            </div>
-
-
-                            <p class="pricing-short-description">
-                                Promotional content for your
-                                gym, offers and campaigns.
-                            </p>
-
-
-                            <button
-                                class="outline-button full-button"
-                                type="button"
-                                data-plan-detail="gym-promotion"
-                            >
-                                View Plan Details
-                                <span>→</span>
-                            </button>
-
-                        </article>
-
-
-                    </div>
-
-
-                    <div class="micro-note">
-
-                        <span class="micro-note-icon">
-                            ₹
-                        </span>
-
-                        <p>
-                            Tap a plan to see exactly what you get.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 PLAN DETAIL
-                 REEL EDITING — ₹199
-                 ================================================= -->
-
-            <section
-                id="plan-reel-editing"
-                class="app-screen plan-detail-screen"
-                data-plan-detail-section="reel-editing"
-            >
-
-                <div class="screen-inner">
-
-                    <button
-                        class="back-button"
-                        type="button"
-                        data-back="pricing"
-                    >
-                        <span>←</span>
-                        Back to Pricing
-                    </button>
-
-
-                    <div class="plan-detail-header">
-
-                        <span class="eyebrow">
+                        <span class="plan-label">
                             REEL EDITING
                         </span>
 
-                        <h2>
+                        <h3>
                             Standard Reel
-                        </h2>
-
-
-                        <div class="big-price">
-
-                            <span>
-                                ₹
-                            </span>
-
-                            <strong>
-                                199
-                            </strong>
-
-                            </div>
-                                                        <small>
-                                / reel
-                            </small>
-
-                        </div>
+                        </h3>
 
                     </div>
 
-
-                    <!-- WHAT YOU GET -->
-
-                    <div class="information-block">
-
-                        <div class="information-title">
-
-                            <span class="info-icon">
-                                ✓
-                            </span>
-
-                            <h3>
-                                What You Get
-                            </h3>
-
-                        </div>
-
-
-                        <ul class="detail-list">
-
-                            <li>
-                                <span>✓</span>
-                                Clean professional cuts
-                            </li>
-
-                            <li>
-                                <span>✓</span>
-                                Music and beat matching
-                            </li>
-
-                            <li>
-                                <span>✓</span>
-                                Captions when required
-                            </li>
-
-                            <li>
-                                <span>✓</span>
-                                Instagram-ready vertical format
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-
-                    <!-- DELIVERY -->
-
-                    <div class="information-block compact-block">
-
-                        <div class="information-title">
-
-                            <span class="info-icon">
-                                ⏱
-                            </span>
-
-                            <h3>
-                                Delivery
-                            </h3>
-
-                        </div>
-
-                        <p>
-                            Standard delivery within
-                            <strong>24–48 hours</strong>
-                            after all required footage and
-                            instructions are received.
-                        </p>
-
-                    </div>
-
-
-                    <!-- REVISIONS -->
-
-                    <div class="information-block compact-block">
-
-                        <div class="information-title">
-
-                            <span class="info-icon">
-                                ↻
-                            </span>
-
-                            <h3>
-                                Revisions
-                            </h3>
-
-                        </div>
-
-                        <p>
-                            Revision support is available
-                            if the final edit needs adjustments.
-                        </p>
-
-                    </div>
-
-
-                    <!-- ORDER CTA -->
-
-                    <div class="sticky-action-area">
-
-                        <button
-                            class="primary-button full-button"
-                            type="button"
-                            data-plan="reel-editing"
-                            data-screen="order"
-                        >
-                            Order Standard Reel
-
-                            <span class="button-arrow">
-                                →
-                            </span>
-
-                        </button>
-
-                    </div>
+                    <span class="plan-badge">
+                        POPULAR
+                    </span>
 
                 </div>
 
-            </section>
+
+                <div class="pricing-main">
+
+                    <span class="currency">
+                        ₹
+                    </span>
+
+                    <strong class="plan-price">
+                        199
+                    </strong>
+
+                    <span class="plan-unit">
+                        / reel
+                    </span>
+
+                </div>
 
 
-            <!-- =================================================
-                 PLAN DETAIL
-                 TRANSFORMATION — ₹299
-                 ================================================= -->
+                <p class="pricing-short-description">
+                    Professional editing for regular gym reels.
+                </p>
 
-            <section
-                id="plan-transformation"
-                class="app-screen plan-detail-screen"
-                data-plan-detail-section="transformation"
+
+                <button
+                    class="outline-button full-button"
+                    type="button"
+                    data-plan-detail="reel-editing"
+                >
+
+                    View Plan Details
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+            </article>
+
+
+            <!-- PLAN 2 -->
+
+            <article
+                class="pricing-card"
+                data-plan-card="transformation"
             >
 
-                <div class="screen-inner">
+                <div class="pricing-card-header">
 
-                    <button
-                        class="back-button"
-                        type="button"
-                        data-back="pricing"
-                    >
-                        <span>←</span>
-                        Back to Pricing
-                    </button>
+                    <div>
 
-
-                    <div class="plan-detail-header">
-
-                        <span class="eyebrow">
+                        <span class="plan-label">
                             TRANSFORMATION
                         </span>
 
-                        <h2>
+                        <h3>
                             Transformation Reel
-                        </h2>
-
-                        <div class="big-price">
-
-                            <span>
-                                ₹
-                            </span>
-
-                            <strong>
-                                299
-                            </strong>
-
-                            <small>
-                                / reel
-                            </small>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- WHAT YOU GET -->
-
-                    <div class="information-block">
-
-                        <div class="information-title">
-
-                            <span class="info-icon">
-                                ✓
-                            </span>
-
-                            <h3>
-                                What You Get
-                            </h3>
-
-                        </div>
-
-
-                        <ul class="detail-list">
-
-                            <li>
-                                <span>✓</span>
-                                Before-and-after structure
-                            </li>
-
-                            <li>
-                                <span>✓</span>
-                                Strong visual pacing
-                            </li>
-
-                            <li>
-                                <span>✓</span>
-                                Music and beat matching
-                            </li>
-
-                            <li>
-                                <span>✓</span>
-                                Instagram-ready vertical format
-                            </li>
-
-                        </ul>
-
-                    </div>
-
-
-                    <!-- DELIVERY -->
-
-                    <div class="information-block compact-block">
-
-                        <div class="information-title">
-
-                            <span class="info-icon">
-                                ⏱
-                            </span>
-
-                            <h3>
-                                Delivery
-                            </h3>
-
-                        </div>
-
-                        <p>
-                            Standard delivery within
-                            <strong>24–48 hours</strong>
-                            after all required footage and
-                            instructions are received.
-                        </p>
-
-                    </div>
-
-
-                    <!-- REVISIONS -->
-
-                    <div class="information-block compact-block">
-
-                        <div class="information-title">
-
-                            <span class="info-icon">
-                                ↻
-                            </span>
-
-                            <h3>
-                                Revisions
-                            </h3>
-
-                        </div>
-
-                        <p>
-                            Revision support is available
-                            if adjustments are needed.
-                        </p>
-
-                    </div>
-
-
-                    <!-- ORDER CTA -->
-
-                    <div class="sticky-action-area">
-
-                        <button
-                            class="primary-button full-button"
-                            type="button"
-                            data-plan="transformation"
-                            data-screen="order"
-                        >
-                            Order Transformation Reel
-
-                            <span class="button-arrow">
-                                →
-                            </span>
-
-                        </button>
+                        </h3>
 
                     </div>
 
                 </div>
 
-    </section>
-    <!-- =================================================
-     SCREEN 5
-     ORDER
-     ================================================= -->
+
+                <div class="pricing-main">
+
+                    <span class="currency">
+                        ₹
+                    </span>
+
+                    <strong class="plan-price">
+                        299
+                    </strong>
+
+                    <span class="plan-unit">
+                        / reel
+                    </span>
+
+                </div>
+
+
+                <p class="pricing-short-description">
+                    Built for before-and-after stories.
+                </p>
+
+
+                <button
+                    class="outline-button full-button"
+                    type="button"
+                    data-plan-detail="transformation"
+                >
+
+                    View Plan Details
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+            </article>
+
+
+            <!-- PLAN 3 -->
+
+            <article
+                class="pricing-card"
+                data-plan-card="gym-promotion"
+            >
+
+                <div class="pricing-card-header">
+
+                    <div>
+
+                        <span class="plan-label">
+                            GYM PROMOTION
+                        </span>
+
+                        <h3>
+                            Promotional Video
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pricing-main">
+
+                    <span class="currency">
+                        ₹
+                    </span>
+
+                    <strong class="plan-price">
+                        499
+                    </strong>
+
+                    <span class="plan-unit">
+                        / video
+                    </span>
+
+                </div>
+
+
+                <p class="pricing-short-description">
+                    Promotional content for gyms and campaigns.
+                </p>
+
+
+                <button
+                    class="outline-button full-button"
+                    type="button"
+                    data-plan-detail="gym-promotion"
+                >
+
+                    View Plan Details
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     7. PLAN DETAIL — REEL EDITING
+     ========================================================= -->
+
+<section
+    id="plan-reel-editing"
+    class="app-screen plan-detail-screen"
+    data-plan-detail-section="reel-editing"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-back="pricing"
+        >
+            <span>←</span>
+            Back to Pricing
+        </button>
+
+
+        <div class="plan-detail-header">
+
+            <span class="eyebrow">
+                REEL EDITING
+            </span>
+
+            <h2>
+                Standard Reel
+            </h2>
+
+            <div class="big-price">
+
+                <span>
+                    ₹
+                </span>
+
+                <strong>
+                    199
+                </strong>
+
+                <small>
+                    / reel
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-block">
+
+            <div class="information-title">
+
+                <span class="info-icon">
+                    ✓
+                </span>
+
+                <h3>
+                    What You Get
+                </h3>
+
+            </div>
+
+            <ul class="detail-list">
+
+                <li>
+                    <span>✓</span>
+                    Clean professional cuts
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Music and beat matching
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Captions when required
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Instagram-ready format
+                </li>
+
+            </ul>
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-screen="order"
+            data-plan="reel-editing"
+        >
+
+            Order Standard Reel
+
+            <span class="button-arrow">
+                →
+            </span>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     8. PLAN DETAIL — TRANSFORMATION
+     ========================================================= -->
+
+<section
+    id="plan-transformation"
+    class="app-screen plan-detail-screen"
+    data-plan-detail-section="transformation"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-back="pricing"
+        >
+            <span>←</span>
+            Back to Pricing
+        </button>
+
+
+        <div class="plan-detail-header">
+
+            <span class="eyebrow">
+                TRANSFORMATION
+            </span>
+
+            <h2>
+                Transformation Reel
+            </h2>
+
+            <div class="big-price">
+
+                <span>
+                    ₹
+                </span>
+
+                <strong>
+                    299
+                </strong>
+
+                <small>
+                    / reel
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-block">
+
+            <div class="information-title">
+
+                <span class="info-icon">
+                    ✓
+                </span>
+
+                <h3>
+                    What You Get
+                </h3>
+
+            </div>
+
+            <ul class="detail-list">
+
+                <li>
+                    <span>✓</span>
+                    Before-and-after structure
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Strong visual pacing
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Music and beat matching
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Instagram-ready format
+                </li>
+
+            </ul>
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-screen="order"
+            data-plan="transformation"
+        >
+
+            Order Transformation Reel
+
+            <span class="button-arrow">
+                →
+            </span>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     9. PLAN DETAIL — GYM PROMOTION
+     ========================================================= -->
+
+<section
+    id="plan-gym-promotion"
+    class="app-screen plan-detail-screen"
+    data-plan-detail-section="gym-promotion"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-back="pricing"
+        >
+            <span>←</span>
+            Back to Pricing
+        </button>
+
+
+        <div class="plan-detail-header">
+
+            <span class="eyebrow">
+                GYM PROMOTION
+            </span>
+
+            <h2>
+                Promotional Video
+            </h2>
+
+            <div class="big-price">
+
+                <span>
+                    ₹
+                </span>
+
+                <strong>
+                    499
+                </strong>
+
+                <small>
+                    / video
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-block">
+
+            <div class="information-title">
+
+                <span class="info-icon">
+                    ✓
+                </span>
+
+                <h3>
+                    What You Get
+                </h3>
+
+            </div>
+
+            <ul class="detail-list">
+
+                <li>
+                    <span>✓</span>
+                    Promotional editing
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Offer and campaign highlights
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Music and pacing
+                </li>
+
+                <li>
+                    <span>✓</span>
+                    Social-media-ready video
+                </li>
+
+            </ul>
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-screen="order"
+            data-plan="gym-promotion"
+        >
+
+            Order Promotional Video
+
+            <span class="button-arrow">
+                →
+            </span>
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     10. ORDER
+     ========================================================= -->
 
 <section
     id="order"
@@ -1283,7 +1266,7 @@
         <div class="section-heading">
 
             <span class="eyebrow">
-                START YOUR ORDER
+                ORDER
             </span>
 
             <h2>
@@ -1292,14 +1275,15 @@
             </h2>
 
             <p>
-                Tell us what you need.
-                We'll take it from there.
+                Complete the order step by step.
             </p>
 
         </div>
 
 
-        <!-- ORDER PROGRESS -->
+        <!-- =================================================
+             ORDER PROGRESS — 5 TOTAL INCLUDING REVIEW
+             ================================================= -->
 
         <div class="order-progress">
 
@@ -1318,7 +1302,7 @@
                 data-progress-step="2"
             >
                 <span>2</span>
-                <small>Details</small>
+                <small>Plan</small>
             </div>
 
             <div class="progress-line"></div>
@@ -1328,16 +1312,35 @@
                 data-progress-step="3"
             >
                 <span>3</span>
+                <small>Project</small>
+            </div>
+
+            <div class="progress-line"></div>
+
+            <div
+                class="progress-step"
+                data-progress-step="4"
+            >
+                <span>4</span>
                 <small>Contact</small>
+            </div>
+
+            <div class="progress-line"></div>
+
+            <div
+                class="progress-step"
+                data-progress-step="5"
+            >
+                <span>5</span>
+                <small>Review</small>
             </div>
 
         </div>
 
 
-        <!-- =========================================
-             ORDER STEP 1
-             SERVICE SELECTION
-             ========================================= -->
+        <!-- =================================================
+             ORDER PAGE 1 — SERVICE
+             ================================================= -->
 
         <div
             class="order-step active-order-step"
@@ -1347,15 +1350,15 @@
             <div class="order-step-heading">
 
                 <span class="step-label">
-                    STEP 1 OF 3
+                    STEP 1
                 </span>
 
                 <h3>
-                    What do you need?
+                    Choose Your Service
                 </h3>
 
                 <p>
-                    Choose one service to continue.
+                    Select the service you want.
                 </p>
 
             </div>
@@ -1364,12 +1367,11 @@
             <div class="order-options">
 
 
-                <!-- REEL EDITING -->
-
                 <button
                     class="order-option"
                     type="button"
                     data-order-service="reel-editing"
+                    data-order-next="2"
                 >
 
                     <span class="option-icon">
@@ -1395,12 +1397,11 @@
                 </button>
 
 
-                <!-- TRANSFORMATION -->
-
                 <button
                     class="order-option"
                     type="button"
                     data-order-service="transformation"
+                    data-order-next="2"
                 >
 
                     <span class="option-icon">
@@ -1426,12 +1427,11 @@
                 </button>
 
 
-                <!-- GYM PROMOTION -->
-
                 <button
                     class="order-option"
                     type="button"
                     data-order-service="gym-promotion"
+                    data-order-next="2"
                 >
 
                     <span class="option-icon">
@@ -1456,16 +1456,14 @@
 
                 </button>
 
-
             </div>
 
         </div>
 
 
-        <!-- =========================================
-             ORDER STEP 2
-             PROJECT DETAILS
-             ========================================= -->
+        <!-- =================================================
+             ORDER PAGE 2 — PLAN
+             ================================================= -->
 
         <div
             class="order-step"
@@ -1475,53 +1473,121 @@
             <div class="order-step-heading">
 
                 <span class="step-label">
-                    STEP 2 OF 3
+                    STEP 2
                 </span>
 
                 <h3>
-                    Tell us about the project.
+                    Choose Your Plan
                 </h3>
 
                 <p>
-                    Only the information we need
-                    to understand your request.
+                    Select the plan you want.
                 </p>
 
             </div>
 
 
-            <!-- SELECTED SERVICE -->
+            <div class="order-options">
 
-            <div class="selected-service-box">
-
-                <span class="selected-service-icon">
-                    🎬
-                </span>
-
-                <div>
-
-                    <small>
-                        SELECTED SERVICE
-                    </small>
-
-                    <strong id="selectedServiceName">
-                        Reel Editing
-                    </strong>
-
-                </div>
 
                 <button
+                    class="order-option"
                     type="button"
-                    class="change-service-button"
-                    data-order-go-step="1"
+                    data-order-plan="standard"
+                    data-order-next="3"
                 >
-                    Change
+
+                    <span class="option-icon">
+                        ⭐
+                    </span>
+
+                    <span class="option-info">
+
+                        <strong>
+                            Standard
+                        </strong>
+
+                        <small>
+                            Professional editing
+                        </small>
+
+                    </span>
+
+                    <span class="option-arrow">
+                        →
+                    </span>
+
+                </button>
+
+
+                <button
+                    class="order-option"
+                    type="button"
+                    data-order-plan="premium"
+                    data-order-next="3"
+                >
+
+                    <span class="option-icon">
+                        🚀
+                    </span>
+
+                    <span class="option-info">
+
+                        <strong>
+                            Premium
+                        </strong>
+
+                        <small>
+                            Advanced editing
+                        </small>
+
+                    </span>
+
+                    <span class="option-arrow">
+                        →
+                    </span>
+
                 </button>
 
             </div>
 
 
-            <!-- PROJECT GOAL -->
+            <button
+                class="back-text-button"
+                type="button"
+                data-order-go-step="1"
+            >
+                ← Back to Service
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             ORDER PAGE 3 — PROJECT
+             ================================================= -->
+
+        <div
+            class="order-step"
+            data-order-step="3"
+        >
+
+            <div class="order-step-heading">
+
+                <span class="step-label">
+                    STEP 3
+                </span>
+
+                <h3>
+                    Project Details
+                </h3>
+
+                <p>
+                    Tell us what you want from the project.
+                </p>
+
+            </div>
+
 
             <div class="form-group">
 
@@ -1563,8 +1629,6 @@
             </div>
 
 
-            <!-- PROJECT NOTES -->
-
             <div class="form-group">
 
                 <label for="projectNotes">
@@ -1575,18 +1639,16 @@
                     id="projectNotes"
                     name="projectNotes"
                     rows="4"
-                    placeholder="Tell us anything important about this reel..."
+                    placeholder="Tell us anything important..."
                 ></textarea>
 
             </div>
 
 
-            <!-- NEXT -->
-
             <button
                 class="primary-button full-button"
                 type="button"
-                data-order-next="3"
+                data-order-next="4"
             >
 
                 Continue
@@ -1597,38 +1659,43 @@
 
             </button>
 
+
+            <button
+                class="back-text-button"
+                type="button"
+                data-order-go-step="2"
+            >
+                ← Back to Plan
+            </button>
+
         </div>
 
 
-        <!-- =========================================
-             ORDER STEP 3
-             CONTACT INFORMATION
-             ========================================= -->
+        <!-- =================================================
+             ORDER PAGE 4 — CONTACT
+             ================================================= -->
 
         <div
             class="order-step"
-            data-order-step="3"
+            data-order-step="4"
         >
 
             <div class="order-step-heading">
 
                 <span class="step-label">
-                    STEP 3 OF 3
+                    STEP 4
                 </span>
 
                 <h3>
-                    Where should we contact you?
+                    Your Details
                 </h3>
 
                 <p>
-                    We'll use these details to
-                    follow up about your order.
+                    Give us the details we need to contact you.
                 </p>
 
             </div>
 
-
-            <!-- NAME -->
 
             <div class="form-group">
 
@@ -1647,8 +1714,6 @@
             </div>
 
 
-            <!-- GYM NAME -->
-
             <div class="form-group">
 
                 <label for="gymName">
@@ -1666,8 +1731,6 @@
             </div>
 
 
-            <!-- INSTAGRAM -->
-
             <div class="form-group">
 
                 <label for="instagramHandle">
@@ -1684,7 +1747,122 @@
             </div>
 
 
-            <!-- SUBMIT -->
+            <button
+                class="primary-button full-button"
+                type="button"
+                data-order-next="5"
+            >
+
+                Review Order
+
+                <span class="button-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                class="back-text-button"
+                type="button"
+                data-order-go-step="3"
+            >
+                ← Back to Project
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             ORDER PAGE 5 — REVIEW
+             ================================================= -->
+
+        <div
+            class="order-step"
+            data-order-step="5"
+        >
+
+            <div class="order-step-heading">
+
+                <span class="step-label">
+                    FINAL STEP
+                </span>
+
+                <h3>
+                    Review Your Order
+                </h3>
+
+                <p>
+                    Check everything before submitting.
+                </p>
+
+            </div>
+
+
+            <div class="information-block">
+
+                <div class="information-title">
+
+                    <span class="info-icon">
+                        ✓
+                    </span>
+
+                    <h3>
+                        Order Summary
+                    </h3>
+
+                </div>
+
+
+                <div class="order-summary">
+
+                    <p>
+                        <strong>
+                            Service
+                        </strong>
+
+                        <span id="reviewService">
+                            Selected service
+                        </span>
+                    </p>
+
+
+                    <p>
+                        <strong>
+                            Plan
+                        </strong>
+
+                        <span id="reviewPlan">
+                            Selected plan
+                        </span>
+                    </p>
+
+
+                    <p>
+                        <strong>
+                            Gym
+                        </strong>
+
+                        <span id="reviewGym">
+                            Gym name
+                        </span>
+                    </p>
+
+
+                    <p>
+                        <strong>
+                            Instagram
+                        </strong>
+
+                        <span id="reviewInstagram">
+                            Instagram
+                        </span>
+                    </p>
+
+                </div>
+
+            </div>
+
 
             <button
                 class="primary-button full-button"
@@ -1701,22 +1879,20 @@
             </button>
 
 
-            <!-- BACK -->
-
             <button
                 class="back-text-button"
                 type="button"
-                data-order-go-step="2"
+                data-order-go-step="4"
             >
-                ← Back to project details
+                ← Back to Contact
             </button>
 
         </div>
 
 
-        <!-- =========================================
-             ORDER SUCCESS MESSAGE
-             ========================================= -->
+        <!-- =================================================
+             ORDER SUCCESS
+             ================================================= -->
 
         <div
             id="orderSuccess"
@@ -1759,11 +1935,12 @@
 
     </div>
 
-    </section>
-    <!-- =================================================
-     SCREEN 6
-     SUPPORT
-     ================================================= -->
+</section>
+
+
+<!-- =========================================================
+     11. SUPPORT
+     ========================================================= -->
 
 <section
     id="support"
@@ -1785,19 +1962,14 @@
             </h2>
 
             <p>
-                Find the information you need
-                without searching through a long page.
+                Find the information you need.
             </p>
 
         </div>
 
 
-        <!-- SUPPORT OPTIONS -->
-
         <div class="support-options">
 
-
-            <!-- CONTACT -->
 
             <button
                 class="support-card"
@@ -1828,8 +2000,6 @@
             </button>
 
 
-            <!-- DELIVERY -->
-
             <button
                 class="support-card"
                 type="button"
@@ -1858,8 +2028,6 @@
 
             </button>
 
-
-            <!-- REVISION -->
 
             <button
                 class="support-card"
@@ -1890,8 +2058,6 @@
             </button>
 
 
-            <!-- REQUIREMENTS -->
-
             <button
                 class="support-card"
                 type="button"
@@ -1920,23 +2086,6 @@
 
             </button>
 
-
-        </div>
-
-
-        <!-- SUPPORT NOTE -->
-
-        <div class="support-note">
-
-            <span>
-                ✦
-            </span>
-
-            <p>
-                Choose only the information
-                you want to know.
-            </p>
-
         </div>
 
     </div>
@@ -1944,572 +2093,9 @@
 </section>
 
 
-<!-- =================================================
-     SUPPORT DETAIL — CONTACT
-     ================================================= -->
-
-<section
-    id="support-contact"
-    class="app-screen support-detail-screen"
-    data-support-section="contact"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-back="support"
-        >
-            <span>←</span>
-            Back to Support
-        </button>
-
-
-        <div class="detail-header">
-
-            <div class="large-detail-icon">
-                💬
-            </div>
-
-            <span class="eyebrow">
-                CONTACT
-            </span>
-
-            <h2>
-                Let's Talk.
-            </h2>
-
-            <p>
-                Have a question about a service,
-                price or order? Contact us directly.
-            </p>
-
-        </div>
-
-
-        <div class="contact-options">
-
-
-            <a
-                class="contact-button"
-                href="#"
-                id="whatsappContact"
-            >
-
-                <span class="contact-button-icon">
-                    💬
-                </span>
-
-                <span>
-
-                    <strong>
-                        WhatsApp
-                    </strong>
-
-                    <small>
-                        Chat with us
-                    </small>
-
-                </span>
-
-                <span>
-                    →
-                </span>
-
-            </a>
-
-
-            <a
-                class="contact-button"
-                href="#"
-                id="instagramContact"
-            >
-
-                <span class="contact-button-icon">
-                    ◎
-                </span>
-
-                <span>
-
-                    <strong>
-                        Instagram
-                    </strong>
-
-                    <small>
-                        Visit our Instagram
-                    </small>
-
-                </span>
-
-                <span>
-                    →
-                </span>
-
-            </a>
-
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =================================================
-     SUPPORT DETAIL — DELIVERY
-     ================================================= -->
-
-<section
-    id="support-delivery"
-    class="app-screen support-detail-screen"
-    data-support-section="delivery"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-back="support"
-        >
-            <span>←</span>
-            Back to Support
-        </button>
-
-
-        <div class="detail-header">
-
-            <div class="large-detail-icon">
-                ⏱
-            </div>
-
-            <span class="eyebrow">
-                DELIVERY
-            </span>
-
-            <h2>
-                When Will I Get My Reel?
-            </h2>
-
-            <p>
-                We keep delivery straightforward
-                so you know what to expect.
-            </p>
-
-        </div>
-
-
-        <div class="information-block">
-
-            <div class="information-title">
-
-                <span class="info-icon">
-                    01
-                </span>
-
-                <h3>
-                    Standard Delivery
-                </h3>
-
-            </div>
-
-            <p>
-                Most standard reel orders are
-                delivered within
-                <strong>24–48 hours</strong>
-                after all required footage and
-                instructions are received.
-            </p>
-
-        </div>
-
-
-        <div class="information-block">
-
-            <div class="information-title">
-
-                <span class="info-icon">
-                    02
-                </span>
-
-                <h3>
-                    What Can Affect Delivery?
-                </h3>
-
-            </div>
-
-            <p>
-                Complex editing requests,
-                missing footage or additional
-                requirements may affect the
-                delivery timeline.
-            </p>
-
-        </div>
-
-
-        <div class="micro-note">
-
-            <span>
-                ✦
-            </span>
-
-            <p>
-                We'll confirm the expected timeline
-                for your specific project.
-            </p>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =================================================
-     SUPPORT DETAIL — REVISIONS
-     ================================================= -->
-
-<section
-    id="support-revisions"
-    class="app-screen support-detail-screen"
-    data-support-section="revisions"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-back="support"
-        >
-            <span>←</span>
-            Back to Support
-        </button>
-
-
-        <div class="detail-header">
-
-            <div class="large-detail-icon">
-                ↻
-            </div>
-
-            <span class="eyebrow">
-                REVISIONS
-            </span>
-
-            <h2>
-                Need a Change?
-            </h2>
-
-            <p>
-                We understand that an edit may need
-                adjustments before it feels right.
-            </p>
-
-        </div>
-
-
-        <div class="information-block">
-
-            <div class="information-title">
-
-                <span class="info-icon">
-                    ✓
-                </span>
-
-                <h3>
-                    Revision Support
-                </h3>
-
-            </div>
-
-            <p>
-                If the delivered edit needs changes,
-                let us know what needs to be adjusted
-                and we'll review the request.
-            </p>
-
-        </div>
-
-
-        <div class="information-block">
-
-            <div class="information-title">
-
-                <span class="info-icon">
-                    !
-                </span>
-
-                <h3>
-                    Clear Instructions Help
-                </h3>
-
-            </div>
-
-            <p>
-                Clear and specific feedback helps
-                us understand exactly what you want
-                changed.
-            </p>
-
-        </div>
-
-
-        <div class="micro-note">
-
-            <span>
-                ✦
-            </span>
-
-            <p>
-                Tell us what needs to change and
-                we'll take it from there.
-            </p>
-
-        </div>
-
-    </div>
-
-                </section>
-                <!-- =================================================
-     SUPPORT DETAIL — REQUIREMENTS
-     ================================================= -->
-
-<section
-    id="support-requirements"
-    class="app-screen support-detail-screen"
-    data-support-section="requirements"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-back="support"
-        >
-            <span>←</span>
-            Back to Support
-        </button>
-
-
-        <div class="detail-header">
-
-            <div class="large-detail-icon">
-                📋
-            </div>
-
-            <span class="eyebrow">
-                REQUIREMENTS
-            </span>
-
-            <h2>
-                What Do We Need?
-            </h2>
-
-            <p>
-                Only send the material required
-                for the service you choose.
-            </p>
-
-        </div>
-
-
-        <div class="requirement-list">
-
-
-            <div class="requirement-item">
-
-                <span class="requirement-icon">
-                    🎥
-                </span>
-
-                <div>
-
-                    <strong>
-                        Your Footage
-                    </strong>
-
-                    <p>
-                        The video clips you want
-                        us to edit.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="requirement-item">
-
-                <span class="requirement-icon">
-                    🎯
-                </span>
-
-                <div>
-
-                    <strong>
-                        Your Goal
-                    </strong>
-
-                    <p>
-                        Tell us what you want
-                        the reel to achieve.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="requirement-item">
-
-                <span class="requirement-icon">
-                    📝
-                </span>
-
-                <div>
-
-                    <strong>
-                        Important Instructions
-                    </strong>
-
-                    <p>
-                        Share anything specific
-                        you want included.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="order"
-        >
-
-            Start Order
-
-            <span class="button-arrow">
-                →
-            </span>
-
-        </button>
-
-    </div>
-
-</section>
-
-
-<!-- =================================================
-     SIMPLE FOOTER / BRAND INFO
-     ================================================= -->
-
-<section
-    id="about"
-    class="app-screen about-screen"
-    data-screen-section="about"
->
-
-    <div class="screen-inner">
-
-        <div class="about-brand">
-
-            <div class="about-logo">
-
-                <img
-                    src="gym-growth-hq-logo.png"
-                    alt="Gym Growth HQ Logo"
-                >
-
-            </div>
-
-            <span class="eyebrow">
-                GYM GROWTH HQ
-            </span>
-
-            <h2>
-                Better Content.
-                <span>Better Growth.</span>
-            </h2>
-
-            <p>
-                We help gyms turn their footage
-                into professional short-form content
-                built for modern social media.
-            </p>
-
-        </div>
-
-
-        <div class="about-links">
-
-            <button
-                type="button"
-                data-screen="services"
-            >
-                Services
-                <span>→</span>
-            </button>
-
-
-            <button
-                type="button"
-                data-screen="pricing"
-            >
-                Pricing
-                <span>→</span>
-            </button>
-
-
-            <button
-                type="button"
-                data-screen="order"
-            >
-                Start an Order
-                <span>→</span>
-            </button>
-
-
-            <button
-                type="button"
-                data-screen="support"
-            >
-                Support
-                <span>→</span>
-            </button>
-
-        </div>
-
-
-        <div class="footer-bottom">
-
-            <p>
-                © <span id="currentYear"></span>
-                Gym Growth HQ
-            </p>
-
-            <span>
-                Built for gyms.
-            </span>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =================================================
-     GLOBAL INFORMATION MODAL
-     ================================================= -->
+<!-- =========================================================
+     MODAL
+     ========================================================= -->
 
 <div
     id="infoModal"
@@ -2585,9 +2171,9 @@
 </div>
 
 
-<!-- =================================================
-     TOAST NOTIFICATION
-     ================================================= -->
+<!-- =========================================================
+     TOAST
+     ========================================================= -->
 
 <div
     id="toast"
@@ -2604,7 +2190,6 @@
         ✓
     </span>
 
-
     <span
         class="toast-message"
         id="toastMessage"
@@ -2615,9 +2200,9 @@
 </div>
 
 
-<!-- =================================================
-     LOADING OVERLAY
-     ================================================= -->
+<!-- =========================================================
+     LOADING
+     ========================================================= -->
 
 <div
     id="loadingOverlay"
@@ -2638,30 +2223,9 @@
 </div>
 
 
-<!-- =================================================
-     MOBILE SWIPE HINT
-     ================================================= -->
-
-<div
-    id="swipeHint"
-    class="swipe-hint"
-    aria-hidden="true"
->
-
-    <span class="swipe-hand">
-        ↑
-    </span>
-
-    <span>
-        Swipe to explore
-    </span>
-
-</div>
-
-
-<!-- =================================================
-     ACCESSIBILITY LIVE REGION
-     ================================================= -->
+<!-- =========================================================
+     ACCESSIBILITY
+     ========================================================= -->
 
 <div
     id="liveRegion"
@@ -2671,9 +2235,9 @@
 ></div>
 
 
-<!-- =================================================
-     FLOATING HOME BUTTON
-     ================================================= -->
+<!-- =========================================================
+     FLOATING HOME
+     ========================================================= -->
 
 <button
     id="floatingHomeButton"
@@ -2686,9 +2250,9 @@
 </button>
 
 
-<!-- =================================================
-     APP VERSION / BRAND MARK
-     ================================================= -->
+<!-- =========================================================
+     BRAND
+     ========================================================= -->
 
 <div
     class="app-version"
@@ -2705,8 +2269,6 @@
 
 <script src="script.js"></script>
 
-
 </body>
 
-    </html>
-    
+                </html>
