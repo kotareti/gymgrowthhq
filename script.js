@@ -3409,3 +3409,602 @@ document.addEventListener(
 /* =========================================================
    END MULTI-SELECT VIDEO FIX
    ========================================================= */
+/* =========================================================
+   SELECTED VIDEO CLEAR CONFIRMATION
+   ========================================================= */
+
+if (!document.getElementById("gghq-selected-confirm-style")) {
+
+    const style = document.createElement("style");
+
+    style.id =
+        "gghq-selected-confirm-style";
+
+    style.textContent = `
+
+        .video-gallery-preview {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .video-preview-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+
+            background: #111118;
+
+            border: 2px solid
+                rgba(145, 92, 255, 0.65);
+
+            box-shadow:
+                0 0 0 2px
+                rgba(145, 92, 255, 0.08);
+
+        }
+
+        .video-preview-card video {
+
+            display: block;
+
+            width: 100%;
+
+            aspect-ratio: 16 / 10;
+
+            object-fit: cover;
+
+            background: #08080c;
+
+        }
+
+        /* SELECTED BADGE */
+
+        .gghq-selected-badge {
+
+            position: absolute;
+
+            top: 8px;
+            right: 8px;
+
+            z-index: 5;
+
+            padding:
+                6px 9px;
+
+            border-radius:
+                20px;
+
+            background:
+                rgba(70, 220, 130, 0.95);
+
+            color: #07140c;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            letter-spacing:
+                0.3px;
+
+            box-shadow:
+                0 3px 10px
+                rgba(0,0,0,0.35);
+
+        }
+
+
+        /* VIDEO NUMBER */
+
+        .video-preview-number {
+
+            position: absolute;
+
+            top: 8px;
+            left: 8px;
+
+            z-index: 5;
+
+            width: 28px;
+            height: 28px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                rgba(0,0,0,0.78);
+
+            color: white;
+
+            font-size: 12px;
+
+            font-weight: 800;
+
+        }
+
+
+        .video-preview-info {
+
+            padding:
+                9px 10px 11px;
+
+        }
+
+
+        .video-preview-name {
+
+            color: white;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            line-height: 1.35;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+        }
+
+
+        /* BIG COUNT */
+
+        .gghq-video-selected-count {
+
+            margin-top: 16px;
+
+            width: 100%;
+
+            padding:
+                14px 16px;
+
+            border-radius:
+                14px;
+
+            background:
+                rgba(145, 92, 255, 0.14);
+
+            border:
+                1px solid
+                rgba(145, 92, 255, 0.45);
+
+            color: white;
+
+            text-align: center;
+
+            font-size: 15px;
+
+            font-weight: 800;
+
+        }
+
+
+        .gghq-video-selected-count span {
+
+            color:
+                #cdb5ff;
+
+        }
+
+
+        @media (min-width: 600px) {
+
+            .video-gallery-preview {
+
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+
+            }
+
+        }
+
+    `;
+
+    document.head.appendChild(style);
+
+}
+
+
+/* =========================================================
+   RENDER SELECTED VIDEOS
+   ========================================================= */
+
+function GGHQ_renderSelectedConfirmation() {
+
+    const container =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+
+    if (!container) return;
+
+
+    const files =
+        window.GGHQ_SELECTED_VIDEO_FILES ||
+        [];
+
+
+    container.innerHTML = "";
+
+
+    if (!files.length) {
+
+        container.innerHTML = `
+            <div class="video-empty-message">
+                No videos selected yet.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const gallery =
+        document.createElement(
+            "div"
+        );
+
+
+    gallery.className =
+        "video-gallery-preview";
+
+
+    files.forEach(
+        (file, index) => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "video-preview-card";
+
+
+            /* VIDEO NUMBER */
+
+            const number =
+                document.createElement(
+                    "div"
+                );
+
+
+            number.className =
+                "video-preview-number";
+
+
+            number.textContent =
+                index + 1;
+
+
+            /* SELECTED BADGE */
+
+            const selectedBadge =
+                document.createElement(
+                    "div"
+                );
+
+
+            selectedBadge.className =
+                "gghq-selected-badge";
+
+
+            selectedBadge.textContent =
+                "✓ SELECTED";
+
+
+            /* VIDEO */
+
+            const video =
+                document.createElement(
+                    "video"
+                );
+
+
+            video.muted =
+                true;
+
+            video.playsInline =
+                true;
+
+            video.preload =
+                "metadata";
+
+
+            video.setAttribute(
+                "playsinline",
+                ""
+            );
+
+
+            const previewURL =
+                URL.createObjectURL(
+                    file
+                );
+
+
+            video.src =
+                previewURL;
+
+
+            video.addEventListener(
+                "loadedmetadata",
+                function() {
+
+                    try {
+
+                        if (
+                            video.duration >
+                            0.2
+                        ) {
+
+                            video.currentTime =
+                                0.1;
+
+                        }
+
+                    } catch (e) {}
+
+                }
+            );
+
+
+            /* FILE NAME */
+
+            const info =
+                document.createElement(
+                    "div"
+                );
+
+
+            info.className =
+                "video-preview-info";
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+
+            name.className =
+                "video-preview-name";
+
+
+            name.textContent =
+                file.name;
+
+
+            info.appendChild(
+                name
+            );
+
+
+            card.appendChild(
+                video
+            );
+
+
+            card.appendChild(
+                number
+            );
+
+
+            card.appendChild(
+                selectedBadge
+            );
+
+
+            card.appendChild(
+                info
+            );
+
+
+            gallery.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    container.appendChild(
+        gallery
+    );
+
+
+    /* =====================================================
+       BIG SELECTED COUNT
+       ===================================================== */
+
+    const count =
+        document.createElement(
+            "div"
+        );
+
+
+    count.className =
+        "gghq-video-selected-count";
+
+
+    const number =
+        document.createElement(
+            "span"
+        );
+
+
+    number.textContent =
+        files.length;
+
+
+    count.appendChild(
+        document.createTextNode(
+            "✓ "
+        )
+    );
+
+
+    count.appendChild(
+        number
+    );
+
+
+    count.appendChild(
+        document.createTextNode(
+            files.length === 1
+                ? " VIDEO SELECTED"
+                : " VIDEOS SELECTED"
+        )
+    );
+
+
+    container.appendChild(
+        count
+    );
+
+}
+
+
+/* =========================================================
+   WATCH FOR VIDEO SELECTION CHANGES
+   ========================================================= */
+
+const GGHQ_confirmVideoInput =
+    document.getElementById(
+        "videoFiles"
+    );
+
+
+if (GGHQ_confirmVideoInput) {
+
+    GGHQ_confirmVideoInput.addEventListener(
+        "change",
+        function() {
+
+            const selectedFiles =
+                Array.from(
+                    this.files || []
+                );
+
+
+            if (!selectedFiles.length) {
+                return;
+            }
+
+
+            window.GGHQ_SELECTED_VIDEO_FILES =
+                window.GGHQ_SELECTED_VIDEO_FILES ||
+                [];
+
+
+            selectedFiles.forEach(
+                newFile => {
+
+                    const exists =
+                        window
+                            .GGHQ_SELECTED_VIDEO_FILES
+                            .some(
+                                oldFile =>
+                                    oldFile.name ===
+                                    newFile.name &&
+                                    oldFile.size ===
+                                    newFile.size &&
+                                    oldFile.lastModified ===
+                                    newFile.lastModified
+                            );
+
+
+                    if (!exists) {
+
+                        window
+                            .GGHQ_SELECTED_VIDEO_FILES
+                            .push(
+                                newFile
+                            );
+
+                    }
+
+                }
+            );
+
+
+            /*
+               Keep current order synced.
+            */
+
+            if (
+                typeof currentOrder !==
+                "undefined"
+            ) {
+
+                currentOrder.videos =
+                    window
+                        .GGHQ_SELECTED_VIDEO_FILES
+                        .map(
+                            file => ({
+
+                                name:
+                                    file.name,
+
+                                size:
+                                    file.size
+
+                            })
+                        );
+
+            }
+
+
+            /*
+               SHOW CLEAR CONFIRMATION
+            */
+
+            GGHQ_renderSelectedConfirmation();
+
+
+            /*
+               Clear input so another
+               selection can be added.
+            */
+
+            this.value = "";
+
+
+            if (
+                typeof showToast ===
+                "function"
+            ) {
+
+                showToast(
+                    `${
+                        window
+                            .GGHQ_SELECTED_VIDEO_FILES
+                            .length
+                    } videos selected`,
+                    "✓"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   END SELECTED VIDEO CONFIRMATION
+   ========================================================= */
