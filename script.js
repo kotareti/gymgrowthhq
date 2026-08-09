@@ -1,1212 +1,908 @@
-/* =========================================================
-   GYM GROWTH HQ
-   FINAL FLOW SCRIPT
-   ========================================================= */
+const USERS_KEY="gghq_users";
+const SESSION_KEY="gghq_session";
+const ORDERS_KEY="gghq_orders";
 
-const USERS_KEY = "gghq_users";
-const SESSION_KEY = "gghq_session";
-const ORDERS_KEY = "gghq_orders";
+let currentUser=null;
 
-let currentUser = null;
-
-let currentOrder = {
-    service: "",
-    plan: "",
-    clientName: "",
-    gymName: "",
-    instagram: "",
-    goal: "",
-    notes: "",
-    instructions: "",
-    videos: []
+let currentOrder={
+    service:"",
+    plan:"",
+    clientName:"",
+    gymName:"",
+    instagram:"",
+    goal:"",
+    notes:"",
+    instructions:"",
+    videos:[]
 };
 
-let currentOrderId = null;
+let currentOrderId=null;
 
-
-/* =========================================================
-   STORAGE
-   ========================================================= */
-
-function getUsers() {
-
-    try {
-        return JSON.parse(
-            localStorage.getItem(USERS_KEY)
-        ) || [];
-    } catch {
-        return [];
+function getUsers(){
+    try{
+        return JSON.parse(localStorage.getItem(USERS_KEY))||[];
+    }catch{
+        return[];
     }
 }
 
-
-function saveUsers(users) {
-
-    localStorage.setItem(
-        USERS_KEY,
-        JSON.stringify(users)
-    );
-
+function saveUsers(users){
+    localStorage.setItem(USERS_KEY,JSON.stringify(users));
 }
 
-
-function getOrders() {
-
-    try {
-        return JSON.parse(
-            localStorage.getItem(ORDERS_KEY)
-        ) || [];
-    } catch {
-        return [];
+function getOrders(){
+    try{
+        return JSON.parse(localStorage.getItem(ORDERS_KEY))||[];
+    }catch{
+        return[];
     }
-
 }
 
-
-function saveOrders(orders) {
-
-    localStorage.setItem(
-        ORDERS_KEY,
-        JSON.stringify(orders)
-    );
-
+function saveOrders(orders){
+    localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));
 }
 
-
-function saveSession(user) {
-
-    localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify(user)
-    );
-
+function saveSession(user){
+    localStorage.setItem(SESSION_KEY,JSON.stringify(user));
 }
 
-
-function getSession() {
-
-    try {
-
-        return JSON.parse(
-            localStorage.getItem(SESSION_KEY)
-        );
-
-    } catch {
-
+function getSession(){
+    try{
+        return JSON.parse(localStorage.getItem(SESSION_KEY));
+    }catch{
         return null;
-
     }
-
 }
 
-
-function clearSession() {
-
-    localStorage.removeItem(
-        SESSION_KEY
-    );
-
+function clearSession(){
+    localStorage.removeItem(SESSION_KEY);
 }
 
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
-function isLoggedIn() {
-
-    return !!currentUser;
-
+function isLoggedIn(){
+    return!!currentUser;
 }
 
-
-function getInitial(name) {
-
-    return name
-        ? name.trim().charAt(0).toUpperCase()
-        : "?";
-
+function getInitial(name){
+    return name?name.trim().charAt(0).toUpperCase():"?";
 }
 
-
-function setText(id, value) {
-
-    const el =
-        document.getElementById(id);
-
-    if (el) {
-        el.textContent = value || "—";
-    }
-
+function setText(id,value){
+    const el=document.getElementById(id);
+    if(el)el.textContent=value||"—";
 }
 
-
-function escapeHTML(value) {
-
-    if (!value) return "";
-
+function escapeHTML(value){
+    if(!value)return"";
     return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
 }
 
+function showToast(message,icon="✓"){
+    const toast=document.getElementById("toast");
+    const text=document.getElementById("toastMessage");
+    const iconEl=document.getElementById("toastIcon");
 
-function showToast(message, icon = "✓") {
+    if(!toast)return;
 
-    const toast =
-        document.getElementById("toast");
-
-    const text =
-        document.getElementById("toastMessage");
-
-    const iconEl =
-        document.getElementById("toastIcon");
-
-    if (!toast) return;
-
-    if (text)
-        text.textContent = message;
-
-    if (iconEl)
-        iconEl.textContent = icon;
+    if(text)text.textContent=message;
+    if(iconEl)iconEl.textContent=icon;
 
     toast.classList.add("show");
 
-    setTimeout(() => {
-
+    setTimeout(()=>{
         toast.classList.remove("show");
-
-    }, 2200);
-
+    },2200);
 }
 
+function showScreen(id){
 
-/* =========================================================
-   SCREEN NAVIGATION
-   ========================================================= */
-
-function showScreen(id) {
-
-    document
-        .querySelectorAll(".app-screen")
-        .forEach(screen => {
-
-            screen.classList.remove(
-                "active-screen"
-            );
-
-        });
-
-
-    const screen =
-        document.getElementById(id);
-
-    if (!screen) return;
-
-
-    screen.classList.add(
-        "active-screen"
-    );
-
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
+    document.querySelectorAll(".app-screen").forEach(screen=>{
+        screen.classList.remove("active-screen");
     });
 
+    const screen=document.getElementById(id);
+
+    if(!screen)return;
+
+    screen.classList.add("active-screen");
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
 
     updateAccountUI();
 
-
-    if (id === "orders") {
+    if(id==="orders"){
         renderOrders();
     }
 
-
-    if (id === "order-review") {
+    if(id==="order-review"){
         updateReview();
     }
 
+    if(id==="order-details"){
+        const order=findCurrentOrder();
 
-    if (id === "order-details") {
-
-        const order =
-            findCurrentOrder();
-
-        if (order) {
+        if(order){
             renderOrderDetails(order);
         }
-
     }
-
 }
 
+function updateAccountUI(){
 
-/* =========================================================
-   ACCOUNT UI
-   ========================================================= */
+    const headerButton=document.getElementById("accountHeaderButton");
+    const headerInitial=document.getElementById("headerAccountInitial");
+    const headerName=document.getElementById("headerAccountName");
 
-function updateAccountUI() {
+    const homeCard=document.getElementById("loggedInHomeCard");
+    const homeButton=document.getElementById("homeAccountButton");
+    const homeInitial=document.getElementById("homeAccountInitial");
+    const homeName=document.getElementById("homeAccountName");
+    const homeEmail=document.getElementById("homeAccountEmail");
 
-    const headerButton =
-        document.getElementById(
-            "accountHeaderButton"
-        );
+    const accountInitial=document.getElementById("accountInitial");
+    const accountName=document.getElementById("accountName");
+    const accountEmail=document.getElementById("accountEmail");
 
-    const headerInitial =
-        document.getElementById(
-            "headerAccountInitial"
-        );
+    if(currentUser){
 
-    const headerName =
-        document.getElementById(
-            "headerAccountName"
-        );
+        const initial=getInitial(currentUser.name);
 
+        if(headerButton)headerButton.style.display="flex";
+        if(headerInitial)headerInitial.textContent=initial;
+        if(headerName)headerName.textContent=currentUser.name;
 
-    const homeCard =
-        document.getElementById(
-            "loggedInHomeCard"
-        );
+        if(homeCard)homeCard.style.display="flex";
+        if(homeButton)homeButton.style.display="none";
+        if(homeInitial)homeInitial.textContent=initial;
+        if(homeName)homeName.textContent=currentUser.name;
+        if(homeEmail)homeEmail.textContent=currentUser.email;
 
-    const homeButton =
-        document.getElementById(
-            "homeAccountButton"
-        );
+        if(accountInitial)accountInitial.textContent=initial;
+        if(accountName)accountName.textContent=currentUser.name;
+        if(accountEmail)accountEmail.textContent=currentUser.email;
 
-    const homeInitial =
-        document.getElementById(
-            "homeAccountInitial"
-        );
+    }else{
 
-    const homeName =
-        document.getElementById(
-            "homeAccountName"
-        );
-
-    const homeEmail =
-        document.getElementById(
-            "homeAccountEmail"
-        );
-
-
-    const accountInitial =
-        document.getElementById(
-            "accountInitial"
-        );
-
-    const accountName =
-        document.getElementById(
-            "accountName"
-        );
-
-    const accountEmail =
-        document.getElementById(
-            "accountEmail"
-        );
-
-
-    if (currentUser) {
-
-        const initial =
-            getInitial(
-                currentUser.name
-            );
-
-
-        if (headerButton)
-            headerButton.style.display =
-                "flex";
-
-        if (headerInitial)
-            headerInitial.textContent =
-                initial;
-
-        if (headerName)
-            headerName.textContent =
-                currentUser.name;
-
-
-        if (homeCard)
-            homeCard.style.display =
-                "flex";
-
-        if (homeButton)
-            homeButton.style.display =
-                "none";
-
-        if (homeInitial)
-            homeInitial.textContent =
-                initial;
-
-        if (homeName)
-            homeName.textContent =
-                currentUser.name;
-
-        if (homeEmail)
-            homeEmail.textContent =
-                currentUser.email;
-
-
-        if (accountInitial)
-            accountInitial.textContent =
-                initial;
-
-        if (accountName)
-            accountName.textContent =
-                currentUser.name;
-
-        if (accountEmail)
-            accountEmail.textContent =
-                currentUser.email;
-
-    } else {
-
-        if (headerButton)
-            headerButton.style.display =
-                "none";
-
-        if (homeCard)
-            homeCard.style.display =
-                "none";
-
-        if (homeButton)
-            homeButton.style.display =
-                "flex";
+        if(headerButton)headerButton.style.display="none";
+        if(homeCard)homeCard.style.display="none";
+        if(homeButton)homeButton.style.display="flex";
 
     }
-
 }
 
+function saveClientProfile(){
 
-/* =========================================================
-   SAVE CLIENT PROFILE
-   ========================================================= */
+    if(!currentUser)return;
 
-function saveClientProfile() {
+    const users=getUsers();
 
-    if (!currentUser) return;
+    const index=users.findIndex(
+        user=>user.id===currentUser.id
+    );
 
+    if(index===-1)return;
 
-    const users =
-        getUsers();
+    const user=users[index];
 
+    user.name=
+        currentOrder.clientName||user.name;
 
-    const index =
-        users.findIndex(
-            user =>
-                user.id === currentUser.id
-        );
+    user.gymName=
+        currentOrder.gymName||user.gymName||"";
 
+    user.instagram=
+        currentOrder.instagram||user.instagram||"";
 
-    if (index === -1) return;
-
-
-    const user =
-        users[index];
-
-
-    user.name =
-        currentOrder.clientName ||
-        user.name;
-
-
-    user.gymName =
-        currentOrder.gymName ||
-        user.gymName ||
-        "";
-
-
-    user.instagram =
-        currentOrder.instagram ||
-        user.instagram ||
-        "";
-
-
-    users[index] = user;
+    users[index]=user;
 
     saveUsers(users);
 
-
-    currentUser.name =
-        user.name;
-
-    currentUser.gymName =
-        user.gymName;
-
-    currentUser.instagram =
-        user.instagram;
-
+    currentUser.name=user.name;
+    currentUser.gymName=user.gymName;
+    currentUser.instagram=user.instagram;
 
     saveSession(currentUser);
-
 }
 
+function fillClientDetails(){
 
-/* =========================================================
-   AUTO-FILL CLIENT DETAILS
-   ========================================================= */
+    if(!currentUser)return;
 
-function fillClientDetails() {
+    const name=document.getElementById("clientName");
+    const gym=document.getElementById("gymName");
+    const instagram=document.getElementById("instagramHandle");
 
-    if (!currentUser) return;
-
-
-    const name =
-        document.getElementById(
-            "clientName"
-        );
-
-    const gym =
-        document.getElementById(
-            "gymName"
-        );
-
-    const instagram =
-        document.getElementById(
-            "instagramHandle"
-        );
-
-
-    if (name) {
-
-        name.value =
-            currentUser.name || "";
-
-    }
-
-
-    if (gym) {
-
-        gym.value =
-            currentUser.gymName || "";
-
-    }
-
-
-    if (instagram) {
-
-        instagram.value =
-            currentUser.instagram || "";
-
-    }
-
+    if(name)name.value=currentUser.name||"";
+    if(gym)gym.value=currentUser.gymName||"";
+    if(instagram)instagram.value=currentUser.instagram||"";
 }
 
+function startOrder(){
 
-/* =========================================================
-   START ORDER
-   ========================================================= */
-
-function startOrder() {
-
-    if (!currentUser) {
-
+    if(!currentUser){
         showScreen("login");
-
         return;
-
     }
-
 
     fillClientDetails();
-
     showScreen("order");
-
 }
 
+function loginUser(){
 
-/* =========================================================
-   LOGIN
-   ========================================================= */
+    const emailInput=document.getElementById("loginEmail");
+    const passwordInput=document.getElementById("loginPassword");
 
-function loginUser() {
+    const email=emailInput.value.trim().toLowerCase();
+    const password=passwordInput.value;
 
-    const emailInput =
-        document.getElementById(
-            "loginEmail"
-        );
-
-    const passwordInput =
-        document.getElementById(
-            "loginPassword"
-        );
-
-
-    const email =
-        emailInput.value
-            .trim()
-            .toLowerCase();
-
-    const password =
-        passwordInput.value;
-
-
-    if (!email || !password) {
-
-        showToast(
-            "Enter email and password",
-            "!"
-        );
-
+    if(!email||!password){
+        showToast("Enter email and password","!");
         return;
-
     }
 
+    const users=getUsers();
 
-    const users =
-        getUsers();
+    const user=users.find(
+        item=>item.email===email
+    );
 
-
-    const user =
-        users.find(
-            item =>
-                item.email === email
-        );
-
-
-    if (!user) {
-
-        showToast(
-            "Account not found",
-            "!"
-        );
-
+    if(!user){
+        showToast("Account not found","!");
         return;
-
     }
 
-
-    if (
-        user.password !== password
-    ) {
-
-        showToast(
-            "Wrong password",
-            "!"
-        );
-
+    if(user.password!==password){
+        showToast("Wrong password","!");
         return;
-
     }
 
-
-    currentUser = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        gymName: user.gymName || "",
-        instagram: user.instagram || ""
+    currentUser={
+        id:user.id,
+        name:user.name,
+        email:user.email,
+        gymName:user.gymName||"",
+        instagram:user.instagram||""
     };
-
 
     saveSession(currentUser);
 
     updateAccountUI();
-
     fillClientDetails();
 
+    emailInput.value="";
+    passwordInput.value="";
 
-    emailInput.value = "";
-    passwordInput.value = "";
-
-
-    showToast(
-        "Login successful",
-        "✓"
-    );
-
-
-    /*
-       IMPORTANT:
-       Login finished.
-       Go directly to Order.
-       Never show Login again.
-    */
+    showToast("Login successful","✓");
 
     showScreen("order");
-
 }
 
+function createAccount(){
 
-/* =========================================================
-   CREATE ACCOUNT
-   ========================================================= */
+    const nameInput=document.getElementById("signupName");
+    const emailInput=document.getElementById("signupEmail");
+    const passwordInput=document.getElementById("signupPassword");
 
-function createAccount() {
+    const name=nameInput.value.trim();
+    const email=emailInput.value.trim().toLowerCase();
+    const password=passwordInput.value;
 
-    const nameInput =
-        document.getElementById(
-            "signupName"
-        );
-
-    const emailInput =
-        document.getElementById(
-            "signupEmail"
-        );
-
-    const passwordInput =
-        document.getElementById(
-            "signupPassword"
-        );
-
-
-    const name =
-        nameInput.value.trim();
-
-    const email =
-        emailInput.value
-            .trim()
-            .toLowerCase();
-
-    const password =
-        passwordInput.value;
-
-
-    if (!name || !email || !password) {
-
-        showToast(
-            "Please fill all details",
-            "!"
-        );
-
+    if(!name||!email||!password){
+        showToast("Please fill all details","!");
         return;
-
     }
 
-
-    if (password.length < 6) {
-
-        showToast(
-            "Password must be at least 6 characters",
-            "!"
-        );
-
+    if(password.length<6){
+        showToast("Password must be at least 6 characters","!");
         return;
-
     }
 
+    const users=getUsers();
 
-    const users =
-        getUsers();
-
-
-    if (
-        users.some(
-            user =>
-                user.email === email
-        )
-    ) {
-
-        showToast(
-            "Email already registered",
-            "!"
-        );
-
+    if(users.some(user=>user.email===email)){
+        showToast("Email already registered","!");
         return;
-
     }
 
-
-    const newUser = {
-
-        id:
-            "USER-" +
-            Date.now(),
-
-        name:
-            name,
-
-        email:
-            email,
-
-        password:
-            password,
-
-        gymName:
-            "",
-
-        instagram:
-            "",
-
-        createdAt:
-            new Date().toISOString()
-
+    const newUser={
+        id:"USER-"+Date.now(),
+        name:name,
+        email:email,
+        password:password,
+        gymName:"",
+        instagram:"",
+        createdAt:new Date().toISOString()
     };
-
 
     users.push(newUser);
-
     saveUsers(users);
 
-
-    currentUser = {
-
-        id:
-            newUser.id,
-
-        name:
-            newUser.name,
-
-        email:
-            newUser.email,
-
-        gymName:
-            "",
-
-        instagram:
-            ""
-
+    currentUser={
+        id:newUser.id,
+        name:newUser.name,
+        email:newUser.email,
+        gymName:"",
+        instagram:""
     };
 
+    saveSession(currentUser);
 
-    saveSession(
-        currentUser
-    );
-
-
-    nameInput.value = "";
-    emailInput.value = "";
-    passwordInput.value = "";
-
+    nameInput.value="";
+    emailInput.value="";
+    passwordInput.value="";
 
     updateAccountUI();
-
     fillClientDetails();
 
-
-    showToast(
-        "Account created",
-        "✓"
-    );
-
+    showToast("Account created","✓");
 
     showScreen("order");
-
 }
 
+function logoutUser(){
 
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
-function logoutUser() {
-
-    currentUser = null;
+    currentUser=null;
 
     clearSession();
 
-    currentOrder = {
-
-        service: "",
-        plan: "",
-        clientName: "",
-        gymName: "",
-        instagram: "",
-        goal: "",
-        notes: "",
-        instructions: "",
-        videos: []
-
+    currentOrder={
+        service:"",
+        plan:"",
+        clientName:"",
+        gymName:"",
+        instagram:"",
+        goal:"",
+        notes:"",
+        instructions:"",
+        videos:[]
     };
 
+    currentOrderId=null;
 
-    currentOrderId = null;
-
+    GGHQ_clearVideoSelection();
 
     updateAccountUI();
 
-    showToast(
-        "Logged out",
-        "✓"
-    );
-
+    showToast("Logged out","✓");
 
     showScreen("home");
-
 }
 
+function selectService(service){
 
-/* =========================================================
-   SERVICE SELECTION
-   ========================================================= */
-
-function selectService(service) {
-
-    /*
-       ONLY TWO SERVICES.
-       Promotional Video removed.
-    */
-
-    if (
-        service !== "reel-editing" &&
-        service !== "transformation"
-    ) {
-
+    if(
+        service!=="reel-editing"&&
+        service!=="transformation"
+    ){
         return;
-
     }
 
+    currentOrder.service=service;
+    currentOrder.plan="";
 
-    currentOrder.service =
-        service;
-
-    currentOrder.plan =
-        "";
-
-
-    if (
-        service === "reel-editing"
-    ) {
-
-        showScreen(
-            "plan-reel-editing"
-        );
-
+    if(service==="reel-editing"){
+        showScreen("plan-reel-editing");
         return;
-
     }
 
-
-    if (
-        service === "transformation"
-    ) {
-
-        showScreen(
-            "plan-transformation"
-        );
-
+    if(service==="transformation"){
+        showScreen("plan-transformation");
         return;
-
     }
-
 }
 
+function selectPlan(service,plan){
 
-/* =========================================================
-   PLAN SELECTION
-   ========================================================= */
-
-function selectPlan(
-    service,
-    plan
-) {
-
-    if (
-        service !== "reel-editing" &&
-        service !== "transformation"
-    ) {
-
+    if(
+        service!=="reel-editing"&&
+        service!=="transformation"
+    ){
         return;
-
     }
 
+    currentOrder.service=service;
+    currentOrder.plan=plan||"standard";
 
-    currentOrder.service =
-        service;
-
-    currentOrder.plan =
-        plan || "standard";
-
-
-    /*
-       Already logged in:
-       DIRECTLY ORDER.
-
-       Not logged in:
-       LOGIN ONCE.
-    */
-
-    if (currentUser) {
-
+    if(currentUser){
         fillClientDetails();
-
         showScreen("order");
-
-    } else {
-
+    }else{
         showScreen("login");
-
     }
-
 }
 
+function saveStepOne(){
 
-/* =========================================================
-   ORDER STEP 1
-   ========================================================= */
+    const name=document.getElementById("clientName");
+    const gym=document.getElementById("gymName");
+    const instagram=document.getElementById("instagramHandle");
 
-function saveStepOne() {
+    if(!name||!gym)return false;
 
-    const name =
-        document.getElementById(
-            "clientName"
-        );
+    currentOrder.clientName=name.value.trim();
+    currentOrder.gymName=gym.value.trim();
+    currentOrder.instagram=
+        instagram?instagram.value.trim():"";
 
-    const gym =
-        document.getElementById(
-            "gymName"
-        );
-
-    const instagram =
-        document.getElementById(
-            "instagramHandle"
-        );
-
-
-    if (!name || !gym) return false;
-
-
-    currentOrder.clientName =
-        name.value.trim();
-
-    currentOrder.gymName =
-        gym.value.trim();
-
-    currentOrder.instagram =
-        instagram
-            ? instagram.value.trim()
-            : "";
-
-
-    /*
-       Save permanently to account.
-       So next order doesn't ask again.
-    */
-
-    if (currentUser) {
-
+    if(currentUser){
         saveClientProfile();
-
     }
-
 
     return true;
-
 }
 
+function goOrderNext(step){
 
-/* =========================================================
-   ORDER NEXT
-   ========================================================= */
+    if(step===2){
 
-function goOrderNext(step) {
-
-
-    if (step === 2) {
-
-        if (!saveStepOne()) {
-
-            showToast(
-                "Please enter your details",
-                "!"
-            );
-
+        if(!saveStepOne()){
+            showToast("Please enter your details","!");
             return;
-
         }
 
-
-        showScreen(
-            "order-project"
-        );
-
+        showScreen("order-project");
         return;
-
     }
 
+    if(step===3){
 
-    if (step === 3) {
+        const goal=document.getElementById("projectGoal");
+        const notes=document.getElementById("projectNotes");
 
-        const goal =
-            document.getElementById(
-                "projectGoal"
-            );
+        currentOrder.goal=
+            goal?goal.value:"";
 
-        const notes =
-            document.getElementById(
-                "projectNotes"
-            );
+        currentOrder.notes=
+            notes?notes.value.trim():"";
 
-
-        currentOrder.goal =
-            goal
-                ? goal.value
-                : "";
-
-
-        currentOrder.notes =
-            notes
-                ? notes.value.trim()
-                : "";
-
-
-        showScreen(
-            "order-upload"
-        );
-
+        showScreen("order-upload");
         return;
-
     }
 
+    if(step===4){
 
-    if (step === 4) {
-
-        showScreen(
-            "order-instructions"
-        );
-
+        showScreen("order-instructions");
         return;
-
     }
 
+    if(step===5){
 
-    if (step === 5) {
+        const instructions=
+            document.getElementById("specialInstructions");
 
-        const instructions =
-            document.getElementById(
-                "specialInstructions"
-            );
-
-
-        currentOrder.instructions =
-            instructions
-                ? instructions.value.trim()
-                : "";
-
+        currentOrder.instructions=
+            instructions?instructions.value.trim():"";
 
         updateReview();
 
-        showScreen(
-            "order-review"
-        );
-
+        showScreen("order-review");
     }
-
 }
 
+function goOrderBack(step){
 
-/* =========================================================
-   ORDER BACK
-   ========================================================= */
-
-function goOrderBack(step) {
-
-    if (step === 1) {
-
+    if(step===1){
         showScreen("order");
-
     }
 
-    if (step === 2) {
-
-        showScreen(
-            "order-project"
-        );
-
+    if(step===2){
+        showScreen("order-project");
     }
 
-    if (step === 3) {
-
-        showScreen(
-            "order-upload"
-        );
-
+    if(step===3){
+        showScreen("order-upload");
     }
 
-    if (step === 4) {
-
-        showScreen(
-            "order-instructions"
-        );
-
+    if(step===4){
+        showScreen("order-instructions");
     }
-
 }
 
 
 /* =========================================================
-   VIDEO FILES
+   FINAL VIDEO UPLOAD SYSTEM
    ========================================================= */
 
-function handleVideoFiles(files) {
+const GGHQ_VIDEO_INPUT=
+    document.getElementById("videoFiles");
 
-    currentOrder.videos =
-        Array.from(files).map(
-            file => ({
-                name: file.name,
-                size: file.size
-            })
-        );
+let GGHQ_SELECTED_FILES=[];
 
+if(GGHQ_VIDEO_INPUT){
 
-    const container =
+    GGHQ_VIDEO_INPUT.setAttribute(
+        "multiple",
+        "multiple"
+    );
+
+    GGHQ_VIDEO_INPUT.setAttribute(
+        "accept",
+        "video/*"
+    );
+}
+
+function GGHQ_clearVideoSelection(){
+
+    GGHQ_SELECTED_FILES=[];
+
+    if(GGHQ_VIDEO_INPUT){
+        GGHQ_VIDEO_INPUT.value="";
+    }
+
+    if(typeof currentOrder!=="undefined"){
+        currentOrder.videos=[];
+    }
+
+    const container=
+        document.getElementById("selectedFiles");
+
+    if(container){
+        container.innerHTML="";
+    }
+}
+
+function GGHQ_formatVideoSize(bytes){
+
+    if(!bytes)return"";
+
+    const mb=bytes/(1024*1024);
+
+    if(mb<1){
+        return Math.round(bytes/1024)+" KB";
+    }
+
+    return mb.toFixed(1)+" MB";
+}
+
+if(!document.getElementById("gghq-final-video-styles")){
+
+    const style=document.createElement("style");
+
+    style.id="gghq-final-video-styles";
+
+    style.textContent=`
+
+        .gghq-video-gallery{
+            display:grid;
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+            gap:12px;
+            margin-top:16px;
+        }
+
+        .gghq-video-card{
+            position:relative;
+            overflow:hidden;
+            border-radius:16px;
+            background:#111118;
+            border:2px solid rgba(139,92,246,.75);
+            box-shadow:0 6px 18px rgba(0,0,0,.22);
+        }
+
+        .gghq-video-card video{
+            display:block;
+            width:100%;
+            aspect-ratio:16/10;
+            object-fit:cover;
+            background:#08080c;
+        }
+
+        .gghq-video-number{
+            position:absolute;
+            top:8px;
+            left:8px;
+            z-index:3;
+            min-width:28px;
+            height:28px;
+            padding:0 8px;
+            border-radius:20px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:rgba(0,0,0,.78);
+            color:#fff;
+            font-size:12px;
+            font-weight:800;
+        }
+
+        .gghq-video-selected{
+            position:absolute;
+            top:8px;
+            right:8px;
+            z-index:3;
+            padding:6px 9px;
+            border-radius:20px;
+            background:#35d477;
+            color:#07140d;
+            font-size:10px;
+            font-weight:900;
+            box-shadow:0 3px 10px rgba(0,0,0,.35);
+        }
+
+        .gghq-video-info{
+            padding:9px 10px 11px;
+        }
+
+        .gghq-video-name{
+            color:#fff;
+            font-size:12px;
+            font-weight:600;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+        }
+
+        .gghq-video-size{
+            margin-top:4px;
+            color:#777783;
+            font-size:11px;
+        }
+
+        .gghq-video-count{
+            width:100%;
+            margin-top:16px;
+            padding:14px 16px;
+            border-radius:14px;
+            background:rgba(139,92,246,.14);
+            border:1px solid rgba(139,92,246,.45);
+            color:#fff;
+            text-align:center;
+            font-size:15px;
+            font-weight:800;
+        }
+
+        .gghq-video-empty{
+            margin-top:16px;
+            padding:18px;
+            border-radius:14px;
+            background:rgba(255,255,255,.03);
+            color:#8f8f9d;
+            text-align:center;
+            font-size:14px;
+        }
+
+        @media(min-width:600px){
+            .gghq-video-gallery{
+                grid-template-columns:
+                    repeat(3,minmax(0,1fr));
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+}
+
+function GGHQ_renderVideos(){
+
+    const container=
         document.getElementById(
             "selectedFiles"
         );
 
+    if(!container)return;
 
-    if (!container) return;
+    container.innerHTML="";
 
+    if(!GGHQ_SELECTED_FILES.length){
 
-    container.innerHTML = "";
+        container.innerHTML=`
+            <div class="gghq-video-empty">
+                No videos selected yet.
+            </div>
+        `;
 
+        return;
+    }
 
-    currentOrder.videos.forEach(
-        video => {
+    const gallery=
+        document.createElement("div");
 
-            const item =
-                document.createElement(
-                    "div"
-                );
+    gallery.className=
+        "gghq-video-gallery";
 
+    GGHQ_SELECTED_FILES.forEach(
+        (file,index)=>{
 
-            item.className =
-                "selected-file-item";
+            const card=
+                document.createElement("div");
 
+            card.className=
+                "gghq-video-card";
 
-            item.innerHTML = `
-                <span>🎬</span>
-                <span>${escapeHTML(video.name)}</span>
-            `;
+            const number=
+                document.createElement("div");
 
+            number.className=
+                "gghq-video-number";
 
-            container.appendChild(
-                item
+            number.textContent=
+                index+1;
+
+            const selected=
+                document.createElement("div");
+
+            selected.className=
+                "gghq-video-selected";
+
+            selected.textContent=
+                "✓ SELECTED";
+
+            const video=
+                document.createElement("video");
+
+            video.muted=true;
+            video.playsInline=true;
+            video.preload="metadata";
+
+            video.setAttribute(
+                "playsinline",
+                ""
             );
 
+            const previewURL=
+                URL.createObjectURL(file);
+
+            video.src=previewURL;
+
+            video.addEventListener(
+                "loadedmetadata",
+                function(){
+
+                    try{
+
+                        if(video.duration>0.2){
+                            video.currentTime=0.1;
+                        }
+
+                    }catch(e){}
+
+                }
+            );
+
+            const info=
+                document.createElement("div");
+
+            info.className=
+                "gghq-video-info";
+
+            const name=
+                document.createElement("div");
+
+            name.className=
+                "gghq-video-name";
+
+            name.textContent=
+                file.name;
+
+            const size=
+                document.createElement("div");
+
+            size.className=
+                "gghq-video-size";
+
+            size.textContent=
+                GGHQ_formatVideoSize(
+                    file.size
+                );
+
+            info.appendChild(name);
+            info.appendChild(size);
+
+            card.appendChild(video);
+            card.appendChild(number);
+            card.appendChild(selected);
+            card.appendChild(info);
+
+            gallery.appendChild(card);
         }
     );
 
+    container.appendChild(gallery);
+
+    const count=
+        document.createElement("div");
+
+    count.className=
+        "gghq-video-count";
+
+    count.textContent=
+        `✓ ${GGHQ_SELECTED_FILES.length} VIDEO${
+            GGHQ_SELECTED_FILES.length===1?"":"S"
+        } SELECTED`;
+
+    container.appendChild(count);
+}
+
+function handleVideoFiles(files){
+
+    const newFiles=
+        Array.from(files||[]);
+
+    if(!newFiles.length)return;
+
+    newFiles.forEach(file=>{
+
+        const exists=
+            GGHQ_SELECTED_FILES.some(
+                oldFile=>
+                    oldFile.name===file.name&&
+                    oldFile.size===file.size&&
+                    oldFile.lastModified===
+                        file.lastModified
+            );
+
+        if(!exists){
+            GGHQ_SELECTED_FILES.push(file);
+        }
+    });
+
+    if(typeof currentOrder!=="undefined"){
+
+        currentOrder.videos=
+            GGHQ_SELECTED_FILES.map(
+                file=>({
+                    name:file.name,
+                    size:file.size,
+                    lastModified:
+                        file.lastModified
+                })
+            );
+    }
+
+    GGHQ_renderVideos();
+
+    if(GGHQ_VIDEO_INPUT){
+        GGHQ_VIDEO_INPUT.value="";
+    }
+
+    showToast(
+        `${GGHQ_SELECTED_FILES.length} video${
+            GGHQ_SELECTED_FILES.length===1?"":"s"
+        } selected`,
+        "✓"
+    );
 }
 
 
-/* =========================================================
-   REVIEW
-   ========================================================= */
+/*
+   Whenever Upload screen opens:
+   start completely fresh.
+*/
 
-function updateReview() {
+const GGHQ_originalShowScreen=
+    showScreen;
 
-    const service =
-        currentOrder.service ===
-        "reel-editing"
-            ? "Reel Editing"
-            : currentOrder.service ===
-              "transformation"
-                ? "Transformation Reel"
-                : "—";
+showScreen=function(id){
+
+    if(id==="order-upload"){
+        GGHQ_clearVideoSelection();
+    }
+
+    GGHQ_originalShowScreen(id);
+};
 
 
-    const plan =
-        currentOrder.plan ===
-        "premium"
-            ? "Premium"
-            : "Standard";
+function updateReview(){
 
+    const service=
+        currentOrder.service==="reel-editing"
+            ?"Reel Editing"
+            :currentOrder.service==="transformation"
+                ?"Transformation Reel"
+                :"—";
+
+    const plan=
+        currentOrder.plan==="premium"
+            ?"Premium"
+            :"Standard";
 
     setText(
         "reviewService",
@@ -1235,33 +931,19 @@ function updateReview() {
 
     setText(
         "reviewVideos",
-        currentOrder.videos.length +
+        currentOrder.videos.length+
         " video(s)"
     );
-
 }
 
+function submitOrder(){
 
-/* =========================================================
-   SUBMIT ORDER
-   ========================================================= */
-
-function submitOrder() {
-
-    /*
-       NEVER redirect to Plan here.
-    */
-
-    if (!currentUser) {
-
+    if(!currentUser){
         showScreen("login");
-
         return;
-
     }
 
-
-    if (!currentOrder.service) {
+    if(!currentOrder.service){
 
         showToast(
             "Please select a service",
@@ -1269,37 +951,21 @@ function submitOrder() {
         );
 
         showScreen("services");
-
         return;
-
     }
 
-
-    if (!currentOrder.plan) {
-
-        currentOrder.plan =
-            "standard";
-
+    if(!currentOrder.plan){
+        currentOrder.plan="standard";
     }
-
-
-    /*
-       Make sure client details
-       are saved before order.
-    */
 
     saveStepOne();
 
+    const orders=getOrders();
 
-    const orders =
-        getOrders();
-
-
-    const order = {
+    const order={
 
         id:
-            "GGHQ-" +
-            Date.now(),
+            "GGHQ-"+Date.now(),
 
         userId:
             currentUser.id,
@@ -1345,142 +1011,97 @@ function submitOrder() {
 
         createdAt:
             new Date().toISOString()
-
     };
-
 
     orders.push(order);
 
     saveOrders(orders);
 
-
-    currentOrderId =
-        order.id;
-
-
-    /*
-       IMPORTANT:
-
-       Do NOT reset before navigating.
-       Go directly to Account.
-    */
+    currentOrderId=order.id;
 
     showToast(
         "Order submitted successfully",
         "✓"
     );
 
-
-    /*
-       Small delay only for toast.
-       Then Account.
-    */
-
     setTimeout(
-        () => {
+        ()=>{
 
             renderOrders();
 
-            showScreen(
-                "account"
-            );
+            showScreen("account");
 
         },
         500
     );
 
+    currentOrder={
 
-    /*
-       Prepare blank order AFTER
-       saving everything.
-       Client profile stays saved.
-    */
+        service:"",
+        plan:"",
 
-    currentOrder = {
-
-        service: "",
-        plan: "",
         clientName:
-            currentUser.name || "",
-        gymName:
-            currentUser.gymName || "",
-        instagram:
-            currentUser.instagram || "",
-        goal: "",
-        notes: "",
-        instructions: "",
-        videos: []
+            currentUser.name||"",
 
+        gymName:
+            currentUser.gymName||"",
+
+        instagram:
+            currentUser.instagram||"",
+
+        goal:"",
+        notes:"",
+        instructions:"",
+        videos:[]
     };
 
+    /*
+       Clear uploaded files for next order.
+    */
+
+    GGHQ_clearVideoSelection();
 }
 
+function findCurrentOrder(){
 
-/* =========================================================
-   FIND CURRENT ORDER
-   ========================================================= */
-
-function findCurrentOrder() {
-
-    if (!currentOrderId) {
+    if(!currentOrderId){
         return null;
     }
 
-
-    const orders =
-        getOrders();
-
+    const orders=getOrders();
 
     return orders.find(
-        order =>
-            order.id ===
-            currentOrderId
+        order=>
+            order.id===currentOrderId
     );
-
 }
 
+function getMyOrders(){
 
-/* =========================================================
-   MY ORDERS
-   ========================================================= */
-
-function getMyOrders() {
-
-    if (!currentUser) {
-        return [];
+    if(!currentUser){
+        return[];
     }
 
-
     return getOrders().filter(
-        order =>
-            order.userId ===
-            currentUser.id
+        order=>
+            order.userId===currentUser.id
     );
-
 }
 
+function renderOrders(){
 
-/* =========================================================
-   RENDER ORDERS
-   ========================================================= */
-
-function renderOrders() {
-
-    const list =
+    const list=
         document.getElementById(
             "ordersList"
         );
 
+    if(!list)return;
 
-    if (!list) return;
+    list.innerHTML="";
 
+    if(!currentUser){
 
-    list.innerHTML = "";
-
-
-    if (!currentUser) {
-
-        list.innerHTML = `
+        list.innerHTML=`
             <div class="empty-state">
                 <h3>Login Required</h3>
                 <p>Please login to view your orders.</p>
@@ -1488,17 +1109,13 @@ function renderOrders() {
         `;
 
         return;
-
     }
 
+    const orders=getMyOrders();
 
-    const orders =
-        getMyOrders();
+    if(!orders.length){
 
-
-    if (!orders.length) {
-
-        list.innerHTML = `
+        list.innerHTML=`
             <div class="empty-state">
                 <div class="empty-icon">📦</div>
                 <h3>No Orders Yet</h3>
@@ -1507,42 +1124,34 @@ function renderOrders() {
         `;
 
         return;
-
     }
-
 
     orders
         .slice()
         .reverse()
-        .forEach(order => {
+        .forEach(order=>{
 
-            const card =
+            const card=
                 document.createElement(
                     "button"
                 );
 
+            card.type="button";
 
-            card.type = "button";
-
-            card.className =
+            card.className=
                 "order-history-card";
 
+            const service=
+                order.service==="reel-editing"
+                    ?"Reel Editing"
+                    :"Transformation Reel";
 
-            const service =
-                order.service ===
-                "reel-editing"
-                    ? "Reel Editing"
-                    : "Transformation Reel";
+            const plan=
+                order.plan==="premium"
+                    ?"Premium"
+                    :"Standard";
 
-
-            const plan =
-                order.plan ===
-                "premium"
-                    ? "Premium"
-                    : "Standard";
-
-
-            card.innerHTML = `
+            card.innerHTML=`
 
                 <div class="order-history-icon">
                     📦
@@ -1573,12 +1182,11 @@ function renderOrders() {
 
             `;
 
-
             card.addEventListener(
                 "click",
-                () => {
+                ()=>{
 
-                    currentOrderId =
+                    currentOrderId=
                         order.id;
 
                     renderOrderDetails(
@@ -1588,211 +1196,145 @@ function renderOrders() {
                     showScreen(
                         "order-details"
                     );
-
                 }
             );
 
-
-            list.appendChild(
-                card
-            );
-
+            list.appendChild(card);
         });
-
 }
 
+function renderOrderDetails(order){
 
-/* =========================================================
-   ORDER DETAILS
-   ========================================================= */
+    if(!order)return;
 
-function renderOrderDetails(
-    order
-) {
+    const service=
+        order.service==="reel-editing"
+            ?"Reel Editing"
+            :"Transformation Reel";
 
-    if (!order) return;
-
-
-    const service =
-        order.service ===
-        "reel-editing"
-            ? "Reel Editing"
-            : "Transformation Reel";
-
-
-    const plan =
-        order.plan ===
-        "premium"
-            ? "Premium"
-            : "Standard";
-
+    const plan=
+        order.plan==="premium"
+            ?"Premium"
+            :"Standard";
 
     setText(
         "detailOrderNumber",
-        "#" +
+        "#"+
         order.id.replace(
             "GGHQ-",
             ""
         )
     );
 
-
     setText(
         "detailOrderStatus",
-        order.deliveryStatus ||
+        order.deliveryStatus||
         order.status
     );
-
 
     setText(
         "detailService",
         service
     );
 
-
     setText(
         "detailPlan",
         plan
     );
-
 
     setText(
         "detailClient",
         order.clientName
     );
 
-
     setText(
         "detailGym",
         order.gymName
     );
-
 
     setText(
         "detailGoal",
         order.goal
     );
 
-
     setText(
         "detailVideos",
         order.videos
-            ? order.videos.length +
-              " video(s)"
-            : "—"
+            ?order.videos.length+
+             " video(s)"
+            :"—"
     );
-
 
     setText(
         "detailInstructions",
-        order.instructions ||
-        "—"
+        order.instructions||"—"
+    );
+}
+
+function restoreSession(){
+
+    const session=getSession();
+
+    if(!session){
+
+        currentUser=null;
+        updateAccountUI();
+
+        return;
+    }
+
+    const users=getUsers();
+
+    const user=users.find(
+        item=>
+            item.id===session.id&&
+            item.email===session.email
     );
 
-
-}
-
-
-/* =========================================================
-   INITIALIZE
-   ========================================================= */
-
-function restoreSession() {
-
-    const session =
-        getSession();
-
-
-    if (!session) {
-
-        currentUser = null;
-
-        updateAccountUI();
-
-        return;
-
-    }
-
-
-    const users =
-        getUsers();
-
-
-    const user =
-        users.find(
-            item =>
-                item.id === session.id &&
-                item.email === session.email
-        );
-
-
-    if (!user) {
+    if(!user){
 
         clearSession();
-
-        currentUser = null;
-
+        currentUser=null;
         updateAccountUI();
 
         return;
-
     }
 
+    currentUser={
 
-    currentUser = {
-
-        id:
-            user.id,
-
-        name:
-            user.name,
-
-        email:
-            user.email,
+        id:user.id,
+        name:user.name,
+        email:user.email,
 
         gymName:
-            user.gymName || "",
+            user.gymName||"",
 
         instagram:
-            user.instagram || ""
-
+            user.instagram||""
     };
 
-
     updateAccountUI();
-
 }
-
-
-/* =========================================================
-   CLICK HANDLER
-   ========================================================= */
 
 document.addEventListener(
     "click",
-    function(event) {
+    function(event){
 
-        const button =
+        const button=
             event.target.closest(
                 "button, a"
             );
 
+        if(!button)return;
 
-        if (!button) return;
-
-
-        /* ================================================
-           ACCOUNT
-           ================================================ */
-
-        if (
-            button.dataset.screen ===
+        if(
+            button.dataset.screen===
             "account"
-        ) {
+        ){
 
             event.preventDefault();
 
-            if (currentUser) {
+            if(currentUser){
 
                 updateAccountUI();
 
@@ -1800,38 +1342,30 @@ document.addEventListener(
                     "account"
                 );
 
-            } else {
+            }else{
 
                 showScreen(
                     "login"
                 );
-
             }
 
             return;
-
         }
 
-
-        /* ================================================
-           ORDERS
-           ================================================ */
-
-        if (
-            button.dataset.screen ===
+        if(
+            button.dataset.screen===
             "orders"
-        ) {
+        ){
 
             event.preventDefault();
 
-            if (!currentUser) {
+            if(!currentUser){
 
                 showScreen(
                     "login"
                 );
 
                 return;
-
             }
 
             renderOrders();
@@ -1841,17 +1375,9 @@ document.addEventListener(
             );
 
             return;
-
         }
 
-
-        /* ================================================
-           SERVICES
-           ================================================ */
-
-        if (
-            button.dataset.detail
-        ) {
+        if(button.dataset.detail){
 
             event.preventDefault();
 
@@ -1860,91 +1386,49 @@ document.addEventListener(
             );
 
             return;
-
         }
 
-
-        /* ================================================
-           PLAN DETAIL
-           ================================================ */
-
-        if (
-            button.dataset.planDetail
-        ) {
+        if(button.dataset.planDetail){
 
             event.preventDefault();
 
-            const service =
+            const service=
                 button.dataset.planDetail;
 
-
-            if (
-                service ===
-                "reel-editing"
-            ) {
+            if(
+                service==="reel-editing"
+            ){
 
                 showScreen(
                     "plan-reel-editing"
                 );
-
             }
 
-
-            if (
-                service ===
-                "transformation"
-            ) {
+            if(
+                service==="transformation"
+            ){
 
                 showScreen(
                     "plan-transformation"
                 );
-
             }
 
             return;
-
         }
 
-
-        /* ================================================
-           START ORDER FROM PLAN
-           ================================================ */
-
-        if (
-            button.dataset.plan
-        ) {
+        if(button.dataset.plan){
 
             event.preventDefault();
 
-
-            const service =
-                button.dataset.plan;
-
-
-            /*
-               Current HTML has one Start Order
-               per service.
-
-               Use Standard as default plan.
-            */
-
             selectPlan(
-                service,
+                button.dataset.plan,
                 "standard"
             );
 
             return;
-
         }
 
-
-        /* ================================================
-           ORDER NEXT
-           ================================================ */
-
-        if (
-            button.dataset.orderNext
-        ) {
+        if(button.dataset.orderNext){
 
             event.preventDefault();
 
@@ -1955,17 +1439,9 @@ document.addEventListener(
             );
 
             return;
-
         }
 
-
-        /* ================================================
-           ORDER BACK
-           ================================================ */
-
-        if (
-            button.dataset.orderBack
-        ) {
+        if(button.dataset.orderBack){
 
             event.preventDefault();
 
@@ -1976,17 +1452,9 @@ document.addEventListener(
             );
 
             return;
-
         }
 
-
-        /* ================================================
-           NORMAL SCREEN
-           ================================================ */
-
-        if (
-            button.dataset.screen
-        ) {
+        if(button.dataset.screen){
 
             event.preventDefault();
 
@@ -1995,16 +1463,9 @@ document.addEventListener(
             );
 
             return;
-
         }
-
     }
 );
-
-
-/* =========================================================
-   LOGIN
-   ========================================================= */
 
 document
     .getElementById("loginButton")
@@ -2013,11 +1474,6 @@ document
         loginUser
     );
 
-
-/* =========================================================
-   SIGNUP
-   ========================================================= */
-
 document
     .getElementById("signupButton")
     ?.addEventListener(
@@ -2025,1986 +1481,66 @@ document
         createAccount
     );
 
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
 document
     .getElementById("logoutButton")
     ?.addEventListener(
         "click",
-        function(event) {
+        function(event){
 
             event.preventDefault();
 
             logoutUser();
-
         }
     );
-
-
-/* =========================================================
-   LOGIN → SIGNUP
-   ========================================================= */
 
 document
     .getElementById("goToSignup")
     ?.addEventListener(
         "click",
-        function(event) {
+        function(event){
 
             event.preventDefault();
 
-            showScreen(
-                "signup"
-            );
-
+            showScreen("signup");
         }
     );
-
-
-/* =========================================================
-   SIGNUP → LOGIN
-   ========================================================= */
 
 document
     .getElementById("goToLogin")
     ?.addEventListener(
         "click",
-        function(event) {
+        function(event){
 
             event.preventDefault();
 
-            showScreen(
-                "login"
-            );
-
+            showScreen("login");
         }
     );
-
-
-/* =========================================================
-   VIDEO INPUT
-   ========================================================= */
 
 document
     .getElementById("videoFiles")
     ?.addEventListener(
         "change",
-        function() {
+        function(){
 
             handleVideoFiles(
                 this.files
             );
-
         }
     );
-
-
-/* =========================================================
-   SUBMIT
-   ========================================================= */
 
 document
     .getElementById("submitOrderButton")
     ?.addEventListener(
         "click",
-        function(event) {
+        function(event){
 
             event.preventDefault();
 
             submitOrder();
-
         }
     );
-
-
-/* =========================================================
-   RESTORE SESSION
-   ========================================================= */
 
 restoreSession();
 
-
-/* =========================================================
-   INITIAL SCREEN
-   ========================================================= */
-
 showScreen("home");
-/* =========================================================
-   FINAL VIDEO UPLOAD UPDATE
-   Fresh Upload + Gallery Style Video Preview
-   ========================================================= */
-
-
-/* ---------------------------------------------------------
-   Make sure multiple videos can be selected
-   --------------------------------------------------------- */
-
-const videoInput =
-    document.getElementById("videoFiles");
-
-if (videoInput) {
-
-    videoInput.setAttribute(
-        "multiple",
-        "multiple"
-    );
-
-    videoInput.setAttribute(
-        "accept",
-        "video/*"
-    );
-
-}
-
-
-/* ---------------------------------------------------------
-   Gallery preview styles
-   No CSS file editing required
-   --------------------------------------------------------- */
-
-if (!document.getElementById("videoGalleryStyles")) {
-
-    const style =
-        document.createElement("style");
-
-    style.id =
-        "videoGalleryStyles";
-
-    style.textContent = `
-
-        .video-gallery-preview {
-            display: grid;
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 18px;
-        }
-
-        .video-preview-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-            background: #15151c;
-            border: 1px solid rgba(145, 92, 255, 0.35);
-        }
-
-        .video-preview-card video {
-            display: block;
-            width: 100%;
-            aspect-ratio: 16 / 10;
-            object-fit: cover;
-            background: #08080c;
-        }
-
-        .video-preview-info {
-            padding: 9px 10px 11px;
-        }
-
-        .video-preview-name {
-            font-size: 12px;
-            line-height: 1.35;
-            color: #ffffff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .video-preview-number {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            min-width: 28px;
-            height: 28px;
-            padding: 0 8px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.75);
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .video-count-label {
-            margin-top: 14px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            background: rgba(145, 92, 255, 0.10);
-            color: #d8c7ff;
-            font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .video-empty-message {
-            margin-top: 16px;
-            padding: 18px;
-            border-radius: 14px;
-            text-align: center;
-            color: #8f8f9d;
-            background: rgba(255,255,255,0.03);
-            font-size: 14px;
-        }
-
-        @media (min-width: 600px) {
-
-            .video-gallery-preview {
-                grid-template-columns:
-                    repeat(3, minmax(0, 1fr));
-            }
-
-        }
-
-    `;
-
-    document.head.appendChild(style);
-
-}
-
-
-/* ---------------------------------------------------------
-   Clear upload selection
-   --------------------------------------------------------- */
-
-function clearFreshUpload() {
-
-    const input =
-        document.getElementById(
-            "videoFiles"
-        );
-
-    const selected =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-
-    /*
-       Clear actual phone-file selection
-    */
-
-    if (input) {
-
-        input.value = "";
-
-    }
-
-
-    /*
-       Clear preview area
-    */
-
-    if (selected) {
-
-        selected.innerHTML = "";
-
-    }
-
-
-    /*
-       Clear current order video list
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos = [];
-
-    }
-
-}
-
-
-/* ---------------------------------------------------------
-   Create gallery container
-   --------------------------------------------------------- */
-
-function getVideoGalleryContainer() {
-
-    const selected =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-    if (!selected) return null;
-
-
-    /*
-       Reuse existing selectedFiles
-       element as our gallery container.
-    */
-
-    selected.className =
-        "video-gallery-wrapper";
-
-
-    return selected;
-
-}
-
-
-/* ---------------------------------------------------------
-   Format file size
-   --------------------------------------------------------- */
-
-function formatVideoSize(bytes) {
-
-    if (!bytes) return "";
-
-    const mb =
-        bytes / (1024 * 1024);
-
-    if (mb < 1) {
-
-        return Math.round(
-            bytes / 1024
-        ) + " KB";
-
-    }
-
-    return mb.toFixed(1) + " MB";
-
-}
-
-
-/* ---------------------------------------------------------
-   Show selected videos
-   --------------------------------------------------------- */
-
-function showVideoGallery(files) {
-
-    const container =
-        getVideoGalleryContainer();
-
-
-    if (!container) return;
-
-
-    container.innerHTML = "";
-
-
-    if (!files || files.length === 0) {
-
-        container.innerHTML = `
-            <div class="video-empty-message">
-                No videos selected yet.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    /*
-       Gallery wrapper
-    */
-
-    const gallery =
-        document.createElement(
-            "div"
-        );
-
-    gallery.className =
-        "video-gallery-preview";
-
-
-    /*
-       Count label
-    */
-
-    const count =
-        document.createElement(
-            "div"
-        );
-
-    count.className =
-        "video-count-label";
-
-    count.textContent =
-        `${files.length} video${
-            files.length === 1
-                ? ""
-                : "s"
-        } selected`;
-
-
-    /*
-       Create each thumbnail
-    */
-
-    Array.from(files).forEach(
-        (file, index) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "video-preview-card";
-
-
-            /*
-               Number badge
-            */
-
-            const number =
-                document.createElement(
-                    "div"
-                );
-
-            number.className =
-                "video-preview-number";
-
-            number.textContent =
-                index + 1;
-
-
-            /*
-               Video thumbnail
-            */
-
-            const video =
-                document.createElement(
-                    "video"
-                );
-
-            video.muted = true;
-
-            video.playsInline = true;
-
-            video.preload =
-                "metadata";
-
-            video.setAttribute(
-                "playsinline",
-                ""
-            );
-
-
-            /*
-               Create temporary preview URL
-            */
-
-            const previewURL =
-                URL.createObjectURL(
-                    file
-                );
-
-
-            video.src =
-                previewURL;
-
-
-            /*
-               Show first frame
-            */
-
-            video.addEventListener(
-                "loadedmetadata",
-                function() {
-
-                    try {
-
-                        if (
-                            video.duration >
-                            0.5
-                        ) {
-
-                            video.currentTime =
-                                0.1;
-
-                        }
-
-                    } catch (error) {}
-
-                }
-            );
-
-
-            /*
-               Release URL after video
-               element is no longer needed
-            */
-
-            video.addEventListener(
-                "error",
-                function() {
-
-                    URL.revokeObjectURL(
-                        previewURL
-                    );
-
-                }
-            );
-
-
-            /*
-               File information
-            */
-
-            const info =
-                document.createElement(
-                    "div"
-                );
-
-            info.className =
-                "video-preview-info";
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-            name.className =
-                "video-preview-name";
-
-            name.textContent =
-                file.name;
-
-
-            const size =
-                document.createElement(
-                    "div"
-                );
-
-            size.style.cssText =
-                `
-                margin-top:4px;
-                font-size:11px;
-                color:#777783;
-                `;
-
-            size.textContent =
-                formatVideoSize(
-                    file.size
-                );
-
-
-            info.appendChild(name);
-
-            info.appendChild(size);
-
-
-            card.appendChild(
-                video
-            );
-
-            card.appendChild(
-                number
-            );
-
-            card.appendChild(
-                info
-            );
-
-
-            gallery.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    container.appendChild(
-        gallery
-    );
-
-    container.appendChild(
-        count
-    );
-
-}
-
-
-/* ---------------------------------------------------------
-   NEW video selection handler
-   --------------------------------------------------------- */
-
-function newVideoSelectionHandler(
-    files
-) {
-
-    if (!files) return;
-
-
-    /*
-       Save ONLY the videos selected
-       for THIS current order.
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos =
-            Array.from(files).map(
-                file => ({
-                    name:
-                        file.name,
-
-                    size:
-                        file.size
-                })
-            );
-
-    }
-
-
-    /*
-       Show gallery
-    */
-
-    showVideoGallery(
-        files
-    );
-
-
-    /*
-       Small confirmation
-    */
-
-    if (
-        typeof showToast ===
-        "function"
-    ) {
-
-        showToast(
-            `${files.length} video${
-                files.length === 1
-                    ? ""
-                    : "s"
-            } selected`,
-            "✓"
-        );
-
-    }
-
-}
-
-
-/* ---------------------------------------------------------
-   Replace / override old upload handler
-   --------------------------------------------------------- */
-
-if (videoInput) {
-
-    videoInput.addEventListener(
-        "change",
-        function() {
-
-            newVideoSelectionHandler(
-                this.files
-            );
-
-        }
-    );
-
-}
-
-
-/* ---------------------------------------------------------
-   IMPORTANT:
-   Whenever Upload screen opens,
-   start with a completely fresh selection.
-   --------------------------------------------------------- */
-
-if (
-    typeof showScreen ===
-    "function"
-) {
-
-    const originalShowScreen =
-        showScreen;
-
-
-    window.showScreen =
-        function(screenId) {
-
-            /*
-               Every time we enter Upload screen,
-               clear old selected videos.
-
-               So even if user presses Back
-               and returns again, it is empty.
-            */
-
-            if (
-                screenId ===
-                "order-upload"
-            ) {
-
-                clearFreshUpload();
-
-            }
-
-
-            originalShowScreen(
-                screenId
-            );
-
-        };
-
-}
-
-
-/* ---------------------------------------------------------
-   Extra protection:
-   Start a completely fresh upload
-   whenever New Order is clicked.
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-screen]"
-            );
-
-
-        if (!button) return;
-
-
-        const target =
-            button.dataset.screen;
-
-
-        /*
-           New Order
-        */
-
-        if (
-            target === "order"
-        ) {
-
-            clearFreshUpload();
-
-        }
-
-    },
-    true
-);
-
-
-/* ---------------------------------------------------------
-   Clear upload after successful order
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "#submitOrderButton"
-            );
-
-
-        if (!button) return;
-
-
-        /*
-           Wait until existing submit logic
-           finishes saving the order.
-        */
-
-        setTimeout(
-            function() {
-
-                clearFreshUpload();
-
-            },
-            700
-        );
-
-    },
-    true
-);
-
-
-/* =========================================================
-   END VIDEO UPLOAD UPDATE
-   ========================================================= */
-/* =========================================================
-   MULTI-SELECT VIDEO FIX
-   Add more videos without removing previous videos
-   ========================================================= */
-
-window.GGHQ_SELECTED_VIDEO_FILES =
-    window.GGHQ_SELECTED_VIDEO_FILES || [];
-
-
-/* ---------------------------------------------------------
-   Render all selected videos
-   --------------------------------------------------------- */
-
-function GGHQ_renderAllVideos() {
-
-    const container =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-    if (!container) return;
-
-
-    container.innerHTML = "";
-
-
-    const files =
-        window.GGHQ_SELECTED_VIDEO_FILES;
-
-
-    if (!files.length) {
-
-        container.innerHTML = `
-            <div class="video-empty-message">
-                No videos selected yet.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    const gallery =
-        document.createElement(
-            "div"
-        );
-
-    gallery.className =
-        "video-gallery-preview";
-
-
-    files.forEach(
-        (file, index) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "video-preview-card";
-
-
-            const number =
-                document.createElement(
-                    "div"
-                );
-
-            number.className =
-                "video-preview-number";
-
-            number.textContent =
-                index + 1;
-
-
-            const video =
-                document.createElement(
-                    "video"
-                );
-
-            video.muted = true;
-
-            video.playsInline = true;
-
-            video.preload =
-                "metadata";
-
-            video.setAttribute(
-                "playsinline",
-                ""
-            );
-
-
-            const previewURL =
-                URL.createObjectURL(
-                    file
-                );
-
-            video.src =
-                previewURL;
-
-
-            video.addEventListener(
-                "loadedmetadata",
-                function() {
-
-                    try {
-
-                        if (
-                            video.duration >
-                            0.2
-                        ) {
-
-                            video.currentTime =
-                                0.1;
-
-                        }
-
-                    } catch (e) {}
-
-                }
-            );
-
-
-            const info =
-                document.createElement(
-                    "div"
-                );
-
-            info.className =
-                "video-preview-info";
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-            name.className =
-                "video-preview-name";
-
-            name.textContent =
-                file.name;
-
-
-            const size =
-                document.createElement(
-                    "div"
-                );
-
-            size.style.cssText = `
-                margin-top:4px;
-                font-size:11px;
-                color:#777783;
-            `;
-
-            size.textContent =
-                GGHQ_formatFileSize(
-                    file.size
-                );
-
-
-            info.appendChild(
-                name
-            );
-
-            info.appendChild(
-                size
-            );
-
-
-            card.appendChild(
-                video
-            );
-
-            card.appendChild(
-                number
-            );
-
-            card.appendChild(
-                info
-            );
-
-
-            gallery.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    container.appendChild(
-        gallery
-    );
-
-
-    const count =
-        document.createElement(
-            "div"
-        );
-
-    count.className =
-        "video-count-label";
-
-
-    count.textContent =
-        `${files.length} video${
-            files.length === 1
-                ? ""
-                : "s"
-        } selected`;
-
-
-    container.appendChild(
-        count
-    );
-
-
-    /*
-       Keep currentOrder in sync
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos =
-            files.map(
-                file => ({
-                    name:
-                        file.name,
-
-                    size:
-                        file.size
-                })
-            );
-
-    }
-
-}
-
-
-/* ---------------------------------------------------------
-   File size
-   --------------------------------------------------------- */
-
-function GGHQ_formatFileSize(
-    bytes
-) {
-
-    if (!bytes) return "";
-
-    const mb =
-        bytes /
-        (1024 * 1024);
-
-
-    if (mb < 1) {
-
-        return Math.round(
-            bytes / 1024
-        ) + " KB";
-
-    }
-
-
-    return mb.toFixed(1) +
-        " MB";
-
-}
-
-
-/* ---------------------------------------------------------
-   IMPORTANT:
-   When Choose Videos is used again,
-   ADD new files instead of replacing old files.
-   --------------------------------------------------------- */
-
-const GGHQ_videoInput =
-    document.getElementById(
-        "videoFiles"
-    );
-
-
-if (GGHQ_videoInput) {
-
-    GGHQ_videoInput.addEventListener(
-        "change",
-        function() {
-
-            const newFiles =
-                Array.from(
-                    this.files || []
-                );
-
-
-            if (!newFiles.length) {
-                return;
-            }
-
-
-            /*
-               Add new files to existing files.
-            */
-
-            newFiles.forEach(
-                newFile => {
-
-                    const alreadyExists =
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .some(
-                                oldFile =>
-                                    oldFile.name ===
-                                    newFile.name &&
-                                    oldFile.size ===
-                                    newFile.size &&
-                                    oldFile.lastModified ===
-                                    newFile.lastModified
-                            );
-
-
-                    /*
-                       Don't add the exact
-                       same file twice.
-                    */
-
-                    if (!alreadyExists) {
-
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .push(
-                                newFile
-                            );
-
-                    }
-
-                }
-            );
-
-
-            /*
-               Show ALL videos again.
-            */
-
-            GGHQ_renderAllVideos();
-
-
-            /*
-               Clear the actual input so
-               the same file can also be
-               selected again later if needed.
-            */
-
-            this.value = "";
-
-
-            if (
-                typeof showToast ===
-                "function"
-            ) {
-
-                const total =
-                    window
-                        .GGHQ_SELECTED_VIDEO_FILES
-                        .length;
-
-
-                showToast(
-                    `${total} video${
-                        total === 1
-                            ? ""
-                            : "s"
-                    } selected`,
-                    "✓"
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   FRESH ORDER = CLEAR OLD VIDEOS
-   ========================================================= */
-
-function GGHQ_clearAllSelectedVideos() {
-
-    window.GGHQ_SELECTED_VIDEO_FILES =
-        [];
-
-
-    const input =
-        document.getElementById(
-            "videoFiles"
-        );
-
-
-    if (input) {
-        input.value = "";
-    }
-
-
-    const container =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-
-    if (container) {
-        container.innerHTML = "";
-    }
-
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos = [];
-
-    }
-
-}
-
-
-/* ---------------------------------------------------------
-   New Order → completely fresh upload
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-screen]"
-            );
-
-
-        if (!button) return;
-
-
-        if (
-            button.dataset.screen ===
-            "order"
-        ) {
-
-            GGHQ_clearAllSelectedVideos();
-
-        }
-
-    },
-    true
-);
-
-
-/* ---------------------------------------------------------
-   Going to Upload screen:
-   start fresh
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-order-next]"
-            );
-
-
-        if (!button) return;
-
-
-        /*
-           Step 3 opens Upload screen.
-           This means we are entering a fresh
-           upload stage.
-        */
-
-        if (
-            button.dataset.orderNext ===
-            "3"
-        ) {
-
-            GGHQ_clearAllSelectedVideos();
-
-        }
-
-    },
-    true
-);
-
-
-/* ---------------------------------------------------------
-   Back from Upload:
-   clear videos
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-order-back]"
-            );
-
-
-        if (!button) return;
-
-
-        /*
-           Back from Upload screen.
-        */
-
-        if (
-            button.dataset.orderBack ===
-            "2"
-        ) {
-
-            GGHQ_clearAllSelectedVideos();
-
-        }
-
-    },
-    true
-);
-
-
-/* ---------------------------------------------------------
-   After successful Submit:
-   clear selected files for next order
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "#submitOrderButton"
-            );
-
-
-        if (!button) return;
-
-
-        setTimeout(
-            function() {
-
-                GGHQ_clearAllSelectedVideos();
-
-            },
-            1000
-        );
-
-    },
-    true
-);
-
-
-/* =========================================================
-   END MULTI-SELECT VIDEO FIX
-   ========================================================= */
-/* =========================================================
-   SELECTED VIDEO CLEAR CONFIRMATION
-   ========================================================= */
-
-if (!document.getElementById("gghq-selected-confirm-style")) {
-
-    const style = document.createElement("style");
-
-    style.id =
-        "gghq-selected-confirm-style";
-
-    style.textContent = `
-
-        .video-gallery-preview {
-            display: grid;
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .video-preview-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-
-            background: #111118;
-
-            border: 2px solid
-                rgba(145, 92, 255, 0.65);
-
-            box-shadow:
-                0 0 0 2px
-                rgba(145, 92, 255, 0.08);
-
-        }
-
-        .video-preview-card video {
-
-            display: block;
-
-            width: 100%;
-
-            aspect-ratio: 16 / 10;
-
-            object-fit: cover;
-
-            background: #08080c;
-
-        }
-
-        /* SELECTED BADGE */
-
-        .gghq-selected-badge {
-
-            position: absolute;
-
-            top: 8px;
-            right: 8px;
-
-            z-index: 5;
-
-            padding:
-                6px 9px;
-
-            border-radius:
-                20px;
-
-            background:
-                rgba(70, 220, 130, 0.95);
-
-            color: #07140c;
-
-            font-size: 11px;
-
-            font-weight: 800;
-
-            letter-spacing:
-                0.3px;
-
-            box-shadow:
-                0 3px 10px
-                rgba(0,0,0,0.35);
-
-        }
-
-
-        /* VIDEO NUMBER */
-
-        .video-preview-number {
-
-            position: absolute;
-
-            top: 8px;
-            left: 8px;
-
-            z-index: 5;
-
-            width: 28px;
-            height: 28px;
-
-            border-radius: 50%;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            background:
-                rgba(0,0,0,0.78);
-
-            color: white;
-
-            font-size: 12px;
-
-            font-weight: 800;
-
-        }
-
-
-        .video-preview-info {
-
-            padding:
-                9px 10px 11px;
-
-        }
-
-
-        .video-preview-name {
-
-            color: white;
-
-            font-size: 12px;
-
-            font-weight: 600;
-
-            line-height: 1.35;
-
-            white-space: nowrap;
-
-            overflow: hidden;
-
-            text-overflow: ellipsis;
-
-        }
-
-
-        /* BIG COUNT */
-
-        .gghq-video-selected-count {
-
-            margin-top: 16px;
-
-            width: 100%;
-
-            padding:
-                14px 16px;
-
-            border-radius:
-                14px;
-
-            background:
-                rgba(145, 92, 255, 0.14);
-
-            border:
-                1px solid
-                rgba(145, 92, 255, 0.45);
-
-            color: white;
-
-            text-align: center;
-
-            font-size: 15px;
-
-            font-weight: 800;
-
-        }
-
-
-        .gghq-video-selected-count span {
-
-            color:
-                #cdb5ff;
-
-        }
-
-
-        @media (min-width: 600px) {
-
-            .video-gallery-preview {
-
-                grid-template-columns:
-                    repeat(3, minmax(0, 1fr));
-
-            }
-
-        }
-
-    `;
-
-    document.head.appendChild(style);
-
-}
-
-
-/* =========================================================
-   RENDER SELECTED VIDEOS
-   ========================================================= */
-
-function GGHQ_renderSelectedConfirmation() {
-
-    const container =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-
-    if (!container) return;
-
-
-    const files =
-        window.GGHQ_SELECTED_VIDEO_FILES ||
-        [];
-
-
-    container.innerHTML = "";
-
-
-    if (!files.length) {
-
-        container.innerHTML = `
-            <div class="video-empty-message">
-                No videos selected yet.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    const gallery =
-        document.createElement(
-            "div"
-        );
-
-
-    gallery.className =
-        "video-gallery-preview";
-
-
-    files.forEach(
-        (file, index) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "video-preview-card";
-
-
-            /* VIDEO NUMBER */
-
-            const number =
-                document.createElement(
-                    "div"
-                );
-
-
-            number.className =
-                "video-preview-number";
-
-
-            number.textContent =
-                index + 1;
-
-
-            /* SELECTED BADGE */
-
-            const selectedBadge =
-                document.createElement(
-                    "div"
-                );
-
-
-            selectedBadge.className =
-                "gghq-selected-badge";
-
-
-            selectedBadge.textContent =
-                "✓ SELECTED";
-
-
-            /* VIDEO */
-
-            const video =
-                document.createElement(
-                    "video"
-                );
-
-
-            video.muted =
-                true;
-
-            video.playsInline =
-                true;
-
-            video.preload =
-                "metadata";
-
-
-            video.setAttribute(
-                "playsinline",
-                ""
-            );
-
-
-            const previewURL =
-                URL.createObjectURL(
-                    file
-                );
-
-
-            video.src =
-                previewURL;
-
-
-            video.addEventListener(
-                "loadedmetadata",
-                function() {
-
-                    try {
-
-                        if (
-                            video.duration >
-                            0.2
-                        ) {
-
-                            video.currentTime =
-                                0.1;
-
-                        }
-
-                    } catch (e) {}
-
-                }
-            );
-
-
-            /* FILE NAME */
-
-            const info =
-                document.createElement(
-                    "div"
-                );
-
-
-            info.className =
-                "video-preview-info";
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-
-            name.className =
-                "video-preview-name";
-
-
-            name.textContent =
-                file.name;
-
-
-            info.appendChild(
-                name
-            );
-
-
-            card.appendChild(
-                video
-            );
-
-
-            card.appendChild(
-                number
-            );
-
-
-            card.appendChild(
-                selectedBadge
-            );
-
-
-            card.appendChild(
-                info
-            );
-
-
-            gallery.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    container.appendChild(
-        gallery
-    );
-
-
-    /* =====================================================
-       BIG SELECTED COUNT
-       ===================================================== */
-
-    const count =
-        document.createElement(
-            "div"
-        );
-
-
-    count.className =
-        "gghq-video-selected-count";
-
-
-    const number =
-        document.createElement(
-            "span"
-        );
-
-
-    number.textContent =
-        files.length;
-
-
-    count.appendChild(
-        document.createTextNode(
-            "✓ "
-        )
-    );
-
-
-    count.appendChild(
-        number
-    );
-
-
-    count.appendChild(
-        document.createTextNode(
-            files.length === 1
-                ? " VIDEO SELECTED"
-                : " VIDEOS SELECTED"
-        )
-    );
-
-
-    container.appendChild(
-        count
-    );
-
-}
-
-
-/* =========================================================
-   WATCH FOR VIDEO SELECTION CHANGES
-   ========================================================= */
-
-const GGHQ_confirmVideoInput =
-    document.getElementById(
-        "videoFiles"
-    );
-
-
-if (GGHQ_confirmVideoInput) {
-
-    GGHQ_confirmVideoInput.addEventListener(
-        "change",
-        function() {
-
-            const selectedFiles =
-                Array.from(
-                    this.files || []
-                );
-
-
-            if (!selectedFiles.length) {
-                return;
-            }
-
-
-            window.GGHQ_SELECTED_VIDEO_FILES =
-                window.GGHQ_SELECTED_VIDEO_FILES ||
-                [];
-
-
-            selectedFiles.forEach(
-                newFile => {
-
-                    const exists =
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .some(
-                                oldFile =>
-                                    oldFile.name ===
-                                    newFile.name &&
-                                    oldFile.size ===
-                                    newFile.size &&
-                                    oldFile.lastModified ===
-                                    newFile.lastModified
-                            );
-
-
-                    if (!exists) {
-
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .push(
-                                newFile
-                            );
-
-                    }
-
-                }
-            );
-
-
-            /*
-               Keep current order synced.
-            */
-
-            if (
-                typeof currentOrder !==
-                "undefined"
-            ) {
-
-                currentOrder.videos =
-                    window
-                        .GGHQ_SELECTED_VIDEO_FILES
-                        .map(
-                            file => ({
-
-                                name:
-                                    file.name,
-
-                                size:
-                                    file.size
-
-                            })
-                        );
-
-            }
-
-
-            /*
-               SHOW CLEAR CONFIRMATION
-            */
-
-            GGHQ_renderSelectedConfirmation();
-
-
-            /*
-               Clear input so another
-               selection can be added.
-            */
-
-            this.value = "";
-
-
-            if (
-                typeof showToast ===
-                "function"
-            ) {
-
-                showToast(
-                    `${
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .length
-                    } videos selected`,
-                    "✓"
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   END SELECTED VIDEO CONFIRMATION
-   ========================================================= */
