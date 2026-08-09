@@ -82,8 +82,6 @@
     </button>
 
 
-    <!-- ACCOUNT BUTTON -->
-
     <button
         id="accountHeaderButton"
         class="account-header-button"
@@ -183,11 +181,8 @@
             type="button"
             data-screen="services"
         >
-
             Explore Services
-
             <span>→</span>
-
         </button>
 
 
@@ -197,9 +192,7 @@
             type="button"
             data-screen="login"
         >
-
             👤 Login / Create Account
-
         </button>
 
     </div>
@@ -1722,6 +1715,35 @@
 
 
             <button
+                class="account-menu-item"
+                type="button"
+                data-screen="support"
+            >
+
+                <span class="account-menu-icon">
+                    💬
+                </span>
+
+                <span class="account-menu-text">
+
+                    <strong>
+                        Support
+                    </strong>
+
+                    <small>
+                        Get help with your order
+                    </small>
+
+                </span>
+
+                <span class="account-menu-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
                 id="logoutButton"
                 class="account-menu-item logout-item"
                 type="button"
@@ -1788,7 +1810,7 @@
         </h2>
 
         <p>
-            View the projects you have submitted.
+            View your projects and delivery status.
         </p>
 
 
@@ -1796,8 +1818,6 @@
             id="ordersList"
             class="orders-list"
         >
-
-            <!-- Orders will appear here -->
 
         </div>
 
@@ -1952,6 +1972,168 @@
 
         </div>
 
+
+        <!-- VIDEO DELIVERY BUTTON -->
+
+        <button
+            id="openVideoDeliveryButton"
+            class="primary-button full-button"
+            type="button"
+            data-screen="video-delivery"
+        >
+            🎬 Check Video Delivery
+            <span>→</span>
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     VIDEO DELIVERY
+     ===================================================== -->
+
+<section
+    id="video-delivery"
+    class="app-screen"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-screen="order-details"
+        >
+            ← Order Details
+        </button>
+
+
+        <span class="eyebrow">
+            VIDEO DELIVERY
+        </span>
+
+
+        <h2>
+            Your Video is
+            <span id="deliveryTitle">
+                Being Edited.
+            </span>
+        </h2>
+
+
+        <p id="deliverySubtitle">
+            We'll make your finished video
+            available here when it is ready.
+        </p>
+
+
+        <!-- =================================================
+             VIDEO PROCESSING
+             ================================================= -->
+
+        <div
+            id="videoProcessingCard"
+            class="video-status-card"
+        >
+
+            <div class="video-status-icon">
+                🎬
+            </div>
+
+
+            <h3>
+                Editing in Progress
+            </h3>
+
+
+            <p>
+                Our editor is working on your video.
+                You can check this page anytime.
+            </p>
+
+
+            <div class="status-pill">
+                🟡 In Progress
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             VIDEO READY
+             ================================================= -->
+
+        <div
+            id="videoReadyCard"
+            class="video-ready-card"
+            style="display:none;"
+        >
+
+            <div class="video-status-icon">
+                🎉
+            </div>
+
+
+            <h3>
+                Your Video is Ready!
+            </h3>
+
+
+            <p>
+                Your edited video is ready
+                to watch and download.
+            </p>
+
+
+            <!-- VIDEO PLAYER -->
+
+            <div class="video-preview">
+
+                <video
+                    id="finalVideoPlayer"
+                    controls
+                    playsinline
+                    preload="metadata"
+                >
+
+                    Your browser does not support
+                    video playback.
+
+                </video>
+
+            </div>
+
+
+            <!-- DOWNLOAD BUTTON -->
+
+            <a
+                id="downloadVideoButton"
+                class="primary-button full-button"
+                href="#"
+                download
+            >
+                ⬇ Download Video
+            </a>
+
+
+            <div class="delivery-note">
+
+                <span>
+                    ✓
+                </span>
+
+                <p>
+                    Keep this video saved after
+                    downloading it.
+                </p>
+
+            </div>
+
+        </div>
+
     </div>
 
 </section>
@@ -1972,10 +2154,11 @@
         <button
             class="back-button"
             type="button"
-            data-screen="home"
+            data-screen="account"
         >
-            ← Home
+            ← My Account
         </button>
+
 
         <span class="eyebrow">
             SUPPORT
@@ -2011,7 +2194,8 @@
             </h3>
 
             <p>
-                Learn about delivery and revisions.
+                Your finished video will appear
+                in the Video Delivery section.
             </p>
 
         </div>
@@ -2070,4 +2254,4 @@
 
 </body>
 
-                    </html>
+                </html>
