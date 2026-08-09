@@ -1,3 +1,4 @@
+Gym Growth HQ — Fixed script.js Copy All Code
 /* =========================================================
    GYM GROWTH HQ
    FINAL FLOW SCRIPT
@@ -1280,6 +1281,66 @@ function findCurrentOrder() {
 }
 
 /* =========================================================
+   SUPABASE STORAGE VIDEO UPLOAD
+   ========================================================= */
+async function uploadOrderVideos(orderId, files) {
+    const selectedFiles = Array.from(files || []);
+    if (!selectedFiles.length) return [];
+
+    const uploaded = [];
+
+    for (const file of selectedFiles) {
+        const safeName = file.name
+            .replace(/[^a-zA-Z0-9._-]/g, "_")
+            .replace(/_+/g, "_");
+
+        const uniquePart =
+            (window.crypto && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : Date.now() + "-" + Math.random().toString(36).slice(2);
+
+        const path =
+            currentUser.id + "/" + orderId + "/" +
+            uniquePart + "-" + safeName;
+
+        const encodedPath = path.split("/")
+            .map(part => encodeURIComponent(part))
+            .join("/");
+
+        const response = await fetch(
+            SUPABASE_URL + "/storage/v1/object/order-videos/" + encodedPath,
+            {
+                method: "POST",
+                headers: {
+                    "apikey": SUPABASE_PUBLISHABLE_KEY,
+                    "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY,
+                    "Content-Type": file.type || "video/mp4",
+                    "x-upsert": "false"
+                },
+                body: file
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Video upload error:", errorText);
+            throw new Error("Video upload failed: " + (file.name || "video"));
+        }
+
+        uploaded.push({
+            name: file.name,
+            size: file.size,
+            type: file.type || "video/mp4",
+            url: SUPABASE_URL +
+                "/storage/v1/object/public/order-videos/" + encodedPath
+        });
+    }
+
+    return uploaded;
+}
+
+
+/* =========================================================
    SUBMIT ORDER
    ========================================================= */
 
@@ -1364,10 +1425,25 @@ async function submitOrder() {
 
 
     /* =====================================================
-       SAVE ORDER TO SUPABASE — ONLY ONCE
+       UPLOAD ORIGINAL VIDEOS FIRST
        ===================================================== */
 
     try {
+
+        const selectedVideoFiles =
+            window.GGHQ_SELECTED_VIDEO_FILES || [];
+
+        const uploadedVideos =
+            await uploadOrderVideos(
+                orderId,
+                selectedVideoFiles
+            );
+
+        order.videos = uploadedVideos;
+
+        /* =====================================================
+           SAVE ORDER TO SUPABASE — ONLY ONCE
+           ===================================================== */
 
         const response =
             await fetch(
@@ -1797,7 +1873,129 @@ function renderOrderDetails(
         "—"
     );
 
+    renderOrderVideoGallery(order);
 
+
+}
+
+
+/* =========================================================
+   ORDER VIDEO GALLERY
+   ========================================================= */
+function renderOrderVideoGallery(order) {
+    const detailVideos = document.getElementById("detailVideos");
+    if (!detailVideos) return;
+
+    const oldGallery = document.getElementById("gghqOrderVideoGallery");
+    if (oldGallery) oldGallery.remove();
+
+    const videos = Array.isArray(order.videos)
+        ? order.videos.filter(video =>
+            video &&
+            typeof video.url === "string" &&
+            video.url
+        )
+        : [];
+
+    const wrapper = document.createElement("div");
+    wrapper.id = "gghqOrderVideoGallery";
+    wrapper.style.cssText = `
+        margin-top:18px;
+        padding:16px;
+        border-radius:16px;
+        background:rgba(255,255,255,0.03);
+        border:1px solid rgba(145,92,255,0.30);
+    `;
+
+    const title = document.createElement("div");
+    title.textContent = "🎬 Uploaded Videos";
+    title.style.cssText = `
+        margin-bottom:12px;
+        font-size:16px;
+        font-weight:700;
+        color:#ffffff;
+    `;
+    wrapper.appendChild(title);
+
+    if (!videos.length) {
+        const empty = document.createElement("div");
+        empty.textContent =
+            "No saved video preview is available for this order.";
+        empty.style.cssText = `
+            padding:14px;
+            border-radius:12px;
+            background:rgba(255,255,255,0.03);
+            color:#8f8f9d;
+            font-size:13px;
+        `;
+        wrapper.appendChild(empty);
+    } else {
+        const grid = document.createElement("div");
+        grid.style.cssText = `
+            display:grid;
+            grid-template-columns:repeat(1,minmax(0,1fr));
+            gap:14px;
+        `;
+
+        videos.forEach((video, index) => {
+            const card = document.createElement("div");
+            card.style.cssText = `
+                overflow:hidden;
+                border-radius:14px;
+                background:#111118;
+                border:1px solid rgba(145,92,255,0.35);
+            `;
+
+            const player = document.createElement("video");
+            player.src = video.url;
+            player.controls = true;
+            player.playsInline = true;
+            player.preload = "metadata";
+            player.style.cssText = `
+                display:block;
+                width:100%;
+                max-height:420px;
+                background:#08080c;
+            `;
+
+            const info = document.createElement("div");
+            info.style.cssText = "padding:10px 12px 12px;";
+
+            const name = document.createElement("div");
+            name.textContent = (index + 1) + ". " + (video.name || "Video");
+            name.style.cssText = `
+                color:#ffffff;
+                font-size:13px;
+                font-weight:600;
+                overflow:hidden;
+                text-overflow:ellipsis;
+                white-space:nowrap;
+            `;
+
+            const open = document.createElement("a");
+            open.href = video.url;
+            open.target = "_blank";
+            open.rel = "noopener noreferrer";
+            open.textContent = "Open Video ↗";
+            open.style.cssText = `
+                display:inline-block;
+                margin-top:7px;
+                color:#cdb5ff;
+                font-size:12px;
+                text-decoration:none;
+            `;
+
+            info.appendChild(name);
+            info.appendChild(open);
+            card.appendChild(player);
+            card.appendChild(info);
+            grid.appendChild(card);
+        });
+
+        wrapper.appendChild(grid);
+    }
+
+    detailVideos.insertAdjacentElement("afterend", wrapper);
 }
 
 
