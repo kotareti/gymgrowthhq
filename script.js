@@ -1,7 +1,6 @@
 /* =========================================================
    GYM GROWTH HQ
-   COMPLETE JAVASCRIPT
-   ACCOUNT + ORDERS + VIDEO DELIVERY
+   COMPLETE JAVASCRIPT — FIXED ACCOUNT NAVIGATION
    ========================================================= */
 
 const STORAGE = {
@@ -16,23 +15,15 @@ const STORAGE = {
    ========================================================= */
 
 const AppState = {
-
     currentScreen: "home",
-
     selectedService: "",
-
     selectedPlan: "",
-
     orderStep: 1,
-
     isLoggedIn: false,
-
     currentUser: null,
-
     currentOrderId: null,
 
     orderData: {
-
         clientName: "",
         gymName: "",
         instagram: "",
@@ -40,9 +31,7 @@ const AppState = {
         projectNotes: "",
         specialInstructions: "",
         videoFiles: []
-
     }
-
 };
 
 
@@ -51,18 +40,11 @@ const AppState = {
    ========================================================= */
 
 function $(selector) {
-
     return document.querySelector(selector);
-
 }
 
-
 function $all(selector) {
-
-    return Array.from(
-        document.querySelectorAll(selector)
-    );
-
+    return Array.from(document.querySelectorAll(selector));
 }
 
 
@@ -71,80 +53,54 @@ function $all(selector) {
    ========================================================= */
 
 function saveUser(user) {
-
     localStorage.setItem(
         STORAGE.USER,
         JSON.stringify(user)
     );
-
 }
-
 
 function getSavedUser() {
 
     const data =
-        localStorage.getItem(
-            STORAGE.USER
-        );
+        localStorage.getItem(STORAGE.USER);
 
     if (!data) return null;
 
     try {
-
         return JSON.parse(data);
-
     } catch {
-
         return null;
-
     }
-
 }
 
-
 function saveOrders(orders) {
-
     localStorage.setItem(
         STORAGE.ORDERS,
         JSON.stringify(orders)
     );
-
 }
-
 
 function getOrders() {
 
     const data =
-        localStorage.getItem(
-            STORAGE.ORDERS
-        );
+        localStorage.getItem(STORAGE.ORDERS);
 
     if (!data) return [];
 
     try {
-
         return JSON.parse(data);
-
     } catch {
-
         return [];
-
     }
-
 }
-
 
 function setLoggedIn(value) {
 
     localStorage.setItem(
         STORAGE.LOGIN,
-        value
-            ? "true"
-            : "false"
+        value ? "true" : "false"
     );
-
 }
-
 
 function isStoredLoggedIn() {
 
@@ -153,91 +109,6 @@ function isStoredLoggedIn() {
             STORAGE.LOGIN
         ) === "true"
     );
-
-}
-
-
-/* =========================================================
-   SCREEN MAP
-   ========================================================= */
-
-const screens = {
-
-    home:
-        "home",
-
-    services:
-        "services",
-
-    "reel-editing":
-        "reel-editing",
-
-    transformation:
-        "transformation",
-
-    "gym-promotion":
-        "gym-promotion",
-
-    pricing:
-        "pricing",
-
-    "plan-reel-editing":
-        "plan-reel-editing",
-
-    "plan-transformation":
-        "plan-transformation",
-
-    "plan-gym-promotion":
-        "plan-gym-promotion",
-
-    login:
-        "login",
-
-    signup:
-        "signup",
-
-    order:
-        "order",
-
-    "order-project":
-        "order-project",
-
-    "order-upload":
-        "order-upload",
-
-    "order-instructions":
-        "order-instructions",
-
-    "order-review":
-        "order-review",
-
-    "order-success":
-        "order-success",
-
-    account:
-        "account",
-
-    orders:
-        "orders",
-
-    "order-details":
-        "order-details",
-
-    "video-delivery":
-        "video-delivery",
-
-    support:
-        "support"
-
-};
-
-
-function getScreen(name) {
-
-    return document.getElementById(
-        screens[name] || name
-    );
-
 }
 
 
@@ -245,25 +116,48 @@ function getScreen(name) {
    SCREEN SYSTEM
    ========================================================= */
 
+const screenNames = [
+    "home",
+    "services",
+    "reel-editing",
+    "transformation",
+    "gym-promotion",
+    "pricing",
+    "plan-reel-editing",
+    "plan-transformation",
+    "plan-gym-promotion",
+    "login",
+    "signup",
+    "order",
+    "order-project",
+    "order-upload",
+    "order-instructions",
+    "order-review",
+    "order-success",
+    "account",
+    "orders",
+    "order-details",
+    "video-delivery",
+    "support"
+];
+
+
+function getScreen(name) {
+    return document.getElementById(name);
+}
+
+
 function hideAllScreens() {
 
-    $all(".app-screen").forEach(
-        screen => {
+    $all(".app-screen").forEach(screen => {
 
-            screen.classList.remove(
-                "active-screen"
-            );
+        screen.classList.remove(
+            "active-screen"
+        );
 
-            screen.setAttribute(
-                "aria-hidden",
-                "true"
-            );
+        screen.style.display = "none";
 
-            screen.style.display =
-                "none";
-
-        }
-    );
+    });
 
 }
 
@@ -273,145 +167,76 @@ function showScreen(name) {
     const screen =
         getScreen(name);
 
-
     if (!screen) {
-
         console.error(
             "Screen not found:",
             name
         );
-
         return;
-
     }
 
-
     hideAllScreens();
-
 
     screen.classList.add(
         "active-screen"
     );
 
-
-    screen.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
     screen.style.display =
         "block";
 
-
     AppState.currentScreen =
-        screen.id;
+        name;
 
-
-    window.scrollTo(
-        0,
-        0
-    );
-
-
-    updateFloatingHome(
-        screen.id
-    );
-
+    window.scrollTo(0, 0);
 
     updateAccountUI();
 
+    updateFloatingHome(name);
 
-    if (
-        screen.id ===
-        "orders"
-    ) {
-
+    if (name === "orders") {
         updateOrdersList();
-
     }
 
-
-    if (
-        screen.id ===
-        "order-review"
-    ) {
-
+    if (name === "order-review") {
         updateReview();
-
     }
 
-
-    if (
-        screen.id ===
-        "video-delivery"
-    ) {
-
+    if (name === "video-delivery") {
         updateVideoDelivery();
-
     }
-
 }
 
 
 /* =========================================================
-   SERVICE NAMES
+   SERVICE / PLAN NAMES
    ========================================================= */
 
-function getServiceName(
-    service
-) {
+function getServiceName(service) {
 
     const names = {
-
-        "reel-editing":
-            "Reel Editing",
-
-        transformation:
-            "Transformation Reel",
-
-        "gym-promotion":
-            "Gym Promotion"
-
+        "reel-editing": "Reel Editing",
+        "transformation": "Transformation Reel",
+        "gym-promotion": "Gym Promotion"
     };
 
-
-    return (
-        names[service] ||
-        "Not selected"
-    );
-
+    return names[service] || "Not selected";
 }
 
 
-function getPlanName(
-    plan
-) {
+function getPlanName(plan) {
 
     const names = {
-
-        "reel-editing":
-            "Standard Reel",
-
-        transformation:
-            "Transformation Reel",
-
-        "gym-promotion":
-            "Promotional Video"
-
+        "reel-editing": "Standard Reel",
+        "transformation": "Transformation Reel",
+        "gym-promotion": "Promotional Video"
     };
 
-
-    return (
-        names[plan] ||
-        "Not selected"
-    );
-
+    return names[plan] || "Not selected";
 }
 
 
 /* =========================================================
-   GENERAL SCREEN BUTTONS
+   GENERAL NAVIGATION
    ========================================================= */
 
 function setupScreenButtons() {
@@ -425,47 +250,33 @@ function setupScreenButtons() {
                     "[data-screen]"
                 );
 
-
             if (!button) return;
-
 
             event.preventDefault();
 
 
-            const target =
-                button.dataset.screen;
-
-
-            if (
-                button.dataset.service
-            ) {
-
-                AppState.selectedService =
-                    button.dataset.service;
-
-            }
-
+            /*
+             * IMPORTANT FIX
+             *
+             * Home Account button has
+             * data-screen="login" in HTML.
+             *
+             * If user is already logged in,
+             * send them to Account instead.
+             */
 
             if (
-                button.dataset.plan
-            ) {
-
-                AppState.selectedPlan =
-                    button.dataset.plan;
-
-            }
-
-
-            if (
-                target ===
-                "order"
+                button.id ===
+                "homeAccountButton"
             ) {
 
                 if (
                     AppState.isLoggedIn
                 ) {
 
-                    startOrder();
+                    showScreen(
+                        "account"
+                    );
 
                 } else {
 
@@ -476,9 +287,17 @@ function setupScreenButtons() {
                 }
 
                 return;
-
             }
 
+
+            const target =
+                button.dataset.screen;
+
+
+            /*
+             * Account / Orders
+             * require login.
+             */
 
             if (
                 target === "account" ||
@@ -494,24 +313,44 @@ function setupScreenButtons() {
                     );
 
                     return;
-
                 }
-
             }
 
 
-            showScreen(
-                target
-            );
+            /*
+             * Start Order
+             */
+
+            if (
+                target === "order"
+            ) {
+
+                if (
+                    AppState.isLoggedIn
+                ) {
+
+                    startOrder();
+
+                } else {
+
+                    showScreen(
+                        "login"
+                    );
+                }
+
+                return;
+            }
+
+
+            showScreen(target);
 
         }
     );
-
 }
 
 
 /* =========================================================
-   SERVICE BUTTONS
+   SERVICE SELECTION
    ========================================================= */
 
 function setupServiceButtons() {
@@ -525,16 +364,12 @@ function setupServiceButtons() {
                     "[data-detail]"
                 );
 
-
             if (!button) return;
-
 
             event.preventDefault();
 
-
             AppState.selectedService =
                 button.dataset.detail;
-
 
             showScreen(
                 AppState.selectedService
@@ -542,12 +377,11 @@ function setupServiceButtons() {
 
         }
     );
-
 }
 
 
 /* =========================================================
-   PLAN BUTTONS
+   PLAN SELECTION
    ========================================================= */
 
 function setupPlanButtons() {
@@ -561,16 +395,12 @@ function setupPlanButtons() {
                     "[data-plan-detail]"
                 );
 
-
             if (!button) return;
-
 
             event.preventDefault();
 
-
             AppState.selectedPlan =
                 button.dataset.planDetail;
-
 
             showScreen(
                 `plan-${AppState.selectedPlan}`
@@ -578,114 +408,73 @@ function setupPlanButtons() {
 
         }
     );
-
 }
 
 
 /* =========================================================
-   ORDER START
+   START ORDER
    ========================================================= */
 
 function startOrder() {
 
-    if (
-        !AppState.isLoggedIn
-    ) {
+    if (!AppState.isLoggedIn) {
 
-        showScreen(
-            "login"
-        );
+        showScreen("login");
 
         return;
-
     }
 
-
-    AppState.orderStep =
-        1;
-
-
-    const clientName =
-        $("#clientName");
-
+    AppState.orderStep = 1;
 
     if (
-        clientName &&
+        $("#clientName") &&
         AppState.currentUser
     ) {
 
-        clientName.value =
+        $("#clientName").value =
             AppState.currentUser.name || "";
 
     }
 
-
-    showScreen(
-        "order"
-    );
-
+    showScreen("order");
 }
 
 
 /* =========================================================
-   ORDER ROOMS
+   ORDER NAVIGATION
    ========================================================= */
 
 const orderRooms = {
-
-    1:
-        "order",
-
-    2:
-        "order-project",
-
-    3:
-        "order-upload",
-
-    4:
-        "order-instructions",
-
-    5:
-        "order-review"
-
+    1: "order",
+    2: "order-project",
+    3: "order-upload",
+    4: "order-instructions",
+    5: "order-review"
 };
 
 
-function goToOrderStep(
-    step
-) {
+function goToOrderStep(step) {
 
     const number =
         Number(step);
-
 
     if (
         number < 1 ||
         number > 5
     ) {
-
         return;
-
     }
 
-
     collectOrderData();
-
 
     AppState.orderStep =
         number;
 
-
     showScreen(
         orderRooms[number]
     );
-
 }
 
-
-/* =========================================================
-   ORDER NEXT
-   ========================================================= */
 
 function setupOrderNextButtons() {
 
@@ -698,23 +487,17 @@ function setupOrderNextButtons() {
                     "[data-order-next]"
                 );
 
-
             if (!button) return;
 
-
             event.preventDefault();
-
 
             if (
                 !validateOrderStep(
                     AppState.orderStep
                 )
             ) {
-
                 return;
-
             }
-
 
             goToOrderStep(
                 button.dataset.orderNext
@@ -722,13 +505,8 @@ function setupOrderNextButtons() {
 
         }
     );
-
 }
 
-
-/* =========================================================
-   ORDER BACK
-   ========================================================= */
 
 function setupOrderBackButtons() {
 
@@ -741,12 +519,9 @@ function setupOrderBackButtons() {
                     "[data-order-back]"
                 );
 
-
             if (!button) return;
 
-
             event.preventDefault();
-
 
             goToOrderStep(
                 button.dataset.orderBack
@@ -754,99 +529,68 @@ function setupOrderBackButtons() {
 
         }
     );
-
 }
 
 
 /* =========================================================
-   COLLECT ORDER DATA
+   ORDER DATA
    ========================================================= */
 
 function collectOrderData() {
 
-    const clientName =
-        $("#clientName");
-
-    const gymName =
-        $("#gymName");
-
-    const instagram =
-        $("#instagramHandle");
-
-    const projectGoal =
-        $("#projectGoal");
-
-    const projectNotes =
-        $("#projectNotes");
-
-    const specialInstructions =
-        $("#specialInstructions");
-
-
-    if (clientName) {
+    if ($("#clientName")) {
 
         AppState.orderData.clientName =
-            clientName.value.trim();
+            $("#clientName").value.trim();
 
     }
 
-
-    if (gymName) {
+    if ($("#gymName")) {
 
         AppState.orderData.gymName =
-            gymName.value.trim();
+            $("#gymName").value.trim();
 
     }
 
-
-    if (instagram) {
+    if ($("#instagramHandle")) {
 
         AppState.orderData.instagram =
-            instagram.value.trim();
+            $("#instagramHandle").value.trim();
 
     }
 
-
-    if (projectGoal) {
+    if ($("#projectGoal")) {
 
         AppState.orderData.projectGoal =
-            projectGoal.value;
+            $("#projectGoal").value;
 
     }
 
-
-    if (projectNotes) {
+    if ($("#projectNotes")) {
 
         AppState.orderData.projectNotes =
-            projectNotes.value.trim();
+            $("#projectNotes").value.trim();
 
     }
 
-
-    if (specialInstructions) {
+    if ($("#specialInstructions")) {
 
         AppState.orderData.specialInstructions =
-            specialInstructions.value.trim();
+            $("#specialInstructions").value.trim();
 
     }
-
 }
 
 
 /* =========================================================
-   ORDER VALIDATION
+   VALIDATION
    ========================================================= */
 
-function validateOrderStep(
-    step
-) {
+function validateOrderStep(step) {
 
     collectOrderData();
 
-
-    if (
-        step === 1
-    ) {
+    if (step === 1) {
 
         if (
             !AppState.orderData.clientName
@@ -860,9 +604,7 @@ function validateOrderStep(
             $("#clientName")?.focus();
 
             return false;
-
         }
-
 
         if (
             !AppState.orderData.gymName
@@ -876,9 +618,7 @@ function validateOrderStep(
             $("#gymName")?.focus();
 
             return false;
-
         }
-
 
         if (
             !AppState.orderData.instagram
@@ -892,15 +632,11 @@ function validateOrderStep(
             $("#instagramHandle")?.focus();
 
             return false;
-
         }
-
     }
 
 
-    if (
-        step === 2
-    ) {
+    if (step === 2) {
 
         if (
             !AppState.orderData.projectGoal
@@ -914,14 +650,10 @@ function validateOrderStep(
             $("#projectGoal")?.focus();
 
             return false;
-
         }
-
     }
 
-
     return true;
-
 }
 
 
@@ -937,16 +669,9 @@ function setupVideoUpload() {
     const output =
         $("#selectedFiles");
 
-
-    if (
-        !input ||
-        !output
-    ) {
-
+    if (!input || !output) {
         return;
-
     }
-
 
     input.addEventListener(
         "change",
@@ -957,54 +682,40 @@ function setupVideoUpload() {
                     input.files
                 );
 
-
             AppState.orderData.videoFiles =
                 files;
 
+            output.innerHTML = "";
 
-            output.innerHTML =
-                "";
+            files.forEach(file => {
 
-
-            files.forEach(
-                file => {
-
-                    const item =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    item.className =
-                        "selected-file";
-
-
-                    item.textContent =
-                        `✓ ${file.name}`;
-
-
-                    output.appendChild(
-                        item
+                const item =
+                    document.createElement(
+                        "div"
                     );
 
-                }
-            );
+                item.className =
+                    "selected-file";
 
+                item.textContent =
+                    `✓ ${file.name}`;
 
-            if (
-                files.length
-            ) {
+                output.appendChild(
+                    item
+                );
+
+            });
+
+            if (files.length) {
 
                 showToast(
                     `${files.length} video${files.length > 1 ? "s" : ""} selected.`,
                     "✓"
                 );
-
             }
 
         }
     );
-
 }
 
 
@@ -1016,74 +727,53 @@ function updateReview() {
 
     collectOrderData();
 
-
     if ($("#reviewService")) {
 
-        $("#reviewService")
-            .textContent =
+        $("#reviewService").textContent =
             getServiceName(
                 AppState.selectedService
             );
-
     }
-
 
     if ($("#reviewPlan")) {
 
-        $("#reviewPlan")
-            .textContent =
+        $("#reviewPlan").textContent =
             getPlanName(
                 AppState.selectedPlan
             );
-
     }
-
 
     if ($("#reviewClient")) {
 
-        $("#reviewClient")
-            .textContent =
+        $("#reviewClient").textContent =
             AppState.orderData.clientName ||
             "Not provided";
-
     }
-
 
     if ($("#reviewGym")) {
 
-        $("#reviewGym")
-            .textContent =
+        $("#reviewGym").textContent =
             AppState.orderData.gymName ||
             "Not provided";
-
     }
-
 
     if ($("#reviewInstagram")) {
 
-        $("#reviewInstagram")
-            .textContent =
+        $("#reviewInstagram").textContent =
             AppState.orderData.instagram ||
             "Not provided";
-
     }
-
-
-    const count =
-        AppState.orderData
-            .videoFiles.length;
-
 
     if ($("#reviewVideos")) {
 
-        $("#reviewVideos")
-            .textContent =
+        const count =
+            AppState.orderData.videoFiles.length;
+
+        $("#reviewVideos").textContent =
             count
                 ? `${count} video${count > 1 ? "s" : ""} selected`
                 : "No videos selected";
-
     }
-
 }
 
 
@@ -1093,40 +783,23 @@ function updateReview() {
 
 function setupSignup() {
 
-    const signupButton =
-        $("#signupButton");
-
-    const loginButton =
-        $("#goToLogin");
-
-
-    if (loginButton) {
-
-        loginButton.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                showScreen(
-                    "login"
-                );
-
-            }
-        );
-
-    }
-
-
-    if (!signupButton) return;
-
-
-    signupButton.addEventListener(
+    $("#goToLogin")?.addEventListener(
         "click",
         event => {
 
             event.preventDefault();
 
+            showScreen("login");
+
+        }
+    );
+
+
+    $("#signupButton")?.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
 
             const name =
                 $("#signupName");
@@ -1139,8 +812,7 @@ function setupSignup() {
 
 
             if (
-                !name ||
-                !name.value.trim()
+                !name?.value.trim()
             ) {
 
                 showToast(
@@ -1151,13 +823,11 @@ function setupSignup() {
                 name?.focus();
 
                 return;
-
             }
 
 
             if (
-                !email ||
-                !email.value.trim()
+                !email?.value.trim()
             ) {
 
                 showToast(
@@ -1168,12 +838,10 @@ function setupSignup() {
                 email?.focus();
 
                 return;
-
             }
 
 
             if (
-                !password ||
                 password.value.length < 6
             ) {
 
@@ -1182,30 +850,9 @@ function setupSignup() {
                     "!"
                 );
 
-                password?.focus();
+                password.focus();
 
                 return;
-
-            }
-
-
-            const existingUser =
-                getSavedUser();
-
-
-            if (
-                existingUser &&
-                existingUser.email ===
-                email.value.trim()
-            ) {
-
-                showToast(
-                    "This account already exists. Please login.",
-                    "!"
-                );
-
-                return;
-
             }
 
 
@@ -1223,26 +870,17 @@ function setupSignup() {
             };
 
 
-            saveUser(
-                user
-            );
-
+            saveUser(user);
 
             AppState.currentUser =
                 user;
 
-
             AppState.isLoggedIn =
                 true;
 
-
-            setLoggedIn(
-                true
-            );
-
+            setLoggedIn(true);
 
             updateAccountUI();
-
 
             showToast(
                 "Account created successfully.",
@@ -1256,12 +894,11 @@ function setupSignup() {
                     startOrder();
 
                 },
-                450
+                400
             );
 
         }
     );
-
 }
 
 
@@ -1271,35 +908,19 @@ function setupSignup() {
 
 function setupLogin() {
 
-    const loginButton =
-        $("#loginButton");
+    $("#goToSignup")?.addEventListener(
+        "click",
+        event => {
 
-    const signupButton =
-        $("#goToSignup");
+            event.preventDefault();
 
+            showScreen("signup");
 
-    if (signupButton) {
-
-        signupButton.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                showScreen(
-                    "signup"
-                );
-
-            }
-        );
-
-    }
+        }
+    );
 
 
-    if (!loginButton) return;
-
-
-    loginButton.addEventListener(
+    $("#loginButton")?.addEventListener(
         "click",
         event => {
 
@@ -1314,8 +935,7 @@ function setupLogin() {
 
 
             if (
-                !email ||
-                !email.value.trim()
+                !email?.value.trim()
             ) {
 
                 showToast(
@@ -1326,13 +946,11 @@ function setupLogin() {
                 email?.focus();
 
                 return;
-
             }
 
 
             if (
-                !password ||
-                !password.value
+                !password?.value
             ) {
 
                 showToast(
@@ -1343,7 +961,6 @@ function setupLogin() {
                 password?.focus();
 
                 return;
-
             }
 
 
@@ -1359,23 +976,12 @@ function setupLogin() {
                 );
 
                 return;
-
             }
 
 
-            const emailCorrect =
-                savedUser.email ===
-                email.value.trim();
-
-
-            const passwordCorrect =
-                savedUser.password ===
-                password.value;
-
-
             if (
-                !emailCorrect ||
-                !passwordCorrect
+                savedUser.email !==
+                email.value.trim()
             ) {
 
                 showToast(
@@ -1384,22 +990,30 @@ function setupLogin() {
                 );
 
                 return;
+            }
 
+
+            if (
+                savedUser.password !==
+                password.value
+            ) {
+
+                showToast(
+                    "Incorrect email or password.",
+                    "!"
+                );
+
+                return;
             }
 
 
             AppState.currentUser =
                 savedUser;
 
-
             AppState.isLoggedIn =
                 true;
 
-
-            setLoggedIn(
-                true
-            );
-
+            setLoggedIn(true);
 
             updateAccountUI();
 
@@ -1416,12 +1030,11 @@ function setupLogin() {
                     startOrder();
 
                 },
-                450
+                400
             );
 
         }
     );
-
 }
 
 
@@ -1433,7 +1046,6 @@ function updateAccountUI() {
 
     const user =
         AppState.currentUser;
-
 
     const loggedIn =
         AppState.isLoggedIn &&
@@ -1456,7 +1068,6 @@ function updateAccountUI() {
             loggedIn
                 ? "flex"
                 : "none";
-
     }
 
 
@@ -1466,7 +1077,6 @@ function updateAccountUI() {
             loggedIn
                 ? "flex"
                 : "none";
-
     }
 
 
@@ -1476,116 +1086,86 @@ function updateAccountUI() {
             loggedIn
                 ? "👤 My Account"
                 : "👤 Login / Create Account";
-
     }
 
 
-    if (!loggedIn) return;
+    if (!loggedIn) {
+        return;
+    }
 
 
     const name =
-        user.name ||
-        "Account";
-
+        user.name || "Account";
 
     const email =
-        user.email ||
-        "";
-
+        user.email || "";
 
     const initial =
-        name
-            .charAt(0)
-            .toUpperCase();
+        name.charAt(0).toUpperCase();
 
 
-    if (
-        $("#headerAccountInitial")
-    ) {
+    if ($("#headerAccountInitial")) {
 
         $("#headerAccountInitial")
             .textContent =
             initial;
-
     }
 
 
-    if (
-        $("#headerAccountName")
-    ) {
+    if ($("#headerAccountName")) {
 
         $("#headerAccountName")
             .textContent =
             name;
-
     }
 
 
-    if (
-        $("#homeAccountInitial")
-    ) {
+    if ($("#homeAccountInitial")) {
 
         $("#homeAccountInitial")
             .textContent =
             initial;
-
     }
 
 
-    if (
-        $("#homeAccountName")
-    ) {
+    if ($("#homeAccountName")) {
 
         $("#homeAccountName")
             .textContent =
             name;
-
     }
 
 
-    if (
-        $("#homeAccountEmail")
-    ) {
+    if ($("#homeAccountEmail")) {
 
         $("#homeAccountEmail")
             .textContent =
             email;
-
     }
 
 
-    if (
-        $("#accountInitial")
-    ) {
+    if ($("#accountInitial")) {
 
         $("#accountInitial")
             .textContent =
             initial;
-
     }
 
 
-    if (
-        $("#accountName")
-    ) {
+    if ($("#accountName")) {
 
         $("#accountName")
             .textContent =
             name;
-
     }
 
 
-    if (
-        $("#accountEmail")
-    ) {
+    if ($("#accountEmail")) {
 
         $("#accountEmail")
             .textContent =
             email;
-
     }
-
 }
 
 
@@ -1595,48 +1175,31 @@ function updateAccountUI() {
 
 function setupLogout() {
 
-    const button =
-        $("#logoutButton");
-
-
-    if (!button) return;
-
-
-    button.addEventListener(
+    $("#logoutButton")?.addEventListener(
         "click",
         event => {
 
             event.preventDefault();
 
-
             AppState.isLoggedIn =
                 false;
-
 
             AppState.currentUser =
                 null;
 
-
-            setLoggedIn(
-                false
-            );
-
+            setLoggedIn(false);
 
             updateAccountUI();
-
 
             showToast(
                 "Logged out successfully.",
                 "✓"
             );
 
-
             setTimeout(
                 () => {
 
-                    showScreen(
-                        "home"
-                    );
+                    showScreen("home");
 
                 },
                 400
@@ -1644,7 +1207,6 @@ function setupLogout() {
 
         }
     );
-
 }
 
 
@@ -1656,10 +1218,8 @@ function createOrder() {
 
     collectOrderData();
 
-
     const orders =
         getOrders();
-
 
     const nextNumber =
         orders.length + 1;
@@ -1671,9 +1231,7 @@ function createOrder() {
             `#${String(nextNumber).padStart(3, "0")}`,
 
         userEmail:
-            AppState.currentUser
-                ? AppState.currentUser.email
-                : "",
+            AppState.currentUser?.email || "",
 
         service:
             AppState.selectedService,
@@ -1700,15 +1258,11 @@ function createOrder() {
             AppState.orderData.specialInstructions,
 
         videoCount:
-            AppState.orderData
-                .videoFiles.length,
+            AppState.orderData.videoFiles.length,
 
         videoNames:
-            AppState.orderData
-                .videoFiles
-                .map(
-                    file => file.name
-                ),
+            AppState.orderData.videoFiles
+                .map(file => file.name),
 
         status:
             "Submitted",
@@ -1730,22 +1284,14 @@ function createOrder() {
     };
 
 
-    orders.push(
-        order
-    );
+    orders.push(order);
 
-
-    saveOrders(
-        orders
-    );
-
+    saveOrders(orders);
 
     AppState.currentOrderId =
         order.id;
 
-
     return order;
-
 }
 
 
@@ -1755,30 +1301,19 @@ function createOrder() {
 
 function setupSubmitOrder() {
 
-    const button =
-        $("#submitOrderButton");
-
-
-    if (!button) return;
-
-
-    button.addEventListener(
+    $("#submitOrderButton")?.addEventListener(
         "click",
         event => {
 
             event.preventDefault();
 
-
             if (
                 !AppState.isLoggedIn
             ) {
 
-                showScreen(
-                    "login"
-                );
+                showScreen("login");
 
                 return;
-
             }
 
 
@@ -1811,7 +1346,6 @@ function setupSubmitOrder() {
 
         }
     );
-
 }
 
 
@@ -1821,29 +1355,18 @@ function setupSubmitOrder() {
 
 function getCurrentUserOrders() {
 
-    const orders =
-        getOrders();
-
-
-    if (
-        !AppState.currentUser
-    ) {
-
+    if (!AppState.currentUser) {
         return [];
-
     }
-
 
     const email =
         AppState.currentUser.email;
 
-
-    return orders.filter(
+    return getOrders().filter(
         order =>
             order.userEmail ===
             email
     );
-
 }
 
 
@@ -1856,21 +1379,15 @@ function updateOrdersList() {
     const container =
         $("#ordersList");
 
-
     if (!container) return;
 
-
-    container.innerHTML =
-        "";
-
+    container.innerHTML = "";
 
     const orders =
         getCurrentUserOrders();
 
 
-    if (
-        orders.length === 0
-    ) {
+    if (!orders.length) {
 
         container.innerHTML = `
 
@@ -1894,114 +1411,107 @@ function updateOrdersList() {
         `;
 
         return;
-
     }
 
 
     [...orders]
         .reverse()
-        .forEach(
-            order => {
+        .forEach(order => {
 
-                const card =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                card.className =
-                    "order-card";
-
-
-                const status =
-                    order.videoReady
-                        ? "VIDEO READY"
-                        : "IN PROGRESS";
-
-
-                card.innerHTML = `
-
-                    <div class="order-card-top">
-
-                        <div>
-
-                            <div class="order-number">
-                                ORDER ${escapeHTML(order.id)}
-                            </div>
-
-                            <div class="order-card-title">
-                                ${escapeHTML(
-                                    getServiceName(
-                                        order.service
-                                    )
-                                )}
-                            </div>
-
-                        </div>
-
-                        <span class="order-status">
-                            ${status}
-                        </span>
-
-                    </div>
-
-
-                    <div class="order-card-info">
-
-                        <div class="order-info-item">
-
-                            <span>
-                                Plan
-                            </span>
-
-                            <strong>
-                                ${escapeHTML(
-                                    getPlanName(
-                                        order.plan
-                                    )
-                                )}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="order-info-item">
-
-                            <span>
-                                Date
-                            </span>
-
-                            <strong>
-                                ${escapeHTML(
-                                    order.date
-                                )}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        class="order-view-button"
-                        type="button"
-                        data-view-order="${escapeHTML(
-                            order.id
-                        )}"
-                    >
-                        View Order Details →
-                    </button>
-
-                `;
-
-
-                container.appendChild(
-                    card
+            const card =
+                document.createElement(
+                    "div"
                 );
 
-            }
-        );
+            card.className =
+                "order-card";
 
+
+            const status =
+                order.videoReady
+                    ? "VIDEO READY"
+                    : "IN PROGRESS";
+
+
+            card.innerHTML = `
+
+                <div class="order-card-top">
+
+                    <div>
+
+                        <div class="order-number">
+                            ORDER ${escapeHTML(order.id)}
+                        </div>
+
+                        <div class="order-card-title">
+                            ${escapeHTML(
+                                getServiceName(
+                                    order.service
+                                )
+                            )}
+                        </div>
+
+                    </div>
+
+                    <span class="order-status">
+                        ${status}
+                    </span>
+
+                </div>
+
+
+                <div class="order-card-info">
+
+                    <div class="order-info-item">
+
+                        <span>
+                            Plan
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                getPlanName(
+                                    order.plan
+                                )
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="order-info-item">
+
+                        <span>
+                            Date
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                order.date
+                            )}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="order-view-button"
+                    type="button"
+                    data-view-order="${escapeHTML(
+                        order.id
+                    )}"
+                >
+                    View Order Details →
+                </button>
+
+            `;
+
+
+            container.appendChild(card);
+
+        });
 }
 
 
@@ -2020,12 +1530,9 @@ function setupOrderViewButtons() {
                     "[data-view-order]"
                 );
 
-
             if (!button) return;
 
-
             event.preventDefault();
-
 
             openOrderDetails(
                 button.dataset.viewOrder
@@ -2033,23 +1540,17 @@ function setupOrderViewButtons() {
 
         }
     );
-
 }
 
 
-function openOrderDetails(
-    orderId
-) {
-
-    const orders =
-        getCurrentUserOrders();
-
+function openOrderDetails(orderId) {
 
     const order =
-        orders.find(
-            item =>
-                item.id === orderId
-        );
+        getCurrentUserOrders()
+            .find(
+                item =>
+                    item.id === orderId
+            );
 
 
     if (!order) {
@@ -2060,7 +1561,6 @@ function openOrderDetails(
         );
 
         return;
-
     }
 
 
@@ -2068,122 +1568,91 @@ function openOrderDetails(
         order.id;
 
 
-    if (
-        $("#detailOrderNumber")
-    ) {
+    if ($("#detailOrderNumber")) {
 
         $("#detailOrderNumber")
             .textContent =
             order.id;
-
     }
 
 
-    if (
-        $("#detailOrderStatus")
-    ) {
+    if ($("#detailOrderStatus")) {
 
         $("#detailOrderStatus")
             .textContent =
             order.videoReady
                 ? "Video Ready"
                 : "In Progress";
-
     }
 
 
-    if (
-        $("#detailService")
-    ) {
+    if ($("#detailService")) {
 
         $("#detailService")
             .textContent =
             getServiceName(
                 order.service
             );
-
     }
 
 
-    if (
-        $("#detailPlan")
-    ) {
+    if ($("#detailPlan")) {
 
         $("#detailPlan")
             .textContent =
             getPlanName(
                 order.plan
             );
-
     }
 
 
-    if (
-        $("#detailClient")
-    ) {
+    if ($("#detailClient")) {
 
         $("#detailClient")
             .textContent =
-            order.clientName ||
-            "—";
-
+            order.clientName || "—";
     }
 
 
-    if (
-        $("#detailGym")
-    ) {
+    if ($("#detailGym")) {
 
         $("#detailGym")
             .textContent =
-            order.gymName ||
-            "—";
-
+            order.gymName || "—";
     }
 
 
-    if (
-        $("#detailGoal")
-    ) {
+    if ($("#detailGoal")) {
 
         $("#detailGoal")
             .textContent =
-            order.projectGoal ||
-            "—";
-
+            order.projectGoal || "—";
     }
 
 
-    if (
-        $("#detailVideos")
-    ) {
+    if ($("#detailVideos")) {
 
         $("#detailVideos")
             .textContent =
             order.videoCount
                 ? `${order.videoCount} video${order.videoCount > 1 ? "s" : ""} uploaded`
                 : "No videos";
-
     }
 
 
-    if (
-        $("#detailInstructions")
-    ) {
+    if ($("#detailInstructions")) {
 
         $("#detailInstructions")
             .textContent =
             order.specialInstructions ||
             order.projectNotes ||
             "No special instructions";
-
     }
 
 
     showScreen(
         "order-details"
     );
-
 }
 
 
@@ -2193,16 +1662,13 @@ function openOrderDetails(
 
 function updateVideoDelivery() {
 
-    const orders =
-        getCurrentUserOrders();
-
-
     const order =
-        orders.find(
-            item =>
-                item.id ===
-                AppState.currentOrderId
-        );
+        getCurrentUserOrders()
+            .find(
+                item =>
+                    item.id ===
+                    AppState.currentOrderId
+            );
 
 
     const processingCard =
@@ -2237,13 +1703,8 @@ function updateVideoDelivery() {
         }
 
         return;
-
     }
 
-
-    /*
-     * VIDEO READY
-     */
 
     if (
         order.videoReady &&
@@ -2251,46 +1712,31 @@ function updateVideoDelivery() {
     ) {
 
         if (processingCard) {
-
             processingCard.style.display =
                 "none";
-
         }
-
 
         if (readyCard) {
-
             readyCard.style.display =
                 "block";
-
         }
-
 
         if (title) {
-
             title.textContent =
                 "Ready!";
-
         }
-
 
         if (subtitle) {
-
             subtitle.textContent =
                 "Your edited video is ready to watch and download.";
-
         }
 
-
         if (player) {
-
             player.src =
                 order.videoUrl;
 
             player.load();
-
         }
-
 
         if (download) {
 
@@ -2301,96 +1747,64 @@ function updateVideoDelivery() {
                 "download",
                 `Gym-Growth-HQ-${order.id}.mp4`
             );
-
         }
 
-
         return;
-
     }
 
-
-    /*
-     * STILL EDITING
-     */
 
     if (processingCard) {
-
         processingCard.style.display =
             "block";
-
     }
-
 
     if (readyCard) {
-
         readyCard.style.display =
             "none";
-
     }
-
 
     if (title) {
-
         title.textContent =
             "Being Edited.";
-
     }
-
 
     if (subtitle) {
-
         subtitle.textContent =
             "We'll make your finished video available here when it is ready.";
-
     }
-
 }
 
 
 /* =========================================================
-   OPEN VIDEO DELIVERY
+   VIDEO DELIVERY BUTTON
    ========================================================= */
 
 function setupVideoDeliveryButton() {
 
-    const button =
-        $("#openVideoDeliveryButton");
+    $("#openVideoDeliveryButton")
+        ?.addEventListener(
+            "click",
+            event => {
 
+                event.preventDefault();
 
-    if (!button) return;
+                if (
+                    !AppState.isLoggedIn
+                ) {
 
+                    showScreen("login");
 
-    button.addEventListener(
-        "click",
-        event => {
+                    return;
+                }
 
-            event.preventDefault();
-
-
-            if (
-                !AppState.isLoggedIn
-            ) {
+                updateVideoDelivery();
 
                 showScreen(
-                    "login"
+                    "video-delivery"
                 );
 
-                return;
-
             }
-
-
-            updateVideoDelivery();
-
-
-            showScreen(
-                "video-delivery"
-            );
-
-        }
-    );
-
+        );
 }
 
 
@@ -2405,40 +1819,28 @@ function updateFloatingHome(
     const button =
         $("#floatingHomeButton");
 
-
     if (!button) return;
-
 
     button.style.display =
         currentScreen === "home"
             ? "none"
             : "flex";
-
 }
 
 
 function setupFloatingHome() {
 
-    const button =
-        $("#floatingHomeButton");
+    $("#floatingHomeButton")
+        ?.addEventListener(
+            "click",
+            event => {
 
+                event.preventDefault();
 
-    if (!button) return;
+                showScreen("home");
 
-
-    button.addEventListener(
-        "click",
-        event => {
-
-            event.preventDefault();
-
-            showScreen(
-                "home"
-            );
-
-        }
-    );
-
+            }
+        );
 }
 
 
@@ -2448,26 +1850,17 @@ function setupFloatingHome() {
 
 function setupBrandButton() {
 
-    const button =
-        $(".brand-button");
+    $(".brand-button")
+        ?.addEventListener(
+            "click",
+            event => {
 
+                event.preventDefault();
 
-    if (!button) return;
+                showScreen("home");
 
-
-    button.addEventListener(
-        "click",
-        event => {
-
-            event.preventDefault();
-
-            showScreen(
-                "home"
-            );
-
-        }
-    );
-
+            }
+        );
 }
 
 
@@ -2477,39 +1870,32 @@ function setupBrandButton() {
 
 function setupAccountHeader() {
 
-    const button =
-        $("#accountHeaderButton");
+    $("#accountHeaderButton")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
 
 
-    if (!button) return;
+                if (
+                    AppState.isLoggedIn
+                ) {
 
+                    showScreen(
+                        "account"
+                    );
 
-    button.addEventListener(
-        "click",
-        event => {
+                } else {
 
-            event.preventDefault();
+                    showScreen(
+                        "login"
+                    );
 
-
-            if (
-                AppState.isLoggedIn
-            ) {
-
-                showScreen(
-                    "account"
-                );
-
-            } else {
-
-                showScreen(
-                    "login"
-                );
+                }
 
             }
-
-        }
-    );
-
+        );
 }
 
 
@@ -2528,29 +1914,22 @@ function showToast(
     const toast =
         $("#toast");
 
-
     if (!toast) return;
 
 
-    if (
-        $("#toastMessage")
-    ) {
+    if ($("#toastMessage")) {
 
         $("#toastMessage")
             .textContent =
             message;
-
     }
 
 
-    if (
-        $("#toastIcon")
-    ) {
+    if ($("#toastIcon")) {
 
         $("#toastIcon")
             .textContent =
             icon;
-
     }
 
 
@@ -2575,7 +1954,6 @@ function showToast(
             },
             2500
         );
-
 }
 
 
@@ -2583,46 +1961,26 @@ function showToast(
    ESCAPE HTML
    ========================================================= */
 
-function escapeHTML(
-    value
-) {
+function escapeHTML(value) {
 
-    return String(
-        value ?? ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
 }
 
 
 /* =========================================================
-   RESTORE SESSION
+   RESTORE LOGIN
    ========================================================= */
 
 function restoreSession() {
 
     const savedUser =
         getSavedUser();
-
 
     const loggedIn =
         isStoredLoggedIn();
@@ -2646,12 +2004,10 @@ function restoreSession() {
 
         AppState.isLoggedIn =
             false;
-
     }
 
 
     updateAccountUI();
-
 }
 
 
@@ -2663,14 +2019,11 @@ function initializeApp() {
 
     restoreSession();
 
-
     hideAllScreens();
 
 
     const home =
-        getScreen(
-            "home"
-        );
+        $("#home");
 
 
     if (home) {
@@ -2679,14 +2032,8 @@ function initializeApp() {
             "active-screen"
         );
 
-        home.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
         home.style.display =
             "block";
-
     }
 
 
@@ -2733,14 +2080,13 @@ function initializeApp() {
 
 
     console.log(
-        "Gym Growth HQ — COMPLETE CLIENT DELIVERY SYSTEM READY"
+        "Gym Growth HQ — Account Navigation FIXED"
     );
-
 }
 
 
 /* =========================================================
-   START APP
+   START
    ========================================================= */
 
 if (
@@ -2764,7 +2110,7 @@ if (
 
 
 /* =========================================================
-   GLOBAL ACCESS
+   GLOBAL
    ========================================================= */
 
 window.GymGrowthHQ = {
