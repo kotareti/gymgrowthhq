@@ -1254,11 +1254,7 @@ function updateReview() {
    SUBMIT ORDER
    ========================================================= */
 
-function submitOrder() {
-
-    /*
-       NEVER redirect to Plan here.
-    */
+       async function submitOrder() {
 
     if (!currentUser) {
 
@@ -1292,28 +1288,29 @@ function submitOrder() {
 
 
     /*
-       Make sure client details
-       are saved before order.
+       Save client details first
     */
 
     saveStepOne();
 
 
-    const orders =
-        getOrders();
+    /*
+       Create order ID
+    */
+
+    const orderId =
+        "GGHQ-" +
+        Date.now();
 
 
-    const order = {
+    /*
+       Data for Supabase
+    */
 
-        id:
-            "GGHQ-" +
-            Date.now(),
+    const supabaseOrder = {
 
-        userId:
+        user_id:
             currentUser.id,
-
-        userEmail:
-            currentUser.email,
 
         service:
             currentOrder.service,
@@ -1321,108 +1318,246 @@ function submitOrder() {
         plan:
             currentOrder.plan,
 
-        clientName:
-            currentOrder.clientName,
+        amount:
+            null,
 
-        gymName:
+        payment_status:
+            "pending",
+
+        order_status:
+            "pending",
+
+        gym_name:
             currentOrder.gymName,
 
-        instagram:
+        instagram_url:
             currentOrder.instagram,
 
-        goal:
-            currentOrder.goal,
+        raw_video_urls:
+            currentOrder.videos || [],
 
-        notes:
-            currentOrder.notes,
-
-        instructions:
-            currentOrder.instructions,
-
-        videos:
-            currentOrder.videos,
-
-        status:
-            "Submitted",
-
-        deliveryStatus:
-            "Editing in Progress",
-
-        finalVideo:
-            "",
-
-        createdAt:
-            new Date().toISOString()
+        final_video_url:
+            null
 
     };
 
 
-    orders.push(order);
-
-    saveOrders(orders);
-
-
-    currentOrderId =
-        order.id;
-
-
     /*
-       IMPORTANT:
-
-       Do NOT reset before navigating.
-       Go directly to Account.
+       Send order to Supabase
     */
 
-    showToast(
-        "Order submitted successfully",
-        "✓"
-    );
+    try {
 
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/rest/v1/orders",
+                {
 
-    /*
-       Small delay only for toast.
-       Then Account.
-    */
+                    method: "POST",
 
-    setTimeout(
-        () => {
+                    headers: {
 
-            renderOrders();
+                        "apikey":
+                            SUPABASE_PUBLISHABLE_KEY,
 
-            showScreen(
-                "account"
+                        "Authorization":
+                            "Bearer " +
+                            SUPABASE_PUBLISHABLE_KEY,
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Prefer":
+                            "return=representation"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            supabaseOrder
+                        )
+
+                }
             );
 
-        },
-        500
-    );
+
+        /*
+           Check Supabase response
+        */
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Supabase order error:",
+                errorText
+            );
 
 
-    /*
-       Prepare blank order AFTER
-       saving everything.
-       Client profile stays saved.
-    */
+            showToast(
+                "Order could not be saved",
+                "!"
+            );
 
-    currentOrder = {
+            return;
 
-        service: "",
-        plan: "",
-        clientName:
-            currentUser.name || "",
-        gymName:
-            currentUser.gymName || "",
-        instagram:
-            currentUser.instagram || "",
-        goal: "",
-        notes: "",
-        instructions: "",
-        videos: []
+        }
 
-    };
 
-}
+        const savedOrder =
+            await response.json();
 
+
+        console.log(
+            "Supabase order saved:",
+            savedOrder
+        );
+
+
+        /*
+           Also keep local order
+           for current website flow
+        */
+
+        const orders =
+            getOrders();
+
+
+        const order = {
+
+            id:
+                orderId,
+
+            userId:
+                currentUser.id,
+
+            userEmail:
+                currentUser.email,
+
+            service:
+                currentOrder.service,
+
+            plan:
+                currentOrder.plan,
+
+            clientName:
+                currentOrder.clientName,
+
+            gymName:
+                currentOrder.gymName,
+
+            instagram:
+                currentOrder.instagram,
+
+            goal:
+                currentOrder.goal,
+
+            notes:
+                currentOrder.notes,
+
+            instructions:
+                currentOrder.instructions,
+
+            videos:
+                currentOrder.videos,
+
+            status:
+                "Submitted",
+
+            deliveryStatus:
+                "Editing in Progress",
+
+            finalVideo:
+                "",
+
+            createdAt:
+                new Date().toISOString()
+
+        };
+
+
+        orders.push(order);
+
+        saveOrders(orders);
+
+
+        currentOrderId =
+            orderId;
+
+
+        /*
+           Success
+        */
+
+        showToast(
+            "Order submitted successfully",
+            "✓"
+        );
+
+
+        setTimeout(
+            () => {
+
+                renderOrders();
+
+                showScreen(
+                    "account"
+                );
+
+            },
+            500
+        );
+
+
+        /*
+           Prepare next order
+        */
+
+        currentOrder = {
+
+            service: "",
+
+            plan: "",
+
+            clientName:
+                currentUser.name || "",
+
+            gymName:
+                currentUser.gymName || "",
+
+            instagram:
+                currentUser.instagram || "",
+
+            goal: "",
+
+            notes: "",
+
+            instructions: "",
+
+            videos: []
+
+        };
+
+
+    } catch (error) {
+
+        console.error(
+            "Supabase connection error:",
+            error
+        );
+
+
+        showToast(
+            "Supabase connection failed",
+            "!"
+        );
+
+    }
+
+    }
 
 /* =========================================================
    FIND CURRENT ORDER
