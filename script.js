@@ -1,12 +1,13 @@
-
 /* =========================================================
    GYM GROWTH HQ
-   FINAL FLOW SCRIPT
+   FINAL SCRIPT.JS
+   CREATIVE BRIEF + VIDEO UPLOAD + ORDER HISTORY
    ========================================================= */
 
 const USERS_KEY = "gghq_users";
 const SESSION_KEY = "gghq_session";
 const ORDERS_KEY = "gghq_orders";
+
 /* =========================================================
    SUPABASE CONFIG
    ========================================================= */
@@ -16,6 +17,7 @@ const SUPABASE_URL =
 
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_Pcj2mwFWysWV2sQHwjAm_Q_qtv0I5hS";
+
 let currentUser = null;
 
 let currentOrder = {
@@ -27,6 +29,17 @@ let currentOrder = {
     goal: "",
     notes: "",
     instructions: "",
+
+    creativeBrief: {
+        trend: "",
+        song: "",
+        editingStyle: "",
+        shotInstructions: "",
+        hook: "",
+        cta: "",
+        specialInstructions: ""
+    },
+
     videos: []
 };
 
@@ -38,7 +51,6 @@ let currentOrderId = null;
    ========================================================= */
 
 function getUsers() {
-
     try {
         return JSON.parse(
             localStorage.getItem(USERS_KEY)
@@ -48,19 +60,14 @@ function getUsers() {
     }
 }
 
-
 function saveUsers(users) {
-
     localStorage.setItem(
         USERS_KEY,
         JSON.stringify(users)
     );
-
 }
 
-
 function getOrders() {
-
     try {
         return JSON.parse(
             localStorage.getItem(ORDERS_KEY)
@@ -68,53 +75,36 @@ function getOrders() {
     } catch {
         return [];
     }
-
 }
 
-
 function saveOrders(orders) {
-
     localStorage.setItem(
         ORDERS_KEY,
         JSON.stringify(orders)
     );
-
 }
 
-
 function saveSession(user) {
-
     localStorage.setItem(
         SESSION_KEY,
         JSON.stringify(user)
     );
-
 }
 
-
 function getSession() {
-
     try {
-
         return JSON.parse(
             localStorage.getItem(SESSION_KEY)
         );
-
     } catch {
-
         return null;
-
     }
-
 }
 
-
 function clearSession() {
-
     localStorage.removeItem(
         SESSION_KEY
     );
-
 }
 
 
@@ -123,35 +113,26 @@ function clearSession() {
    ========================================================= */
 
 function isLoggedIn() {
-
     return !!currentUser;
-
 }
 
-
 function getInitial(name) {
-
     return name
         ? name.trim().charAt(0).toUpperCase()
         : "?";
-
 }
 
-
 function setText(id, value) {
-
     const el =
         document.getElementById(id);
 
     if (el) {
-        el.textContent = value || "—";
+        el.textContent =
+            value || "â€”";
     }
-
 }
 
-
 function escapeHTML(value) {
-
     if (!value) return "";
 
     return String(value)
@@ -160,20 +141,24 @@ function escapeHTML(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-
 }
 
-
-function showToast(message, icon = "✓") {
-
+function showToast(
+    message,
+    icon = "âœ“"
+) {
     const toast =
         document.getElementById("toast");
 
     const text =
-        document.getElementById("toastMessage");
+        document.getElementById(
+            "toastMessage"
+        );
 
     const iconEl =
-        document.getElementById("toastIcon");
+        document.getElementById(
+            "toastIcon"
+        );
 
     if (!toast) return;
 
@@ -186,11 +171,20 @@ function showToast(message, icon = "✓") {
     toast.classList.add("show");
 
     setTimeout(() => {
-
         toast.classList.remove("show");
-
     }, 2200);
+}
 
+function createEmptyCreativeBrief() {
+    return {
+        trend: "",
+        song: "",
+        editingStyle: "",
+        shotInstructions: "",
+        hook: "",
+        cta: "",
+        specialInstructions: ""
+    };
 }
 
 
@@ -203,55 +197,53 @@ function showScreen(id) {
     document
         .querySelectorAll(".app-screen")
         .forEach(screen => {
-
             screen.classList.remove(
                 "active-screen"
             );
-
         });
-
 
     const screen =
         document.getElementById(id);
 
     if (!screen) return;
 
-
     screen.classList.add(
         "active-screen"
     );
-
 
     window.scrollTo({
         top: 0,
         behavior: "smooth"
     });
 
-
     updateAccountUI();
-
 
     if (id === "orders") {
         renderOrders();
     }
 
-
     if (id === "order-review") {
         updateReview();
     }
 
-
     if (id === "order-details") {
-
         const order =
             findCurrentOrder();
 
         if (order) {
-            renderOrderDetails(order);
+            renderOrderDetails(
+                order
+            );
         }
-
     }
 
+    if (id === "order-project") {
+        ensureCreativeBriefFields();
+
+        setTimeout(() => {
+            restoreCreativeBriefFields();
+        }, 50);
+    }
 }
 
 
@@ -275,7 +267,6 @@ function updateAccountUI() {
         document.getElementById(
             "headerAccountName"
         );
-
 
     const homeCard =
         document.getElementById(
@@ -302,7 +293,6 @@ function updateAccountUI() {
             "homeAccountEmail"
         );
 
-
     const accountInitial =
         document.getElementById(
             "accountInitial"
@@ -318,14 +308,12 @@ function updateAccountUI() {
             "accountEmail"
         );
 
-
     if (currentUser) {
 
         const initial =
             getInitial(
                 currentUser.name
             );
-
 
         if (headerButton)
             headerButton.style.display =
@@ -338,7 +326,6 @@ function updateAccountUI() {
         if (headerName)
             headerName.textContent =
                 currentUser.name;
-
 
         if (homeCard)
             homeCard.style.display =
@@ -359,7 +346,6 @@ function updateAccountUI() {
         if (homeEmail)
             homeEmail.textContent =
                 currentUser.email;
-
 
         if (accountInitial)
             accountInitial.textContent =
@@ -386,9 +372,7 @@ function updateAccountUI() {
         if (homeButton)
             homeButton.style.display =
                 "flex";
-
     }
-
 }
 
 
@@ -400,46 +384,39 @@ function saveClientProfile() {
 
     if (!currentUser) return;
 
-
     const users =
         getUsers();
-
 
     const index =
         users.findIndex(
             user =>
-                user.id === currentUser.id
+                user.id ===
+                currentUser.id
         );
 
-
     if (index === -1) return;
-
 
     const user =
         users[index];
 
-
     user.name =
         currentOrder.clientName ||
         user.name;
-
 
     user.gymName =
         currentOrder.gymName ||
         user.gymName ||
         "";
 
-
     user.instagram =
         currentOrder.instagram ||
         user.instagram ||
         "";
 
-
-    users[index] = user;
+    users[index] =
+        user;
 
     saveUsers(users);
-
 
     currentUser.name =
         user.name;
@@ -450,9 +427,9 @@ function saveClientProfile() {
     currentUser.instagram =
         user.instagram;
 
-
-    saveSession(currentUser);
-
+    saveSession(
+        currentUser
+    );
 }
 
 
@@ -463,7 +440,6 @@ function saveClientProfile() {
 function fillClientDetails() {
 
     if (!currentUser) return;
-
 
     const name =
         document.getElementById(
@@ -480,30 +456,20 @@ function fillClientDetails() {
             "instagramHandle"
         );
 
-
     if (name) {
-
         name.value =
             currentUser.name || "";
-
     }
-
 
     if (gym) {
-
         gym.value =
             currentUser.gymName || "";
-
     }
-
 
     if (instagram) {
-
         instagram.value =
             currentUser.instagram || "";
-
     }
-
 }
 
 
@@ -514,18 +480,23 @@ function fillClientDetails() {
 function startOrder() {
 
     if (!currentUser) {
-
         showScreen("login");
-
         return;
-
     }
 
+    clearAllSelectedVideos();
+
+    currentOrder.service = "";
+    currentOrder.plan = "";
+    currentOrder.goal = "";
+    currentOrder.notes = "";
+    currentOrder.instructions = "";
+    currentOrder.creativeBrief =
+        createEmptyCreativeBrief();
 
     fillClientDetails();
 
     showScreen("order");
-
 }
 
 
@@ -545,6 +516,9 @@ function loginUser() {
             "loginPassword"
         );
 
+    if (!emailInput || !passwordInput) {
+        return;
+    }
 
     const email =
         emailInput.value
@@ -554,91 +528,70 @@ function loginUser() {
     const password =
         passwordInput.value;
 
-
     if (!email || !password) {
-
         showToast(
             "Enter email and password",
             "!"
         );
-
         return;
-
     }
-
 
     const users =
         getUsers();
 
-
     const user =
         users.find(
             item =>
-                item.email === email
+                item.email ===
+                email
         );
 
-
     if (!user) {
-
         showToast(
             "Account not found",
             "!"
         );
-
         return;
-
     }
 
-
     if (
-        user.password !== password
+        user.password !==
+        password
     ) {
-
         showToast(
             "Wrong password",
             "!"
         );
-
         return;
-
     }
-
 
     currentUser = {
         id: user.id,
         name: user.name,
         email: user.email,
-        gymName: user.gymName || "",
-        instagram: user.instagram || ""
+        gymName:
+            user.gymName || "",
+        instagram:
+            user.instagram || ""
     };
 
-
-    saveSession(currentUser);
+    saveSession(
+        currentUser
+    );
 
     updateAccountUI();
 
     fillClientDetails();
 
-
     emailInput.value = "";
     passwordInput.value = "";
 
-
     showToast(
         "Login successful",
-        "✓"
+        "âœ“"
     );
 
-
-    /*
-       IMPORTANT:
-       Login finished.
-       Go directly to Order.
-       Never show Login again.
-    */
-
     showScreen("order");
-
 }
 
 
@@ -663,6 +616,13 @@ function createAccount() {
             "signupPassword"
         );
 
+    if (
+        !nameInput ||
+        !emailInput ||
+        !passwordInput
+    ) {
+        return;
+    }
 
     const name =
         nameInput.value.trim();
@@ -675,54 +635,46 @@ function createAccount() {
     const password =
         passwordInput.value;
 
-
-    if (!name || !email || !password) {
-
+    if (
+        !name ||
+        !email ||
+        !password
+    ) {
         showToast(
             "Please fill all details",
             "!"
         );
-
         return;
-
     }
 
-
-    if (password.length < 6) {
-
+    if (
+        password.length < 6
+    ) {
         showToast(
             "Password must be at least 6 characters",
             "!"
         );
-
         return;
-
     }
-
 
     const users =
         getUsers();
 
-
     if (
         users.some(
             user =>
-                user.email === email
+                user.email ===
+                email
         )
     ) {
-
         showToast(
             "Email already registered",
             "!"
         );
-
         return;
-
     }
 
-
     const newUser = {
-
         id:
             "USER-" +
             Date.now(),
@@ -744,17 +696,15 @@ function createAccount() {
 
         createdAt:
             new Date().toISOString()
-
     };
 
-
-    users.push(newUser);
+    users.push(
+        newUser
+    );
 
     saveUsers(users);
 
-
     currentUser = {
-
         id:
             newUser.id,
 
@@ -769,33 +719,26 @@ function createAccount() {
 
         instagram:
             ""
-
     };
-
 
     saveSession(
         currentUser
     );
 
-
     nameInput.value = "";
     emailInput.value = "";
     passwordInput.value = "";
-
 
     updateAccountUI();
 
     fillClientDetails();
 
-
     showToast(
         "Account created",
-        "✓"
+        "âœ“"
     );
 
-
     showScreen("order");
-
 }
 
 
@@ -809,8 +752,9 @@ function logoutUser() {
 
     clearSession();
 
-    currentOrder = {
+    clearAllSelectedVideos();
 
+    currentOrder = {
         service: "",
         plan: "",
         clientName: "",
@@ -819,24 +763,21 @@ function logoutUser() {
         goal: "",
         notes: "",
         instructions: "",
+        creativeBrief:
+            createEmptyCreativeBrief(),
         videos: []
-
     };
 
-
     currentOrderId = null;
-
 
     updateAccountUI();
 
     showToast(
         "Logged out",
-        "✓"
+        "âœ“"
     );
 
-
     showScreen("home");
-
 }
 
 
@@ -846,20 +787,14 @@ function logoutUser() {
 
 function selectService(service) {
 
-    /*
-       ONLY TWO SERVICES.
-       Promotional Video removed.
-    */
-
     if (
-        service !== "reel-editing" &&
-        service !== "transformation"
+        service !==
+            "reel-editing" &&
+        service !==
+            "transformation"
     ) {
-
         return;
-
     }
-
 
     currentOrder.service =
         service;
@@ -867,32 +802,25 @@ function selectService(service) {
     currentOrder.plan =
         "";
 
-
     if (
-        service === "reel-editing"
+        service ===
+        "reel-editing"
     ) {
-
         showScreen(
             "plan-reel-editing"
         );
-
         return;
-
     }
 
-
     if (
-        service === "transformation"
+        service ===
+        "transformation"
     ) {
-
         showScreen(
             "plan-transformation"
         );
-
         return;
-
     }
-
 }
 
 
@@ -906,29 +834,19 @@ function selectPlan(
 ) {
 
     if (
-        service !== "reel-editing" &&
-        service !== "transformation"
+        service !==
+            "reel-editing" &&
+        service !==
+            "transformation"
     ) {
-
         return;
-
     }
-
 
     currentOrder.service =
         service;
 
     currentOrder.plan =
         plan || "standard";
-
-
-    /*
-       Already logged in:
-       DIRECTLY ORDER.
-
-       Not logged in:
-       LOGIN ONCE.
-    */
 
     if (currentUser) {
 
@@ -941,7 +859,6 @@ function selectPlan(
         showScreen("login");
 
     }
-
 }
 
 
@@ -966,9 +883,9 @@ function saveStepOne() {
             "instagramHandle"
         );
 
-
-    if (!name || !gym) return false;
-
+    if (!name || !gym) {
+        return false;
+    }
 
     currentOrder.clientName =
         name.value.trim();
@@ -981,21 +898,259 @@ function saveStepOne() {
             ? instagram.value.trim()
             : "";
 
-
-    /*
-       Save permanently to account.
-       So next order doesn't ask again.
-    */
-
     if (currentUser) {
-
         saveClientProfile();
-
     }
 
-
     return true;
+}
 
+
+/* =========================================================
+   CREATIVE BRIEF UI
+   ========================================================= */
+
+function ensureCreativeBriefFields() {
+
+    const screen =
+        document.getElementById(
+            "order-project"
+        );
+
+    if (!screen) return;
+
+    let wrapper =
+        document.getElementById(
+            "gghqCreativeBrief"
+        );
+
+    if (!wrapper) {
+
+        wrapper =
+            document.createElement(
+                "div"
+            );
+
+        wrapper.id =
+            "gghqCreativeBrief";
+
+        wrapper.style.cssText = `
+            margin-top:24px;
+            padding:18px;
+            border-radius:18px;
+            background:rgba(145,92,255,0.07);
+            border:1px solid rgba(145,92,255,0.30);
+        `;
+
+        wrapper.innerHTML = `
+
+            <h3 style="
+                margin:0 0 8px;
+                color:#ffffff;
+                font-size:18px;
+            ">
+                ðŸŽ¬ Creative Brief
+            </h3>
+
+            <p style="
+                margin:0 0 18px;
+                color:#8f8f9d;
+                font-size:13px;
+                line-height:1.5;
+            ">
+                Tell us exactly how you want your video edited.
+            </p>
+
+            <input
+                id="gghqTrend"
+                type="text"
+                placeholder="ðŸ”¥ Trend / Reference"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <input
+                id="gghqSong"
+                type="text"
+                placeholder="ðŸŽµ Song / Audio"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <input
+                id="gghqEditingStyle"
+                type="text"
+                placeholder="ðŸŽ¨ Editing Style"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <textarea
+                id="gghqShotInstructions"
+                placeholder="ðŸŽ¥ How should the video be edited? Explain shots, cuts, transitions, timing..."
+                rows="4"
+                style="width:100%;margin-bottom:12px;"
+            ></textarea>
+
+            <input
+                id="gghqHook"
+                type="text"
+                placeholder="âœï¸ Hook / On-screen Text"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <input
+                id="gghqCTA"
+                type="text"
+                placeholder="ðŸ“¢ CTA"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <textarea
+                id="gghqSpecialInstructions"
+                placeholder="ðŸ“ Special Instructions"
+                rows="4"
+                style="width:100%;"
+            ></textarea>
+        `;
+
+        const nextButton =
+            screen.querySelector(
+                '[data-order-next="3"]'
+            );
+
+        if (nextButton) {
+
+            nextButton.parentNode.insertBefore(
+                wrapper,
+                nextButton
+            );
+
+        } else {
+
+            screen.appendChild(
+                wrapper
+            );
+
+        }
+    }
+
+    restoreCreativeBriefFields();
+}
+
+
+function saveCreativeBrief() {
+
+    if (
+        typeof currentOrder ===
+        "undefined"
+    ) {
+        return;
+    }
+
+    currentOrder.creativeBrief = {
+
+        trend:
+            document
+                .getElementById(
+                    "gghqTrend"
+                )
+                ?.value
+                .trim() || "",
+
+        song:
+            document
+                .getElementById(
+                    "gghqSong"
+                )
+                ?.value
+                .trim() || "",
+
+        editingStyle:
+            document
+                .getElementById(
+                    "gghqEditingStyle"
+                )
+                ?.value
+                .trim() || "",
+
+        shotInstructions:
+            document
+                .getElementById(
+                    "gghqShotInstructions"
+                )
+                ?.value
+                .trim() || "",
+
+        hook:
+            document
+                .getElementById(
+                    "gghqHook"
+                )
+                ?.value
+                .trim() || "",
+
+        cta:
+            document
+                .getElementById(
+                    "gghqCTA"
+                )
+                ?.value
+                .trim() || "",
+
+        specialInstructions:
+            document
+                .getElementById(
+                    "gghqSpecialInstructions"
+                )
+                ?.value
+                .trim() || ""
+    };
+}
+
+
+function restoreCreativeBriefFields() {
+
+    const brief =
+        currentOrder.creativeBrief ||
+        createEmptyCreativeBrief();
+
+    const fields = {
+
+        gghqTrend:
+            brief.trend || "",
+
+        gghqSong:
+            brief.song || "",
+
+        gghqEditingStyle:
+            brief.editingStyle || "",
+
+        gghqShotInstructions:
+            brief.shotInstructions || "",
+
+        gghqHook:
+            brief.hook || "",
+
+        gghqCTA:
+            brief.cta || "",
+
+        gghqSpecialInstructions:
+            brief.specialInstructions || ""
+    };
+
+    Object.entries(fields)
+        .forEach(
+            ([id, value]) => {
+
+                const element =
+                    document.getElementById(
+                        id
+                    );
+
+                if (element) {
+                    element.value =
+                        value;
+                }
+            }
+        );
 }
 
 
@@ -1004,7 +1159,6 @@ function saveStepOne() {
    ========================================================= */
 
 function goOrderNext(step) {
-
 
     if (step === 2) {
 
@@ -1016,18 +1170,14 @@ function goOrderNext(step) {
             );
 
             return;
-
         }
-
 
         showScreen(
             "order-project"
         );
 
         return;
-
     }
-
 
     if (step === 3) {
 
@@ -1041,27 +1191,24 @@ function goOrderNext(step) {
                 "projectNotes"
             );
 
-
         currentOrder.goal =
             goal
-                ? goal.value
+                ? goal.value.trim()
                 : "";
-
 
         currentOrder.notes =
             notes
                 ? notes.value.trim()
                 : "";
 
+        saveCreativeBrief();
 
         showScreen(
             "order-upload"
         );
 
         return;
-
     }
-
 
     if (step === 4) {
 
@@ -1070,9 +1217,7 @@ function goOrderNext(step) {
         );
 
         return;
-
     }
-
 
     if (step === 5) {
 
@@ -1081,21 +1226,19 @@ function goOrderNext(step) {
                 "specialInstructions"
             );
 
-
         currentOrder.instructions =
             instructions
                 ? instructions.value.trim()
                 : "";
 
+        saveCreativeBrief();
 
         updateReview();
 
         showScreen(
             "order-review"
         );
-
     }
-
 }
 
 
@@ -1106,91 +1249,395 @@ function goOrderNext(step) {
 function goOrderBack(step) {
 
     if (step === 1) {
-
         showScreen("order");
-
     }
 
     if (step === 2) {
-
         showScreen(
             "order-project"
         );
-
     }
 
     if (step === 3) {
-
         showScreen(
             "order-upload"
         );
-
     }
 
     if (step === 4) {
-
         showScreen(
             "order-instructions"
         );
-
     }
-
 }
 
 
 /* =========================================================
-   VIDEO FILES
+   VIDEO FILE SYSTEM
    ========================================================= */
 
-function handleVideoFiles(files) {
+window.GGHQ_SELECTED_VIDEO_FILES =
+    window.GGHQ_SELECTED_VIDEO_FILES ||
+    [];
 
-    currentOrder.videos =
-        Array.from(files).map(
-            file => ({
-                name: file.name,
-                size: file.size
-            })
+
+function formatVideoSize(bytes) {
+
+    if (!bytes) return "";
+
+    const mb =
+        bytes /
+        (1024 * 1024);
+
+    if (mb < 1) {
+        return Math.round(
+            bytes / 1024
+        ) + " KB";
+    }
+
+    return mb.toFixed(1) +
+        " MB";
+}
+
+
+function clearAllSelectedVideos() {
+
+    window.GGHQ_SELECTED_VIDEO_FILES =
+        [];
+
+    const input =
+        document.getElementById(
+            "videoFiles"
         );
 
+    if (input) {
+        input.value = "";
+    }
 
     const container =
         document.getElementById(
             "selectedFiles"
         );
 
+    if (container) {
+        container.innerHTML = "";
+    }
+
+    if (
+        typeof currentOrder !==
+        "undefined"
+    ) {
+        currentOrder.videos =
+            [];
+    }
+}
+
+
+function renderSelectedVideos() {
+
+    const container =
+        document.getElementById(
+            "selectedFiles"
+        );
 
     if (!container) return;
 
-
     container.innerHTML = "";
 
+    const files =
+        window.GGHQ_SELECTED_VIDEO_FILES ||
+        [];
 
-    currentOrder.videos.forEach(
-        video => {
+    if (!files.length) {
 
-            const item =
+        container.innerHTML = `
+            <div class="video-empty-message">
+                No videos selected yet.
+            </div>
+        `;
+
+        return;
+    }
+
+    const gallery =
+        document.createElement(
+            "div"
+        );
+
+    gallery.className =
+        "video-gallery-preview";
+
+    files.forEach(
+        (file, index) => {
+
+            const card =
                 document.createElement(
                     "div"
                 );
 
+            card.className =
+                "video-preview-card";
 
-            item.className =
-                "selected-file-item";
+            const number =
+                document.createElement(
+                    "div"
+                );
 
+            number.className =
+                "video-preview-number";
 
-            item.innerHTML = `
-                <span>🎬</span>
-                <span>${escapeHTML(video.name)}</span>
+            number.textContent =
+                index + 1;
+
+            const selectedBadge =
+                document.createElement(
+                    "div"
+                );
+
+            selectedBadge.className =
+                "gghq-selected-badge";
+
+            selectedBadge.textContent =
+                "âœ“ SELECTED";
+
+            const video =
+                document.createElement(
+                    "video"
+                );
+
+            video.muted = true;
+            video.playsInline = true;
+            video.preload =
+                "metadata";
+
+            video.setAttribute(
+                "playsinline",
+                ""
+            );
+
+            const previewURL =
+                URL.createObjectURL(
+                    file
+                );
+
+            video.src =
+                previewURL;
+
+            video.addEventListener(
+                "loadedmetadata",
+                function() {
+
+                    try {
+
+                        if (
+                            video.duration >
+                            0.2
+                        ) {
+
+                            video.currentTime =
+                                0.1;
+                        }
+
+                    } catch (e) {}
+                }
+            );
+
+            const info =
+                document.createElement(
+                    "div"
+                );
+
+            info.className =
+                "video-preview-info";
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+            name.className =
+                "video-preview-name";
+
+            name.textContent =
+                file.name;
+
+            const size =
+                document.createElement(
+                    "div"
+                );
+
+            size.style.cssText = `
+                margin-top:4px;
+                font-size:11px;
+                color:#777783;
             `;
 
+            size.textContent =
+                formatVideoSize(
+                    file.size
+                );
 
-            container.appendChild(
-                item
+            info.appendChild(name);
+            info.appendChild(size);
+
+            card.appendChild(video);
+            card.appendChild(number);
+            card.appendChild(selectedBadge);
+            card.appendChild(info);
+
+            gallery.appendChild(card);
+        }
+    );
+
+    container.appendChild(
+        gallery
+    );
+
+    const count =
+        document.createElement(
+            "div"
+        );
+
+    count.className =
+        "gghq-video-selected-count";
+
+    const countNumber =
+        document.createElement(
+            "span"
+        );
+
+    countNumber.textContent =
+        files.length;
+
+    count.appendChild(
+        document.createTextNode("âœ“ ")
+    );
+
+    count.appendChild(
+        countNumber
+    );
+
+    count.appendChild(
+        document.createTextNode(
+            files.length === 1
+                ? " VIDEO SELECTED"
+                : " VIDEOS SELECTED"
+        )
+    );
+
+    container.appendChild(
+        count
+    );
+
+    currentOrder.videos =
+        files.map(
+            file => ({
+                name:
+                    file.name,
+                size:
+                    file.size,
+                type:
+                    file.type || "video/mp4",
+                lastModified:
+                    file.lastModified
+            })
+        );
+}
+
+
+function handleVideoSelection(
+    fileList
+) {
+
+    const newFiles =
+        Array.from(
+            fileList || []
+        );
+
+    if (!newFiles.length) {
+        return;
+    }
+
+    newFiles.forEach(
+        newFile => {
+
+            const exists =
+                window
+                    .GGHQ_SELECTED_VIDEO_FILES
+                    .some(
+                        oldFile =>
+                            oldFile.name ===
+                                newFile.name &&
+                            oldFile.size ===
+                                newFile.size &&
+                            oldFile.lastModified ===
+                                newFile.lastModified
+                    );
+
+            if (!exists) {
+
+                window
+                    .GGHQ_SELECTED_VIDEO_FILES
+                    .push(
+                        newFile
+                    );
+            }
+        }
+    );
+
+    renderSelectedVideos();
+
+    const input =
+        document.getElementById(
+            "videoFiles"
+        );
+
+    if (input) {
+        input.value = "";
+    }
+
+    showToast(
+        `${window.GGHQ_SELECTED_VIDEO_FILES.length} video${
+            window.GGHQ_SELECTED_VIDEO_FILES.length === 1
+                ? ""
+                : "s"
+        } selected`,
+        "âœ“"
+    );
+}
+
+
+/* =========================================================
+   VIDEO INPUT SETUP
+   ========================================================= */
+
+const GGHQ_videoInput =
+    document.getElementById(
+        "videoFiles"
+    );
+
+if (GGHQ_videoInput) {
+
+    GGHQ_videoInput.setAttribute(
+        "multiple",
+        "multiple"
+    );
+
+    GGHQ_videoInput.setAttribute(
+        "accept",
+        "video/*"
+    );
+
+    GGHQ_videoInput.addEventListener(
+        "change",
+        function() {
+
+            handleVideoSelection(
+                this.files
             );
 
         }
     );
-
 }
 
 
@@ -1207,15 +1654,13 @@ function updateReview() {
             : currentOrder.service ===
               "transformation"
                 ? "Transformation Reel"
-                : "—";
-
+                : "â€”";
 
     const plan =
         currentOrder.plan ===
         "premium"
             ? "Premium"
             : "Standard";
-
 
     setText(
         "reviewService",
@@ -1247,15 +1692,8 @@ function updateReview() {
         currentOrder.videos.length +
         " video(s)"
     );
-
 }
 
-
-
-   
-
-        
-            
 
 /* =========================================================
    FIND CURRENT ORDER
@@ -1267,72 +1705,152 @@ function findCurrentOrder() {
         return null;
     }
 
-
     const orders =
         getOrders();
-
 
     return orders.find(
         order =>
             order.id ===
             currentOrderId
     );
-
 }
+
 
 /* =========================================================
    SUPABASE STORAGE VIDEO UPLOAD
    ========================================================= */
-async function uploadOrderVideos(orderId, files) {
-    const selectedFiles = Array.from(files || []);
-    if (!selectedFiles.length) return [];
+
+async function uploadOrderVideos(
+    orderId,
+    files
+) {
+
+    const selectedFiles =
+        Array.from(
+            files || []
+        );
+
+    if (
+        !selectedFiles.length
+    ) {
+        return [];
+    }
 
     const uploaded = [];
 
-    for (const file of selectedFiles) {
-        const safeName = file.name
-            .replace(/[^a-zA-Z0-9._-]/g, "_")
-            .replace(/_+/g, "_");
+    for (
+        const file
+        of selectedFiles
+    ) {
+
+        const safeName =
+            file.name
+                .replace(
+                    /[^a-zA-Z0-9._-]/g,
+                    "_"
+                )
+                .replace(
+                    /_+/g,
+                    "_"
+                );
 
         const uniquePart =
-            (window.crypto && crypto.randomUUID)
+            (
+                window.crypto &&
+                crypto.randomUUID
+            )
                 ? crypto.randomUUID()
-                : Date.now() + "-" + Math.random().toString(36).slice(2);
+                : Date.now() +
+                  "-" +
+                  Math.random()
+                      .toString(36)
+                      .slice(2);
 
         const path =
-            currentUser.id + "/" + orderId + "/" +
-            uniquePart + "-" + safeName;
+            currentUser.id +
+            "/" +
+            orderId +
+            "/" +
+            uniquePart +
+            "-" +
+            safeName;
 
-        const encodedPath = path.split("/")
-            .map(part => encodeURIComponent(part))
-            .join("/");
+        const encodedPath =
+            path
+                .split("/")
+                .map(
+                    part =>
+                        encodeURIComponent(
+                            part
+                        )
+                )
+                .join("/");
 
-        const response = await fetch(
-            SUPABASE_URL + "/storage/v1/object/order-videos/" + encodedPath,
-            {
-                method: "POST",
-                headers: {
-                    "apikey": SUPABASE_PUBLISHABLE_KEY,
-                    "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY,
-                    "Content-Type": file.type || "video/mp4",
-                    "x-upsert": "false"
-                },
-                body: file
-            }
-        );
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/storage/v1/object/order-videos/" +
+                encodedPath,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "apikey":
+                            SUPABASE_PUBLISHABLE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            SUPABASE_PUBLISHABLE_KEY,
+
+                        "Content-Type":
+                            file.type ||
+                            "video/mp4",
+
+                        "x-upsert":
+                            "false"
+                    },
+
+                    body:
+                        file
+                }
+            );
 
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Video upload error:", errorText);
-            throw new Error("Video upload failed: " + (file.name || "video"));
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Video upload error:",
+                errorText
+            );
+
+            throw new Error(
+                "Video upload failed: " +
+                (
+                    file.name ||
+                    "video"
+                )
+            );
         }
 
         uploaded.push({
-            name: file.name,
-            size: file.size,
-            type: file.type || "video/mp4",
-            url: SUPABASE_URL +
-                "/storage/v1/object/public/order-videos/" + encodedPath
+
+            name:
+                file.name,
+
+            size:
+                file.size,
+
+            type:
+                file.type ||
+                "video/mp4",
+
+            url:
+                SUPABASE_URL +
+                "/storage/v1/object/public/order-videos/" +
+                encodedPath
         });
     }
 
@@ -1352,6 +1870,7 @@ async function submitOrder() {
     }
 
     if (!currentOrder.service) {
+
         showToast(
             "Please select a service",
             "!"
@@ -1362,20 +1881,22 @@ async function submitOrder() {
     }
 
     if (!currentOrder.plan) {
-        currentOrder.plan = "standard";
+        currentOrder.plan =
+            "standard";
     }
 
-    /* Save client details */
     saveStepOne();
 
-    /* Create local order ID */
-    const orderId =
-        "GGHQ-" + Date.now();
+    saveCreativeBrief();
 
-    /* Create local order */
+    const orderId =
+        "GGHQ-" +
+        Date.now();
+
     const order = {
 
-        id: orderId,
+        id:
+            orderId,
 
         userId:
             currentUser.id,
@@ -1407,8 +1928,13 @@ async function submitOrder() {
         instructions:
             currentOrder.instructions,
 
+        creativeBrief:
+            currentOrder.creativeBrief ||
+            createEmptyCreativeBrief(),
+
         videos:
-            currentOrder.videos || [],
+            currentOrder.videos ||
+            [],
 
         status:
             "Submitted",
@@ -1423,15 +1949,11 @@ async function submitOrder() {
             new Date().toISOString()
     };
 
-
-    /* =====================================================
-       UPLOAD ORIGINAL VIDEOS FIRST
-       ===================================================== */
-
     try {
 
         const selectedVideoFiles =
-            window.GGHQ_SELECTED_VIDEO_FILES || [];
+            window.GGHQ_SELECTED_VIDEO_FILES ||
+            [];
 
         const uploadedVideos =
             await uploadOrderVideos(
@@ -1439,10 +1961,12 @@ async function submitOrder() {
                 selectedVideoFiles
             );
 
-        order.videos = uploadedVideos;
+        order.videos =
+            uploadedVideos;
+
 
         /* =====================================================
-           SAVE ORDER TO SUPABASE — ONLY ONCE
+           SAVE ORDER TO SUPABASE
            ===================================================== */
 
         const response =
@@ -1451,7 +1975,8 @@ async function submitOrder() {
                 "/rest/v1/orders",
                 {
 
-                    method: "POST",
+                    method:
+                        "POST",
 
                     headers: {
 
@@ -1497,10 +2022,64 @@ async function submitOrder() {
                                 order.instagram,
 
                             raw_video_urls:
-                                order.videos || [],
+                                order.videos ||
+                                [],
 
                             final_video_url:
                                 "",
+
+                            creative_brief: {
+
+                                goal:
+                                    order.goal ||
+                                    "",
+
+                                notes:
+                                    order.notes ||
+                                    "",
+
+                                trend:
+                                    order
+                                        .creativeBrief
+                                        ?.trend ||
+                                    "",
+
+                                song:
+                                    order
+                                        .creativeBrief
+                                        ?.song ||
+                                    "",
+
+                                editingStyle:
+                                    order
+                                        .creativeBrief
+                                        ?.editingStyle ||
+                                    "",
+
+                                shotInstructions:
+                                    order
+                                        .creativeBrief
+                                        ?.shotInstructions ||
+                                    "",
+
+                                hook:
+                                    order
+                                        .creativeBrief
+                                        ?.hook ||
+                                    "",
+
+                                cta:
+                                    order
+                                        .creativeBrief
+                                        ?.cta ||
+                                    "",
+
+                                specialInstructions:
+                                    order
+                                        .creativeBrief
+                                        ?.specialInstructions ||
+                                    ""
+                            },
 
                             created_at:
                                 order.createdAt
@@ -1508,10 +2087,6 @@ async function submitOrder() {
                 }
             );
 
-
-        /* =================================================
-           CHECK RESPONSE
-           ================================================= */
 
         if (!response.ok) {
 
@@ -1532,68 +2107,73 @@ async function submitOrder() {
         }
 
 
-        /* =================================================
+        /* =====================================================
            SAVE LOCALLY
-           ================================================= */
+           ===================================================== */
 
         const orders =
             getOrders();
 
-        orders.push(order);
+        orders.push(
+            order
+        );
 
-        saveOrders(orders);
-
-
-        /* =================================================
-           CURRENT ORDER
-           ================================================= */
+        saveOrders(
+            orders
+        );
 
         currentOrderId =
             order.id;
 
 
-        /* =================================================
-           SUCCESS
-           ================================================= */
-
         showToast(
             "Order submitted successfully",
-            "✓"
+            "âœ“"
         );
 
 
-        /* =================================================
+        /* =====================================================
            PREPARE NEXT ORDER
-           ================================================= */
+           ===================================================== */
+
+        clearAllSelectedVideos();
 
         currentOrder = {
 
-            service: "",
+            service:
+                "",
 
-            plan: "",
+            plan:
+                "",
 
             clientName:
-                currentUser.name || "",
+                currentUser.name ||
+                "",
 
             gymName:
-                currentUser.gymName || "",
+                currentUser.gymName ||
+                "",
 
             instagram:
-                currentUser.instagram || "",
+                currentUser.instagram ||
+                "",
 
-            goal: "",
+            goal:
+                "",
 
-            notes: "",
+            notes:
+                "",
 
-            instructions: "",
+            instructions:
+                "",
 
-            videos: []
+            creativeBrief:
+                createEmptyCreativeBrief(),
+
+            videos:
+                []
         };
 
-
-        /* =================================================
-           GO TO ACCOUNT / ORDERS
-           ================================================= */
 
         setTimeout(
             () => {
@@ -1620,10 +2200,10 @@ async function submitOrder() {
             "Connection error",
             "!"
         );
-
     }
+}
 
-       }
+
 /* =========================================================
    MY ORDERS
    ========================================================= */
@@ -1634,13 +2214,11 @@ function getMyOrders() {
         return [];
     }
 
-
     return getOrders().filter(
         order =>
             order.userId ===
             currentUser.id
     );
-
 }
 
 
@@ -1655,12 +2233,9 @@ function renderOrders() {
             "ordersList"
         );
 
-
     if (!list) return;
 
-
     list.innerHTML = "";
-
 
     if (!currentUser) {
 
@@ -1672,117 +2247,107 @@ function renderOrders() {
         `;
 
         return;
-
     }
-
 
     const orders =
         getMyOrders();
-
 
     if (!orders.length) {
 
         list.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">📦</div>
+                <div class="empty-icon">ðŸ“¦</div>
                 <h3>No Orders Yet</h3>
                 <p>Your submitted orders will appear here.</p>
             </div>
         `;
 
         return;
-
     }
-
 
     orders
         .slice()
         .reverse()
-        .forEach(order => {
+        .forEach(
+            order => {
 
-            const card =
-                document.createElement(
-                    "button"
+                const card =
+                    document.createElement(
+                        "button"
+                    );
+
+                card.type =
+                    "button";
+
+                card.className =
+                    "order-history-card";
+
+                const service =
+                    order.service ===
+                    "reel-editing"
+                        ? "Reel Editing"
+                        : "Transformation Reel";
+
+                const plan =
+                    order.plan ===
+                    "premium"
+                        ? "Premium"
+                        : "Standard";
+
+                card.innerHTML = `
+
+                    <div class="order-history-icon">
+                        ðŸ“¦
+                    </div>
+
+                    <div class="order-history-info">
+
+                        <strong>
+                            ${service}
+                        </strong>
+
+                        <small>
+                            ${plan} â€¢
+                            ${escapeHTML(
+                                order.gymName
+                            )}
+                        </small>
+
+                        <span class="order-status-small">
+                            ${escapeHTML(
+                                order.deliveryStatus
+                            )}
+                        </span>
+
+                    </div>
+
+                    <span class="account-menu-arrow">
+                        â†’
+                    </span>
+                `;
+
+                card.addEventListener(
+                    "click",
+                    () => {
+
+                        currentOrderId =
+                            order.id;
+
+                        renderOrderDetails(
+                            order
+                        );
+
+                        showScreen(
+                            "order-details"
+                        );
+                    }
                 );
 
-
-            card.type = "button";
-
-            card.className =
-                "order-history-card";
-
-
-            const service =
-                order.service ===
-                "reel-editing"
-                    ? "Reel Editing"
-                    : "Transformation Reel";
-
-
-            const plan =
-                order.plan ===
-                "premium"
-                    ? "Premium"
-                    : "Standard";
-
-
-            card.innerHTML = `
-
-                <div class="order-history-icon">
-                    📦
-                </div>
-
-                <div class="order-history-info">
-
-                    <strong>
-                        ${service}
-                    </strong>
-
-                    <small>
-                        ${plan} •
-                        ${escapeHTML(order.gymName)}
-                    </small>
-
-                    <span class="order-status-small">
-                        ${escapeHTML(
-                            order.deliveryStatus
-                        )}
-                    </span>
-
-                </div>
-
-                <span class="account-menu-arrow">
-                    →
-                </span>
-
-            `;
-
-
-            card.addEventListener(
-                "click",
-                () => {
-
-                    currentOrderId =
-                        order.id;
-
-                    renderOrderDetails(
-                        order
-                    );
-
-                    showScreen(
-                        "order-details"
-                    );
-
-                }
-            );
-
-
-            list.appendChild(
-                card
-            );
-
-        });
-
+                list.appendChild(
+                    card
+                );
+            }
+        );
 }
 
 
@@ -1796,20 +2361,17 @@ function renderOrderDetails(
 
     if (!order) return;
 
-
     const service =
         order.service ===
         "reel-editing"
             ? "Reel Editing"
             : "Transformation Reel";
 
-
     const plan =
         order.plan ===
         "premium"
             ? "Premium"
             : "Standard";
-
 
     setText(
         "detailOrderNumber",
@@ -1820,85 +2382,97 @@ function renderOrderDetails(
         )
     );
 
-
     setText(
         "detailOrderStatus",
         order.deliveryStatus ||
         order.status
     );
 
-
     setText(
         "detailService",
         service
     );
-
 
     setText(
         "detailPlan",
         plan
     );
 
-
     setText(
         "detailClient",
         order.clientName
     );
-
 
     setText(
         "detailGym",
         order.gymName
     );
 
-
     setText(
         "detailGoal",
         order.goal
     );
-
 
     setText(
         "detailVideos",
         order.videos
             ? order.videos.length +
               " video(s)"
-            : "—"
+            : "â€”"
     );
-
 
     setText(
         "detailInstructions",
         order.instructions ||
-        "—"
+        "â€”"
     );
 
-    renderOrderVideoGallery(order);
+    renderOrderCreativeBrief(
+        order
+    );
 
-
+    renderOrderVideoGallery(
+        order
+    );
 }
 
 
 /* =========================================================
-   ORDER VIDEO GALLERY
+   ORDER CREATIVE BRIEF DISPLAY
    ========================================================= */
-function renderOrderVideoGallery(order) {
-    const detailVideos = document.getElementById("detailVideos");
+
+function renderOrderCreativeBrief(
+    order
+) {
+
+    const detailVideos =
+        document.getElementById(
+            "detailVideos"
+        );
+
     if (!detailVideos) return;
 
-    const oldGallery = document.getElementById("gghqOrderVideoGallery");
-    if (oldGallery) oldGallery.remove();
+    const oldBrief =
+        document.getElementById(
+            "gghqOrderCreativeBrief"
+        );
 
-    const videos = Array.isArray(order.videos)
-        ? order.videos.filter(video =>
-            video &&
-            typeof video.url === "string" &&
-            video.url
-        )
-        : [];
+    if (oldBrief) {
+        oldBrief.remove();
+    }
 
-    const wrapper = document.createElement("div");
-    wrapper.id = "gghqOrderVideoGallery";
+    const brief =
+        order.creativeBrief ||
+        {};
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+    wrapper.id =
+        "gghqOrderCreativeBrief";
+
     wrapper.style.cssText = `
         margin-top:18px;
         padding:16px;
@@ -1907,20 +2481,145 @@ function renderOrderVideoGallery(order) {
         border:1px solid rgba(145,92,255,0.30);
     `;
 
-    const title = document.createElement("div");
-    title.textContent = "🎬 Uploaded Videos";
+    const title =
+        document.createElement(
+            "div"
+        );
+
+    title.textContent =
+        "ðŸŽ¬ Creative Brief";
+
     title.style.cssText = `
-        margin-bottom:12px;
+        margin-bottom:14px;
         font-size:16px;
         font-weight:700;
         color:#ffffff;
     `;
-    wrapper.appendChild(title);
 
-    if (!videos.length) {
-        const empty = document.createElement("div");
+    wrapper.appendChild(
+        title
+    );
+
+    const fields = [
+
+        [
+            "ðŸ”¥ Trend / Reference",
+            brief.trend
+        ],
+
+        [
+            "ðŸŽµ Song / Audio",
+            brief.song
+        ],
+
+        [
+            "ðŸŽ¨ Editing Style",
+            brief.editingStyle
+        ],
+
+        [
+            "ðŸŽ¥ Shot Instructions",
+            brief.shotInstructions
+        ],
+
+        [
+            "âœï¸ Hook / On-screen Text",
+            brief.hook
+        ],
+
+        [
+            "ðŸ“¢ CTA",
+            brief.cta
+        ],
+
+        [
+            "ðŸ“ Special Instructions",
+            brief.specialInstructions
+        ]
+    ];
+
+    let hasContent =
+        false;
+
+    fields.forEach(
+        ([label, value]) => {
+
+            if (
+                value ===
+                undefined ||
+                value ===
+                null ||
+                !String(value).trim()
+            ) {
+                return;
+            }
+
+            hasContent =
+                true;
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.style.cssText = `
+                margin-bottom:12px;
+            `;
+
+            const labelEl =
+                document.createElement(
+                    "div"
+                );
+
+            labelEl.textContent =
+                label;
+
+            labelEl.style.cssText = `
+                color:#cdb5ff;
+                font-size:12px;
+                font-weight:700;
+                margin-bottom:5px;
+            `;
+
+            const valueEl =
+                document.createElement(
+                    "div"
+                );
+
+            valueEl.textContent =
+                value;
+
+            valueEl.style.cssText = `
+                color:#ffffff;
+                font-size:13px;
+                line-height:1.5;
+                white-space:pre-wrap;
+            `;
+
+            row.appendChild(
+                labelEl
+            );
+
+            row.appendChild(
+                valueEl
+            );
+
+            wrapper.appendChild(
+                row
+            );
+        }
+    );
+
+    if (!hasContent) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
         empty.textContent =
-            "No saved video preview is available for this order.";
+            "No creative brief was saved for this order.";
+
         empty.style.cssText = `
             padding:14px;
             border-radius:12px;
@@ -1928,74 +2627,394 @@ function renderOrderVideoGallery(order) {
             color:#8f8f9d;
             font-size:13px;
         `;
-        wrapper.appendChild(empty);
+
+        wrapper.appendChild(
+            empty
+        );
+    }
+
+    detailVideos.insertAdjacentElement(
+        "afterend",
+        wrapper
+    );
+}
+
+
+/* =========================================================
+   ORDER VIDEO GALLERY
+   ========================================================= */
+
+function renderOrderVideoGallery(
+    order
+) {
+
+    const detailVideos =
+        document.getElementById(
+            "detailVideos"
+        );
+
+    if (!detailVideos) return;
+
+    const oldGallery =
+        document.getElementById(
+            "gghqOrderVideoGallery"
+        );
+
+    if (oldGallery) {
+        oldGallery.remove();
+    }
+
+    const videos =
+        Array.isArray(
+            order.videos
+        )
+            ? order.videos.filter(
+                video =>
+                    video &&
+                    typeof video.url ===
+                        "string" &&
+                    video.url
+            )
+            : [];
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+    wrapper.id =
+        "gghqOrderVideoGallery";
+
+    wrapper.style.cssText = `
+        margin-top:18px;
+        padding:16px;
+        border-radius:16px;
+        background:rgba(255,255,255,0.03);
+        border:1px solid rgba(145,92,255,0.30);
+    `;
+
+    const title =
+        document.createElement(
+            "div"
+        );
+
+    title.textContent =
+        "ðŸŽ¬ Uploaded Videos";
+
+    title.style.cssText = `
+        margin-bottom:12px;
+        font-size:16px;
+        font-weight:700;
+        color:#ffffff;
+    `;
+
+    wrapper.appendChild(
+        title
+    );
+
+    if (!videos.length) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.textContent =
+            "No saved video preview is available for this order.";
+
+        empty.style.cssText = `
+            padding:14px;
+            border-radius:12px;
+            background:rgba(255,255,255,0.03);
+            color:#8f8f9d;
+            font-size:13px;
+        `;
+
+        wrapper.appendChild(
+            empty
+        );
+
     } else {
-        const grid = document.createElement("div");
+
+        const grid =
+            document.createElement(
+                "div"
+            );
+
         grid.style.cssText = `
             display:grid;
             grid-template-columns:repeat(1,minmax(0,1fr));
             gap:14px;
         `;
 
-        videos.forEach((video, index) => {
-            const card = document.createElement("div");
-            card.style.cssText = `
-                overflow:hidden;
-                border-radius:14px;
-                background:#111118;
-                border:1px solid rgba(145,92,255,0.35);
-            `;
+        videos.forEach(
+            (video, index) => {
 
-            const player = document.createElement("video");
-            player.src = video.url;
-            player.controls = true;
-            player.playsInline = true;
-            player.preload = "metadata";
-            player.style.cssText = `
-                display:block;
-                width:100%;
-                max-height:420px;
-                background:#08080c;
-            `;
+                const card =
+                    document.createElement(
+                        "div"
+                    );
 
-            const info = document.createElement("div");
-            info.style.cssText = "padding:10px 12px 12px;";
+                card.style.cssText = `
+                    overflow:hidden;
+                    border-radius:14px;
+                    background:#111118;
+                    border:1px solid rgba(145,92,255,0.35);
+                `;
 
-            const name = document.createElement("div");
-            name.textContent = (index + 1) + ". " + (video.name || "Video");
-            name.style.cssText = `
-                color:#ffffff;
-                font-size:13px;
-                font-weight:600;
-                overflow:hidden;
-                text-overflow:ellipsis;
-                white-space:nowrap;
-            `;
+                const player =
+                    document.createElement(
+                        "video"
+                    );
 
-            const open = document.createElement("a");
-            open.href = video.url;
-            open.target = "_blank";
-            open.rel = "noopener noreferrer";
-            open.textContent = "Open Video ↗";
-            open.style.cssText = `
-                display:inline-block;
-                margin-top:7px;
-                color:#cdb5ff;
-                font-size:12px;
-                text-decoration:none;
-            `;
+                player.src =
+                    video.url;
 
-            info.appendChild(name);
-            info.appendChild(open);
-            card.appendChild(player);
-            card.appendChild(info);
-            grid.appendChild(card);
-        });
+                player.controls =
+                    true;
 
-        wrapper.appendChild(grid);
+                player.playsInline =
+                    true;
+
+                player.preload =
+                    "metadata";
+
+                player.style.cssText = `
+                    display:block;
+                    width:100%;
+                    max-height:420px;
+                    background:#08080c;
+                `;
+
+                const info =
+                    document.createElement(
+                        "div"
+                    );
+
+                info.style.cssText =
+                    "padding:10px 12px 12px;";
+
+                const name =
+                    document.createElement(
+                        "div"
+                    );
+
+                name.textContent =
+                    (
+                        index + 1
+                    ) +
+                    ". " +
+                    (
+                        video.name ||
+                        "Video"
+                    );
+
+                name.style.cssText = `
+                    color:#ffffff;
+                    font-size:13px;
+                    font-weight:600;
+                    overflow:hidden;
+                    text-overflow:ellipsis;
+                    white-space:nowrap;
+                `;
+
+                const open =
+                    document.createElement(
+                        "a"
+                    );
+
+                open.href =
+                    video.url;
+
+                open.target =
+                    "_blank";
+
+                open.rel =
+                    "noopener noreferrer";
+
+                open.textContent =
+                    "Open Video â†—";
+
+                open.style.cssText = `
+                    display:inline-block;
+                    margin-top:7px;
+                    color:#cdb5ff;
+                    font-size:12px;
+                    text-decoration:none;
+                `;
+
+                info.appendChild(
+                    name
+                );
+
+                info.appendChild(
+                    open
+                );
+
+                card.appendChild(
+                    player
+                );
+
+                card.appendChild(
+                    info
+                );
+
+                grid.appendChild(
+                    card
+                );
+            }
+        );
+
+        wrapper.appendChild(
+            grid
+        );
     }
 
-    detailVideos.insertAdjacentElement("afterend", wrapper);
+    detailVideos.insertAdjacentElement(
+        "afterend",
+        wrapper
+    );
+}
+
+
+/* =========================================================
+   DYNAMIC VIDEO CSS
+   ========================================================= */
+
+if (
+    !document.getElementById(
+        "gghqVideoStyles"
+    )
+) {
+
+    const style =
+        document.createElement(
+            "style"
+        );
+
+    style.id =
+        "gghqVideoStyles";
+
+    style.textContent = `
+
+        .video-gallery-preview {
+            display:grid;
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+            gap:12px;
+            margin-top:16px;
+        }
+
+        .video-preview-card {
+            position:relative;
+            overflow:hidden;
+            border-radius:16px;
+            background:#111118;
+            border:2px solid
+                rgba(145,92,255,0.65);
+            box-shadow:
+                0 0 0 2px
+                rgba(145,92,255,0.08);
+        }
+
+        .video-preview-card video {
+            display:block;
+            width:100%;
+            aspect-ratio:16 / 10;
+            object-fit:cover;
+            background:#08080c;
+        }
+
+        .video-preview-info {
+            padding:9px 10px 11px;
+        }
+
+        .video-preview-name {
+            color:#ffffff;
+            font-size:12px;
+            font-weight:600;
+            line-height:1.35;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+        }
+
+        .video-preview-number {
+            position:absolute;
+            top:8px;
+            left:8px;
+            z-index:5;
+            width:28px;
+            height:28px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:rgba(0,0,0,0.78);
+            color:white;
+            font-size:12px;
+            font-weight:800;
+        }
+
+        .gghq-selected-badge {
+            position:absolute;
+            top:8px;
+            right:8px;
+            z-index:5;
+            padding:6px 9px;
+            border-radius:20px;
+            background:
+                rgba(70,220,130,0.95);
+            color:#07140c;
+            font-size:11px;
+            font-weight:800;
+            letter-spacing:0.3px;
+            box-shadow:
+                0 3px 10px
+                rgba(0,0,0,0.35);
+        }
+
+        .gghq-video-selected-count {
+            margin-top:16px;
+            width:100%;
+            padding:14px 16px;
+            border-radius:14px;
+            background:
+                rgba(145,92,255,0.14);
+            border:1px solid
+                rgba(145,92,255,0.45);
+            color:white;
+            text-align:center;
+            font-size:15px;
+            font-weight:800;
+        }
+
+        .gghq-video-selected-count span {
+            color:#cdb5ff;
+        }
+
+        .video-empty-message {
+            margin-top:16px;
+            padding:18px;
+            border-radius:14px;
+            text-align:center;
+            color:#8f8f9d;
+            background:
+                rgba(255,255,255,0.03);
+            font-size:14px;
+        }
+
+        @media (min-width:600px) {
+            .video-gallery-preview {
+                grid-template-columns:
+                    repeat(3,minmax(0,1fr));
+            }
+        }
+    `;
+
+    document.head.appendChild(
+        style
+    );
 }
 
 
@@ -2008,7 +3027,6 @@ function restoreSession() {
     const session =
         getSession();
 
-
     if (!session) {
 
         currentUser = null;
@@ -2016,21 +3034,19 @@ function restoreSession() {
         updateAccountUI();
 
         return;
-
     }
-
 
     const users =
         getUsers();
 
-
     const user =
         users.find(
             item =>
-                item.id === session.id &&
-                item.email === session.email
+                item.id ===
+                    session.id &&
+                item.email ===
+                    session.email
         );
-
 
     if (!user) {
 
@@ -2041,9 +3057,7 @@ function restoreSession() {
         updateAccountUI();
 
         return;
-
     }
-
 
     currentUser = {
 
@@ -2061,12 +3075,9 @@ function restoreSession() {
 
         instagram:
             user.instagram || ""
-
     };
 
-
     updateAccountUI();
-
 }
 
 
@@ -2083,13 +3094,10 @@ document.addEventListener(
                 "button, a"
             );
 
-
         if (!button) return;
 
 
-        /* ================================================
-           ACCOUNT
-           ================================================ */
+        /* ACCOUNT */
 
         if (
             button.dataset.screen ===
@@ -2111,17 +3119,13 @@ document.addEventListener(
                 showScreen(
                     "login"
                 );
-
             }
 
             return;
-
         }
 
 
-        /* ================================================
-           ORDERS
-           ================================================ */
+        /* ORDERS */
 
         if (
             button.dataset.screen ===
@@ -2137,7 +3141,6 @@ document.addEventListener(
                 );
 
                 return;
-
             }
 
             renderOrders();
@@ -2147,13 +3150,10 @@ document.addEventListener(
             );
 
             return;
-
         }
 
 
-        /* ================================================
-           SERVICES
-           ================================================ */
+        /* SERVICES */
 
         if (
             button.dataset.detail
@@ -2166,13 +3166,10 @@ document.addEventListener(
             );
 
             return;
-
         }
 
 
-        /* ================================================
-           PLAN DETAIL
-           ================================================ */
+        /* PLAN DETAIL */
 
         if (
             button.dataset.planDetail
@@ -2183,7 +3180,6 @@ document.addEventListener(
             const service =
                 button.dataset.planDetail;
 
-
             if (
                 service ===
                 "reel-editing"
@@ -2192,9 +3188,7 @@ document.addEventListener(
                 showScreen(
                     "plan-reel-editing"
                 );
-
             }
-
 
             if (
                 service ===
@@ -2204,17 +3198,13 @@ document.addEventListener(
                 showScreen(
                     "plan-transformation"
                 );
-
             }
 
             return;
-
         }
 
 
-        /* ================================================
-           START ORDER FROM PLAN
-           ================================================ */
+        /* START ORDER FROM PLAN */
 
         if (
             button.dataset.plan
@@ -2222,17 +3212,8 @@ document.addEventListener(
 
             event.preventDefault();
 
-
             const service =
                 button.dataset.plan;
-
-
-            /*
-               Current HTML has one Start Order
-               per service.
-
-               Use Standard as default plan.
-            */
 
             selectPlan(
                 service,
@@ -2240,13 +3221,10 @@ document.addEventListener(
             );
 
             return;
-
         }
 
 
-        /* ================================================
-           ORDER NEXT
-           ================================================ */
+        /* ORDER NEXT */
 
         if (
             button.dataset.orderNext
@@ -2261,13 +3239,10 @@ document.addEventListener(
             );
 
             return;
-
         }
 
 
-        /* ================================================
-           ORDER BACK
-           ================================================ */
+        /* ORDER BACK */
 
         if (
             button.dataset.orderBack
@@ -2282,13 +3257,10 @@ document.addEventListener(
             );
 
             return;
-
         }
 
 
-        /* ================================================
-           NORMAL SCREEN
-           ================================================ */
+        /* NORMAL SCREEN */
 
         if (
             button.dataset.screen
@@ -2296,14 +3268,19 @@ document.addEventListener(
 
             event.preventDefault();
 
+            if (
+                button.dataset.screen ===
+                "order"
+            ) {
+                clearAllSelectedVideos();
+            }
+
             showScreen(
                 button.dataset.screen
             );
 
             return;
-
         }
-
     }
 );
 
@@ -2313,7 +3290,9 @@ document.addEventListener(
    ========================================================= */
 
 document
-    .getElementById("loginButton")
+    .getElementById(
+        "loginButton"
+    )
     ?.addEventListener(
         "click",
         loginUser
@@ -2325,7 +3304,9 @@ document
    ========================================================= */
 
 document
-    .getElementById("signupButton")
+    .getElementById(
+        "signupButton"
+    )
     ?.addEventListener(
         "click",
         createAccount
@@ -2337,7 +3318,9 @@ document
    ========================================================= */
 
 document
-    .getElementById("logoutButton")
+    .getElementById(
+        "logoutButton"
+    )
     ?.addEventListener(
         "click",
         function(event) {
@@ -2345,17 +3328,18 @@ document
             event.preventDefault();
 
             logoutUser();
-
         }
     );
 
 
 /* =========================================================
-   LOGIN → SIGNUP
+   LOGIN â†’ SIGNUP
    ========================================================= */
 
 document
-    .getElementById("goToSignup")
+    .getElementById(
+        "goToSignup"
+    )
     ?.addEventListener(
         "click",
         function(event) {
@@ -2365,17 +3349,18 @@ document
             showScreen(
                 "signup"
             );
-
         }
     );
 
 
 /* =========================================================
-   SIGNUP → LOGIN
+   SIGNUP â†’ LOGIN
    ========================================================= */
 
 document
-    .getElementById("goToLogin")
+    .getElementById(
+        "goToLogin"
+    )
     ?.addEventListener(
         "click",
         function(event) {
@@ -2385,25 +3370,6 @@ document
             showScreen(
                 "login"
             );
-
-        }
-    );
-
-
-/* =========================================================
-   VIDEO INPUT
-   ========================================================= */
-
-document
-    .getElementById("videoFiles")
-    ?.addEventListener(
-        "change",
-        function() {
-
-            handleVideoFiles(
-                this.files
-            );
-
         }
     );
 
@@ -2413,7 +3379,9 @@ document
    ========================================================= */
 
 document
-    .getElementById("submitOrderButton")
+    .getElementById(
+        "submitOrderButton"
+    )
     ?.addEventListener(
         "click",
         function(event) {
@@ -2421,7 +3389,6 @@ document
             event.preventDefault();
 
             submitOrder();
-
         }
     );
 
@@ -2438,1879 +3405,17 @@ restoreSession();
    ========================================================= */
 
 showScreen("home");
-/* =========================================================
-   FINAL VIDEO UPLOAD UPDATE
-   Fresh Upload + Gallery Style Video Preview
-   ========================================================= */
-
-
-/* ---------------------------------------------------------
-   Make sure multiple videos can be selected
-   --------------------------------------------------------- */
-
-const videoInput =
-    document.getElementById("videoFiles");
-
-if (videoInput) {
-
-    videoInput.setAttribute(
-        "multiple",
-        "multiple"
-    );
-
-    videoInput.setAttribute(
-        "accept",
-        "video/*"
-    );
-
-}
-
-
-/* ---------------------------------------------------------
-   Gallery preview styles
-   No CSS file editing required
-   --------------------------------------------------------- */
-
-if (!document.getElementById("videoGalleryStyles")) {
-
-    const style =
-        document.createElement("style");
-
-    style.id =
-        "videoGalleryStyles";
-
-    style.textContent = `
-
-        .video-gallery-preview {
-            display: grid;
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 18px;
-        }
-
-        .video-preview-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-            background: #15151c;
-            border: 1px solid rgba(145, 92, 255, 0.35);
-        }
-
-        .video-preview-card video {
-            display: block;
-            width: 100%;
-            aspect-ratio: 16 / 10;
-            object-fit: cover;
-            background: #08080c;
-        }
-
-        .video-preview-info {
-            padding: 9px 10px 11px;
-        }
-
-        .video-preview-name {
-            font-size: 12px;
-            line-height: 1.35;
-            color: #ffffff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .video-preview-number {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            min-width: 28px;
-            height: 28px;
-            padding: 0 8px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.75);
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .video-count-label {
-            margin-top: 14px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            background: rgba(145, 92, 255, 0.10);
-            color: #d8c7ff;
-            font-size: 14px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .video-empty-message {
-            margin-top: 16px;
-            padding: 18px;
-            border-radius: 14px;
-            text-align: center;
-            color: #8f8f9d;
-            background: rgba(255,255,255,0.03);
-            font-size: 14px;
-        }
-
-        @media (min-width: 600px) {
-
-            .video-gallery-preview {
-                grid-template-columns:
-                    repeat(3, minmax(0, 1fr));
-            }
-
-        }
-
-    `;
-
-    document.head.appendChild(style);
-
-}
-
-
-/* ---------------------------------------------------------
-   Clear upload selection
-   --------------------------------------------------------- */
-
-function clearFreshUpload() {
-
-    const input =
-        document.getElementById(
-            "videoFiles"
-        );
-
-    const selected =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-
-    /*
-       Clear actual phone-file selection
-    */
-
-    if (input) {
-
-        input.value = "";
-
-    }
-
-
-    /*
-       Clear preview area
-    */
-
-    if (selected) {
-
-        selected.innerHTML = "";
-
-    }
-
-
-    /*
-       Clear current order video list
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos = [];
-
-    }
-
-}
-
-
-/* ---------------------------------------------------------
-   Create gallery container
-   --------------------------------------------------------- */
-
-function getVideoGalleryContainer() {
-
-    const selected =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-    if (!selected) return null;
-
-
-    /*
-       Reuse existing selectedFiles
-       element as our gallery container.
-    */
-
-    selected.className =
-        "video-gallery-wrapper";
-
-
-    return selected;
-
-}
-
-
-/* ---------------------------------------------------------
-   Format file size
-   --------------------------------------------------------- */
-
-function formatVideoSize(bytes) {
-
-    if (!bytes) return "";
-
-    const mb =
-        bytes / (1024 * 1024);
-
-    if (mb < 1) {
-
-        return Math.round(
-            bytes / 1024
-        ) + " KB";
-
-    }
-
-    return mb.toFixed(1) + " MB";
-
-}
-
-
-/* ---------------------------------------------------------
-   Show selected videos
-   --------------------------------------------------------- */
-
-function showVideoGallery(files) {
-
-    const container =
-        getVideoGalleryContainer();
-
-
-    if (!container) return;
-
-
-    container.innerHTML = "";
-
-
-    if (!files || files.length === 0) {
-
-        container.innerHTML = `
-            <div class="video-empty-message">
-                No videos selected yet.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    /*
-       Gallery wrapper
-    */
-
-    const gallery =
-        document.createElement(
-            "div"
-        );
-
-    gallery.className =
-        "video-gallery-preview";
-
-
-    /*
-       Count label
-    */
-
-    const count =
-        document.createElement(
-            "div"
-        );
-
-    count.className =
-        "video-count-label";
-
-    count.textContent =
-        `${files.length} video${
-            files.length === 1
-                ? ""
-                : "s"
-        } selected`;
-
-
-    /*
-       Create each thumbnail
-    */
-
-    Array.from(files).forEach(
-        (file, index) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "video-preview-card";
-
-
-            /*
-               Number badge
-            */
-
-            const number =
-                document.createElement(
-                    "div"
-                );
-
-            number.className =
-                "video-preview-number";
-
-            number.textContent =
-                index + 1;
-
-
-            /*
-               Video thumbnail
-            */
-
-            const video =
-                document.createElement(
-                    "video"
-                );
-
-            video.muted = true;
-
-            video.playsInline = true;
-
-            video.preload =
-                "metadata";
-
-            video.setAttribute(
-                "playsinline",
-                ""
-            );
-
-
-            /*
-               Create temporary preview URL
-            */
-
-            const previewURL =
-                URL.createObjectURL(
-                    file
-                );
-
-
-            video.src =
-                previewURL;
-
-
-            /*
-               Show first frame
-            */
-
-            video.addEventListener(
-                "loadedmetadata",
-                function() {
-
-                    try {
-
-                        if (
-                            video.duration >
-                            0.5
-                        ) {
-
-                            video.currentTime =
-                                0.1;
-
-                        }
-
-                    } catch (error) {}
-
-                }
-            );
-
-
-            /*
-               Release URL after video
-               element is no longer needed
-            */
-
-            video.addEventListener(
-                "error",
-                function() {
-
-                    URL.revokeObjectURL(
-                        previewURL
-                    );
-
-                }
-            );
-
-
-            /*
-               File information
-            */
-
-            const info =
-                document.createElement(
-                    "div"
-                );
-
-            info.className =
-                "video-preview-info";
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-            name.className =
-                "video-preview-name";
-
-            name.textContent =
-                file.name;
-
-
-            const size =
-                document.createElement(
-                    "div"
-                );
-
-            size.style.cssText =
-                `
-                margin-top:4px;
-                font-size:11px;
-                color:#777783;
-                `;
-
-            size.textContent =
-                formatVideoSize(
-                    file.size
-                );
-
-
-            info.appendChild(name);
-
-            info.appendChild(size);
-
-
-            card.appendChild(
-                video
-            );
-
-            card.appendChild(
-                number
-            );
-
-            card.appendChild(
-                info
-            );
-
-
-            gallery.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    container.appendChild(
-        gallery
-    );
-
-    container.appendChild(
-        count
-    );
-
-}
-
-
-/* ---------------------------------------------------------
-   NEW video selection handler
-   --------------------------------------------------------- */
-
-function newVideoSelectionHandler(
-    files
-) {
-
-    if (!files) return;
-
-
-    /*
-       Save ONLY the videos selected
-       for THIS current order.
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos =
-            Array.from(files).map(
-                file => ({
-                    name:
-                        file.name,
-
-                    size:
-                        file.size
-                })
-            );
-
-    }
-
-
-    /*
-       Show gallery
-    */
-
-    showVideoGallery(
-        files
-    );
-
-
-    /*
-       Small confirmation
-    */
-
-    if (
-        typeof showToast ===
-        "function"
-    ) {
-
-        showToast(
-            `${files.length} video${
-                files.length === 1
-                    ? ""
-                    : "s"
-            } selected`,
-            "✓"
-        );
-
-    }
-
-}
-
-
-/* ---------------------------------------------------------
-   Replace / override old upload handler
-   --------------------------------------------------------- */
-
-if (videoInput) {
-
-    videoInput.addEventListener(
-        "change",
-        function() {
-
-            newVideoSelectionHandler(
-                this.files
-            );
-
-        }
-    );
-
-}
-
-
-/* ---------------------------------------------------------
-   IMPORTANT:
-   Whenever Upload screen opens,
-   start with a completely fresh selection.
-   --------------------------------------------------------- */
-
-if (
-    typeof showScreen ===
-    "function"
-) {
-
-    const originalShowScreen =
-        showScreen;
-
-
-    window.showScreen =
-        function(screenId) {
-
-            /*
-               Every time we enter Upload screen,
-               clear old selected videos.
-
-               So even if user presses Back
-               and returns again, it is empty.
-            */
-
-            if (
-                screenId ===
-                "order-upload"
-            ) {
-
-                clearFreshUpload();
-
-            }
-
-
-            originalShowScreen(
-                screenId
-            );
-
-        };
-
-}
-
-
-/* ---------------------------------------------------------
-   Extra protection:
-   Start a completely fresh upload
-   whenever New Order is clicked.
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-screen]"
-            );
-
-
-        if (!button) return;
-
-
-        const target =
-            button.dataset.screen;
-
-
-        /*
-           New Order
-        */
-
-        if (
-            target === "order"
-        ) {
-
-            clearFreshUpload();
-
-        }
-
-    },
-    true
-);
-
-
-/* ---------------------------------------------------------
-   Clear upload after successful order
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "#submitOrderButton"
-            );
-
-
-        if (!button) return;
-
-
-        /*
-           Wait until existing submit logic
-           finishes saving the order.
-        */
-
-        setTimeout(
-            function() {
-
-                clearFreshUpload();
-
-            },
-            700
-        );
-
-    },
-    true
-);
 
 
 /* =========================================================
-   END VIDEO UPLOAD UPDATE
-   ========================================================= */
-/* =========================================================
-   MULTI-SELECT VIDEO FIX
-   Add more videos without removing previous videos
-   ========================================================= */
-
-window.GGHQ_SELECTED_VIDEO_FILES =
-    window.GGHQ_SELECTED_VIDEO_FILES || [];
-
-
-/* ---------------------------------------------------------
-   Render all selected videos
-   --------------------------------------------------------- */
-
-function GGHQ_renderAllVideos() {
-
-    const container =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-    if (!container) return;
-
-
-    container.innerHTML = "";
-
-
-    const files =
-        window.GGHQ_SELECTED_VIDEO_FILES;
-
-
-    if (!files.length) {
-
-        container.innerHTML = `
-            <div class="video-empty-message">
-                No videos selected yet.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    const gallery =
-        document.createElement(
-            "div"
-        );
-
-    gallery.className =
-        "video-gallery-preview";
-
-
-    files.forEach(
-        (file, index) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "video-preview-card";
-
-
-            const number =
-                document.createElement(
-                    "div"
-                );
-
-            number.className =
-                "video-preview-number";
-
-            number.textContent =
-                index + 1;
-
-
-            const video =
-                document.createElement(
-                    "video"
-                );
-
-            video.muted = true;
-
-            video.playsInline = true;
-
-            video.preload =
-                "metadata";
-
-            video.setAttribute(
-                "playsinline",
-                ""
-            );
-
-
-            const previewURL =
-                URL.createObjectURL(
-                    file
-                );
-
-            video.src =
-                previewURL;
-
-
-            video.addEventListener(
-                "loadedmetadata",
-                function() {
-
-                    try {
-
-                        if (
-                            video.duration >
-                            0.2
-                        ) {
-
-                            video.currentTime =
-                                0.1;
-
-                        }
-
-                    } catch (e) {}
-
-                }
-            );
-
-
-            const info =
-                document.createElement(
-                    "div"
-                );
-
-            info.className =
-                "video-preview-info";
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-            name.className =
-                "video-preview-name";
-
-            name.textContent =
-                file.name;
-
-
-            const size =
-                document.createElement(
-                    "div"
-                );
-
-            size.style.cssText = `
-                margin-top:4px;
-                font-size:11px;
-                color:#777783;
-            `;
-
-            size.textContent =
-                GGHQ_formatFileSize(
-                    file.size
-                );
-
-
-            info.appendChild(
-                name
-            );
-
-            info.appendChild(
-                size
-            );
-
-
-            card.appendChild(
-                video
-            );
-
-            card.appendChild(
-                number
-            );
-
-            card.appendChild(
-                info
-            );
-
-
-            gallery.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    container.appendChild(
-        gallery
-    );
-
-
-    const count =
-        document.createElement(
-            "div"
-        );
-
-    count.className =
-        "video-count-label";
-
-
-    count.textContent =
-        `${files.length} video${
-            files.length === 1
-                ? ""
-                : "s"
-        } selected`;
-
-
-    container.appendChild(
-        count
-    );
-
-
-    /*
-       Keep currentOrder in sync
-    */
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos =
-            files.map(
-                file => ({
-                    name:
-                        file.name,
-
-                    size:
-                        file.size
-                })
-            );
-
-    }
-
-}
-
-
-/* ---------------------------------------------------------
-   File size
-   --------------------------------------------------------- */
-
-function GGHQ_formatFileSize(
-    bytes
-) {
-
-    if (!bytes) return "";
-
-    const mb =
-        bytes /
-        (1024 * 1024);
-
-
-    if (mb < 1) {
-
-        return Math.round(
-            bytes / 1024
-        ) + " KB";
-
-    }
-
-
-    return mb.toFixed(1) +
-        " MB";
-
-}
-
-
-/* ---------------------------------------------------------
-   IMPORTANT:
-   When Choose Videos is used again,
-   ADD new files instead of replacing old files.
-   --------------------------------------------------------- */
-
-const GGHQ_videoInput =
-    document.getElementById(
-        "videoFiles"
-    );
-
-
-if (GGHQ_videoInput) {
-
-    GGHQ_videoInput.addEventListener(
-        "change",
-        function() {
-
-            const newFiles =
-                Array.from(
-                    this.files || []
-                );
-
-
-            if (!newFiles.length) {
-                return;
-            }
-
-
-            /*
-               Add new files to existing files.
-            */
-
-            newFiles.forEach(
-                newFile => {
-
-                    const alreadyExists =
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .some(
-                                oldFile =>
-                                    oldFile.name ===
-                                    newFile.name &&
-                                    oldFile.size ===
-                                    newFile.size &&
-                                    oldFile.lastModified ===
-                                    newFile.lastModified
-                            );
-
-
-                    /*
-                       Don't add the exact
-                       same file twice.
-                    */
-
-                    if (!alreadyExists) {
-
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .push(
-                                newFile
-                            );
-
-                    }
-
-                }
-            );
-
-
-            /*
-               Show ALL videos again.
-            */
-
-            GGHQ_renderAllVideos();
-
-
-            /*
-               Clear the actual input so
-               the same file can also be
-               selected again later if needed.
-            */
-
-            this.value = "";
-
-
-            if (
-                typeof showToast ===
-                "function"
-            ) {
-
-                const total =
-                    window
-                        .GGHQ_SELECTED_VIDEO_FILES
-                        .length;
-
-
-                showToast(
-                    `${total} video${
-                        total === 1
-                            ? ""
-                            : "s"
-                    } selected`,
-                    "✓"
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   FRESH ORDER = CLEAR OLD VIDEOS
-   ========================================================= */
-
-function GGHQ_clearAllSelectedVideos() {
-
-    window.GGHQ_SELECTED_VIDEO_FILES =
-        [];
-
-
-    const input =
-        document.getElementById(
-            "videoFiles"
-        );
-
-
-    if (input) {
-        input.value = "";
-    }
-
-
-    const container =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-
-    if (container) {
-        container.innerHTML = "";
-    }
-
-
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-
-        currentOrder.videos = [];
-
-    }
-
-}
-
-
-/* ---------------------------------------------------------
-   New Order → completely fresh upload
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-screen]"
-            );
-
-
-        if (!button) return;
-
-
-        if (
-            button.dataset.screen ===
-            "order"
-        ) {
-
-            GGHQ_clearAllSelectedVideos();
-
-        }
-
-    },
-    true
-);
-
-
-/* ---------------------------------------------------------
-   Going to Upload screen:
-   start fresh
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-order-next]"
-            );
-
-
-        if (!button) return;
-
-
-        /*
-           Step 3 opens Upload screen.
-           This means we are entering a fresh
-           upload stage.
-        */
-
-        if (
-            button.dataset.orderNext ===
-            "3"
-        ) {
-
-            GGHQ_clearAllSelectedVideos();
-
-        }
-
-    },
-    true
-);
-
-
-/* ---------------------------------------------------------
-   Back from Upload:
-   clear videos
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "[data-order-back]"
-            );
-
-
-        if (!button) return;
-
-
-        /*
-           Back from Upload screen.
-        */
-
-        if (
-            button.dataset.orderBack ===
-            "2"
-        ) {
-
-            GGHQ_clearAllSelectedVideos();
-
-        }
-
-    },
-    true
-);
-
-
-/* ---------------------------------------------------------
-   After successful Submit:
-   clear selected files for next order
-   --------------------------------------------------------- */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        const button =
-            event.target.closest(
-                "#submitOrderButton"
-            );
-
-
-        if (!button) return;
-
-
-        setTimeout(
-            function() {
-
-                GGHQ_clearAllSelectedVideos();
-
-            },
-            1000
-        );
-
-    },
-    true
-);
-
-
-/* =========================================================
-   END MULTI-SELECT VIDEO FIX
-   ========================================================= */
-/* =========================================================
-   SELECTED VIDEO CLEAR CONFIRMATION
-   ========================================================= */
-
-if (!document.getElementById("gghq-selected-confirm-style")) {
-
-    const style = document.createElement("style");
-
-    style.id =
-        "gghq-selected-confirm-style";
-
-    style.textContent = `
-
-        .video-gallery-preview {
-            display: grid;
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .video-preview-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-
-            background: #111118;
-
-            border: 2px solid
-                rgba(145, 92, 255, 0.65);
-
-            box-shadow:
-                0 0 0 2px
-                rgba(145, 92, 255, 0.08);
-
-        }
-
-        .video-preview-card video {
-
-            display: block;
-
-            width: 100%;
-
-            aspect-ratio: 16 / 10;
-
-            object-fit: cover;
-
-            background: #08080c;
-
-        }
-
-        /* SELECTED BADGE */
-
-        .gghq-selected-badge {
-
-            position: absolute;
-
-            top: 8px;
-            right: 8px;
-
-            z-index: 5;
-
-            padding:
-                6px 9px;
-
-            border-radius:
-                20px;
-
-            background:
-                rgba(70, 220, 130, 0.95);
-
-            color: #07140c;
-
-            font-size: 11px;
-
-            font-weight: 800;
-
-            letter-spacing:
-                0.3px;
-
-            box-shadow:
-                0 3px 10px
-                rgba(0,0,0,0.35);
-
-        }
-
-
-        /* VIDEO NUMBER */
-
-        .video-preview-number {
-
-            position: absolute;
-
-            top: 8px;
-            left: 8px;
-
-            z-index: 5;
-
-            width: 28px;
-            height: 28px;
-
-            border-radius: 50%;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            background:
-                rgba(0,0,0,0.78);
-
-            color: white;
-
-            font-size: 12px;
-
-            font-weight: 800;
-
-        }
-
-
-        .video-preview-info {
-
-            padding:
-                9px 10px 11px;
-
-        }
-
-
-        .video-preview-name {
-
-            color: white;
-
-            font-size: 12px;
-
-            font-weight: 600;
-
-            line-height: 1.35;
-
-            white-space: nowrap;
-
-            overflow: hidden;
-
-            text-overflow: ellipsis;
-
-        }
-
-
-        /* BIG COUNT */
-
-        .gghq-video-selected-count {
-
-            margin-top: 16px;
-
-            width: 100%;
-
-            padding:
-                14px 16px;
-
-            border-radius:
-                14px;
-
-            background:
-                rgba(145, 92, 255, 0.14);
-
-            border:
-                1px solid
-                rgba(145, 92, 255, 0.45);
-
-            color: white;
-
-            text-align: center;
-
-            font-size: 15px;
-
-            font-weight: 800;
-
-        }
-
-
-        .gghq-video-selected-count span {
-
-            color:
-                #cdb5ff;
-
-        }
-
-
-        @media (min-width: 600px) {
-
-            .video-gallery-preview {
-
-                grid-template-columns:
-                    repeat(3, minmax(0, 1fr));
-
-            }
-
-        }
-
-    `;
-
-    document.head.appendChild(style);
-
-}
-
-
-/* =========================================================
-   RENDER SELECTED VIDEOS
-   ========================================================= */
-
-function GGHQ_renderSelectedConfirmation() {
-
-    const container =
-        document.getElementById(
-            "selectedFiles"
-        );
-
-
-    if (!container) return;
-
-
-    const files =
-        window.GGHQ_SELECTED_VIDEO_FILES ||
-        [];
-
-
-    container.innerHTML = "";
-
-
-    if (!files.length) {
-
-        container.innerHTML = `
-            <div class="video-empty-message">
-                No videos selected yet.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    const gallery =
-        document.createElement(
-            "div"
-        );
-
-
-    gallery.className =
-        "video-gallery-preview";
-
-
-    files.forEach(
-        (file, index) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "video-preview-card";
-
-
-            /* VIDEO NUMBER */
-
-            const number =
-                document.createElement(
-                    "div"
-                );
-
-
-            number.className =
-                "video-preview-number";
-
-
-            number.textContent =
-                index + 1;
-
-
-            /* SELECTED BADGE */
-
-            const selectedBadge =
-                document.createElement(
-                    "div"
-                );
-
-
-            selectedBadge.className =
-                "gghq-selected-badge";
-
-
-            selectedBadge.textContent =
-                "✓ SELECTED";
-
-
-            /* VIDEO */
-
-            const video =
-                document.createElement(
-                    "video"
-                );
-
-
-            video.muted =
-                true;
-
-            video.playsInline =
-                true;
-
-            video.preload =
-                "metadata";
-
-
-            video.setAttribute(
-                "playsinline",
-                ""
-            );
-
-
-            const previewURL =
-                URL.createObjectURL(
-                    file
-                );
-
-
-            video.src =
-                previewURL;
-
-
-            video.addEventListener(
-                "loadedmetadata",
-                function() {
-
-                    try {
-
-                        if (
-                            video.duration >
-                            0.2
-                        ) {
-
-                            video.currentTime =
-                                0.1;
-
-                        }
-
-                    } catch (e) {}
-
-                }
-            );
-
-
-            /* FILE NAME */
-
-            const info =
-                document.createElement(
-                    "div"
-                );
-
-
-            info.className =
-                "video-preview-info";
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-
-            name.className =
-                "video-preview-name";
-
-
-            name.textContent =
-                file.name;
-
-
-            info.appendChild(
-                name
-            );
-
-
-            card.appendChild(
-                video
-            );
-
-
-            card.appendChild(
-                number
-            );
-
-
-            card.appendChild(
-                selectedBadge
-            );
-
-
-            card.appendChild(
-                info
-            );
-
-
-            gallery.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    container.appendChild(
-        gallery
-    );
-
-
-    /* =====================================================
-       BIG SELECTED COUNT
-       ===================================================== */
-
-    const count =
-        document.createElement(
-            "div"
-        );
-
-
-    count.className =
-        "gghq-video-selected-count";
-
-
-    const number =
-        document.createElement(
-            "span"
-        );
-
-
-    number.textContent =
-        files.length;
-
-
-    count.appendChild(
-        document.createTextNode(
-            "✓ "
-        )
-    );
-
-
-    count.appendChild(
-        number
-    );
-
-
-    count.appendChild(
-        document.createTextNode(
-            files.length === 1
-                ? " VIDEO SELECTED"
-                : " VIDEOS SELECTED"
-        )
-    );
-
-
-    container.appendChild(
-        count
-    );
-
-}
-
-
-/* =========================================================
-   WATCH FOR VIDEO SELECTION CHANGES
-   ========================================================= */
-
-const GGHQ_confirmVideoInput =
-    document.getElementById(
-        "videoFiles"
-    );
-
-
-if (GGHQ_confirmVideoInput) {
-
-    GGHQ_confirmVideoInput.addEventListener(
-        "change",
-        function() {
-
-            const selectedFiles =
-                Array.from(
-                    this.files || []
-                );
-
-
-            if (!selectedFiles.length) {
-                return;
-            }
-
-
-            window.GGHQ_SELECTED_VIDEO_FILES =
-                window.GGHQ_SELECTED_VIDEO_FILES ||
-                [];
-
-
-            selectedFiles.forEach(
-                newFile => {
-
-                    const exists =
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .some(
-                                oldFile =>
-                                    oldFile.name ===
-                                    newFile.name &&
-                                    oldFile.size ===
-                                    newFile.size &&
-                                    oldFile.lastModified ===
-                                    newFile.lastModified
-                            );
-
-
-                    if (!exists) {
-
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .push(
-                                newFile
-                            );
-
-                    }
-
-                }
-            );
-
-
-            /*
-               Keep current order synced.
-            */
-
-            if (
-                typeof currentOrder !==
-                "undefined"
-            ) {
-
-                currentOrder.videos =
-                    window
-                        .GGHQ_SELECTED_VIDEO_FILES
-                        .map(
-                            file => ({
-
-                                name:
-                                    file.name,
-
-                                size:
-                                    file.size
-
-                            })
-                        );
-
-            }
-
-
-            /*
-               SHOW CLEAR CONFIRMATION
-            */
-
-            GGHQ_renderSelectedConfirmation();
-
-
-            /*
-               Clear input so another
-               selection can be added.
-            */
-
-            this.value = "";
-
-
-            if (
-                typeof showToast ===
-                "function"
-            ) {
-
-                showToast(
-                    `${
-                        window
-                            .GGHQ_SELECTED_VIDEO_FILES
-                            .length
-                    } videos selected`,
-                    "✓"
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   END SELECTED VIDEO CONFIRMATION
+   SUPABASE NOTE
+   =========================================================
+   Before submitting an order with creative_brief,
+   the Supabase orders table must have this column:
+
+   ALTER TABLE public.orders
+   ADD COLUMN IF NOT EXISTS
+   creative_brief jsonb DEFAULT '{}'::jsonb;
+
+   Run that SQL once in Supabase SQL Editor.
    ========================================================= */
