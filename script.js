@@ -1250,107 +1250,8 @@ function updateReview() {
 }
 
 
-/* =========================================================
-   SUBMIT ORDER
-   ========================================================= */
 
-       async function submitOrder() {
-
-    if (!currentUser) {
-
-        showScreen("login");
-
-        return;
-
-    }
-
-
-    if (!currentOrder.service) {
-
-        showToast(
-            "Please select a service",
-            "!"
-        );
-
-        showScreen("services");
-
-        return;
-
-    }
-
-
-    if (!currentOrder.plan) {
-
-        currentOrder.plan =
-            "standard";
-
-    }
-
-
-    /*
-       Save client details first
-    */
-
-    saveStepOne();
-
-
-    /*
-       Create order ID
-    */
-
-    const orderId =
-        "GGHQ-" +
-        Date.now();
-
-
-    /*
-       Data for Supabase
-    */
-
-    const supabaseOrder = {
-
-        user_id:
-            currentUser.id,
-
-        service:
-            currentOrder.service,
-
-        plan:
-            currentOrder.plan,
-
-        amount:
-            null,
-
-        payment_status:
-            "pending",
-
-        order_status:
-            "pending",
-
-        gym_name:
-            currentOrder.gymName,
-
-        instagram_url:
-            currentOrder.instagram,
-
-        raw_video_urls:
-            currentOrder.videos || [],
-
-        final_video_url:
-            null
-
-    };
-
-
-    /*
-       Send order to Supabase
-    */
-
-    try {
-
-        const response =
-            await fetch(
-                SUPABASE_URL +
+       SUPABASE_URL +
                 "/rest/v1/orders",
                 {
 
@@ -1382,245 +1283,8 @@ function updateReview() {
             );
 
 
-        /*
-           Check Supabase response
-        */
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-            console.error(
-                "Supabase order error:",
-                errorText
-            );
-
-
-            showToast(
-                "Order could not be saved",
-                "!"
-            );
-
-            return;
-
-        }
-
-
-        const savedOrder =
-            await response.json();
-
-
-        console.log(
-            "Supabase order saved:",
-            savedOrder
-        );
-
-
-        /*
-           Also keep local order
-           for current website flow
-        */
-
-        const orders =
-            getOrders();
-
-
-        const order = {
-
-            id:
-                orderId,
-
-            userId:
-                currentUser.id,
-
-            userEmail:
-                currentUser.email,
-
-            service:
-                currentOrder.service,
-
-            plan:
-                currentOrder.plan,
-
-            clientName:
-                currentOrder.clientName,
-
-            gymName:
-                currentOrder.gymName,
-
-            instagram:
-                currentOrder.instagram,
-
-            goal:
-                currentOrder.goal,
-
-            notes:
-                currentOrder.notes,
-
-            instructions:
-                currentOrder.instructions,
-
-            videos:
-                currentOrder.videos,
-
-            status:
-                "Submitted",
-
-            deliveryStatus:
-                "Editing in Progress",
-
-            finalVideo:
-                "",
-
-            createdAt:
-                new Date().toISOString()
-
-        };
-
-
-        try {
-
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/orders`,
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-                "apikey": SUPABASE_PUBLISHABLE_KEY,
-                "Authorization":
-                    `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-                "Prefer": "return=minimal"
-            },
-
-            body: JSON.stringify({
-                user_id: currentUser.id,
-                service: order.service,
-                plan: order.plan,
-                amount: 0,
-                payment_status: "pending",
-                order_status: "pending",
-                gym_name: order.gymName,
-                instagram_url: order.instagram,
-                raw_video_urls: order.videos || [],
-                final_video_url: "",
-                created_at: order.createdAt
-            })
-        }
-    );
-
-    if (!response.ok) {
-
-        const errorText =
-            await response.text();
-
-        console.error(
-            "Supabase order error:",
-            errorText
-        );
-
-        showToast(
-            "Order could not be submitted",
-            "!"
-        );
-
-        return;
-    }
-
-    orders.push(order);
-    saveOrders(orders);
-
-} catch (error) {
-
-    console.error(
-        "Supabase connection error:",
-        error
-    );
-
-    showToast(
-        "Connection error",
-        "!"
-    );
-
-    return;
-       }
-
-
-        currentOrderId =
-    order.id;
-
-
-        /*
-           Success
-        */
-
-        showToast(
-            "Order submitted successfully",
-            "✓"
-        );
-
-
-        setTimeout(
-            () => {
-
-                renderOrders();
-
-                showScreen(
-                    "account"
-                );
-
-            },
-            500
-        );
-
-
-        /*
-           Prepare next order
-        */
-
-        currentOrder = {
-
-            service: "",
-
-            plan: "",
-
-            clientName:
-                currentUser.name || "",
-
-            gymName:
-                currentUser.gymName || "",
-
-            instagram:
-                currentUser.instagram || "",
-
-            goal: "",
-
-            notes: "",
-
-            instructions: "",
-
-            videos: []
-
-        };
-
-
-    } catch (error) {
-
-        console.error(
-            "Supabase connection error:",
-            error
-        );
-
-
-        showToast(
-            "Supabase connection failed",
-            "!"
-        );
-
-    }
-
-    }
+        
+            
 
 /* =========================================================
    FIND CURRENT ORDER
@@ -1645,7 +1309,275 @@ function findCurrentOrder() {
 
 }
 
+/* =========================================================
+   SUBMIT ORDER
+   ========================================================= */
 
+async function submitOrder() {
+
+    if (!currentUser) {
+        showScreen("login");
+        return;
+    }
+
+    if (!currentOrder.service) {
+        showToast(
+            "Please select a service",
+            "!"
+        );
+
+        showScreen("services");
+        return;
+    }
+
+    if (!currentOrder.plan) {
+        currentOrder.plan = "standard";
+    }
+
+    /* Save client details */
+    saveStepOne();
+
+    /* Create local order ID */
+    const orderId =
+        "GGHQ-" + Date.now();
+
+    /* Create local order */
+    const order = {
+
+        id: orderId,
+
+        userId:
+            currentUser.id,
+
+        userEmail:
+            currentUser.email,
+
+        service:
+            currentOrder.service,
+
+        plan:
+            currentOrder.plan,
+
+        clientName:
+            currentOrder.clientName,
+
+        gymName:
+            currentOrder.gymName,
+
+        instagram:
+            currentOrder.instagram,
+
+        goal:
+            currentOrder.goal,
+
+        notes:
+            currentOrder.notes,
+
+        instructions:
+            currentOrder.instructions,
+
+        videos:
+            currentOrder.videos || [],
+
+        status:
+            "Submitted",
+
+        deliveryStatus:
+            "Editing in Progress",
+
+        finalVideo:
+            "",
+
+        createdAt:
+            new Date().toISOString()
+    };
+
+
+    /* =====================================================
+       SAVE ORDER TO SUPABASE — ONLY ONCE
+       ===================================================== */
+
+    try {
+
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/rest/v1/orders",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "apikey":
+                            SUPABASE_PUBLISHABLE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            SUPABASE_PUBLISHABLE_KEY,
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Prefer":
+                            "return=representation"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            user_id:
+                                currentUser.id,
+
+                            service:
+                                order.service,
+
+                            plan:
+                                order.plan,
+
+                            amount:
+                                0,
+
+                            payment_status:
+                                "pending",
+
+                            order_status:
+                                "pending",
+
+                            gym_name:
+                                order.gymName,
+
+                            instagram_url:
+                                order.instagram,
+
+                            raw_video_urls:
+                                order.videos || [],
+
+                            final_video_url:
+                                "",
+
+                            created_at:
+                                order.createdAt
+                        })
+                }
+            );
+
+
+        /* =================================================
+           CHECK RESPONSE
+           ================================================= */
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Supabase order error:",
+                errorText
+            );
+
+            showToast(
+                "Order could not be submitted",
+                "!"
+            );
+
+            return;
+        }
+
+
+        /* =================================================
+           SAVE LOCALLY
+           ================================================= */
+
+        const orders =
+            getOrders();
+
+        orders.push(order);
+
+        saveOrders(orders);
+
+
+        /* =================================================
+           CURRENT ORDER
+           ================================================= */
+
+        currentOrderId =
+            order.id;
+
+
+        /* =================================================
+           SUCCESS
+           ================================================= */
+
+        showToast(
+            "Order submitted successfully",
+            "✓"
+        );
+
+
+        /* =================================================
+           PREPARE NEXT ORDER
+           ================================================= */
+
+        currentOrder = {
+
+            service: "",
+
+            plan: "",
+
+            clientName:
+                currentUser.name || "",
+
+            gymName:
+                currentUser.gymName || "",
+
+            instagram:
+                currentUser.instagram || "",
+
+            goal: "",
+
+            notes: "",
+
+            instructions: "",
+
+            videos: []
+        };
+
+
+        /* =================================================
+           GO TO ACCOUNT / ORDERS
+           ================================================= */
+
+        setTimeout(
+            () => {
+
+                renderOrders();
+
+                showScreen(
+                    "account"
+                );
+
+            },
+            500
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Supabase connection error:",
+            error
+        );
+
+        showToast(
+            "Connection error",
+            "!"
+        );
+
+    }
+
+       }
 /* =========================================================
    MY ORDERS
    ========================================================= */
