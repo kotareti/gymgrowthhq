@@ -1251,37 +1251,7 @@ function updateReview() {
 
 
 
-       SUPABASE_URL +
-                "/rest/v1/orders",
-                {
-
-                    method: "POST",
-
-                    headers: {
-
-                        "apikey":
-                            SUPABASE_PUBLISHABLE_KEY,
-
-                        "Authorization":
-                            "Bearer " +
-                            SUPABASE_PUBLISHABLE_KEY,
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Prefer":
-                            "return=representation"
-
-                    },
-
-                    body:
-                        JSON.stringify(
-                            supabaseOrder
-                        )
-
-                }
-            );
-
+   
 
         
             
