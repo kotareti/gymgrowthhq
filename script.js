@@ -1479,13 +1479,76 @@ function updateReview() {
         };
 
 
-        orders.push(order);
+        try {
 
-        saveOrders(orders);
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/orders`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_PUBLISHABLE_KEY,
+                "Authorization":
+                    `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+                "Prefer": "return=minimal"
+            },
+
+            body: JSON.stringify({
+                user_id: currentUser.id,
+                service: order.service,
+                plan: order.plan,
+                amount: 0,
+                payment_status: "pending",
+                order_status: "pending",
+                gym_name: order.gymName,
+                instagram_url: order.instagram,
+                raw_video_urls: order.videos || [],
+                final_video_url: "",
+                created_at: order.createdAt
+            })
+        }
+    );
+
+    if (!response.ok) {
+
+        const errorText =
+            await response.text();
+
+        console.error(
+            "Supabase order error:",
+            errorText
+        );
+
+        showToast(
+            "Order could not be submitted",
+            "!"
+        );
+
+        return;
+    }
+
+    orders.push(order);
+    saveOrders(orders);
+
+} catch (error) {
+
+    console.error(
+        "Supabase connection error:",
+        error
+    );
+
+    showToast(
+        "Connection error",
+        "!"
+    );
+
+    return;
+       }
 
 
         currentOrderId =
-            orderId;
+    order.id;
 
 
         /*
