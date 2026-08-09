@@ -128,7 +128,7 @@ function setText(id, value) {
 
     if (el) {
         el.textContent =
-            value || "â€”";
+            value || "—";
     }
 }
 
@@ -145,7 +145,7 @@ function escapeHTML(value) {
 
 function showToast(
     message,
-    icon = "âœ“"
+    icon = "✓"
 ) {
     const toast =
         document.getElementById("toast");
@@ -162,11 +162,13 @@ function showToast(
 
     if (!toast) return;
 
-    if (text)
+    if (text) {
         text.textContent = message;
+    }
 
-    if (iconEl)
+    if (iconEl) {
         iconEl.textContent = icon;
+    }
 
     toast.classList.add("show");
 
@@ -227,6 +229,7 @@ function showScreen(id) {
     }
 
     if (id === "order-details") {
+
         const order =
             findCurrentOrder();
 
@@ -238,6 +241,7 @@ function showScreen(id) {
     }
 
     if (id === "order-project") {
+
         ensureCreativeBriefFields();
 
         setTimeout(() => {
@@ -491,8 +495,11 @@ function startOrder() {
     currentOrder.goal = "";
     currentOrder.notes = "";
     currentOrder.instructions = "";
+
     currentOrder.creativeBrief =
         createEmptyCreativeBrief();
+
+    currentOrder.videos = [];
 
     fillClientDetails();
 
@@ -529,10 +536,12 @@ function loginUser() {
         passwordInput.value;
 
     if (!email || !password) {
+
         showToast(
             "Enter email and password",
             "!"
         );
+
         return;
     }
 
@@ -547,10 +556,12 @@ function loginUser() {
         );
 
     if (!user) {
+
         showToast(
             "Account not found",
             "!"
         );
+
         return;
     }
 
@@ -558,19 +569,29 @@ function loginUser() {
         user.password !==
         password
     ) {
+
         showToast(
             "Wrong password",
             "!"
         );
+
         return;
     }
 
     currentUser = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
+
+        id:
+            user.id,
+
+        name:
+            user.name,
+
+        email:
+            user.email,
+
         gymName:
             user.gymName || "",
+
         instagram:
             user.instagram || ""
     };
@@ -588,7 +609,7 @@ function loginUser() {
 
     showToast(
         "Login successful",
-        "âœ“"
+        "✓"
     );
 
     showScreen("order");
@@ -640,20 +661,24 @@ function createAccount() {
         !email ||
         !password
     ) {
+
         showToast(
             "Please fill all details",
             "!"
         );
+
         return;
     }
 
     if (
         password.length < 6
     ) {
+
         showToast(
             "Password must be at least 6 characters",
             "!"
         );
+
         return;
     }
 
@@ -667,14 +692,17 @@ function createAccount() {
                 email
         )
     ) {
+
         showToast(
             "Email already registered",
             "!"
         );
+
         return;
     }
 
     const newUser = {
+
         id:
             "USER-" +
             Date.now(),
@@ -705,6 +733,7 @@ function createAccount() {
     saveUsers(users);
 
     currentUser = {
+
         id:
             newUser.id,
 
@@ -735,7 +764,7 @@ function createAccount() {
 
     showToast(
         "Account created",
-        "âœ“"
+        "✓"
     );
 
     showScreen("order");
@@ -755,6 +784,7 @@ function logoutUser() {
     clearAllSelectedVideos();
 
     currentOrder = {
+
         service: "",
         plan: "",
         clientName: "",
@@ -763,8 +793,10 @@ function logoutUser() {
         goal: "",
         notes: "",
         instructions: "",
+
         creativeBrief:
             createEmptyCreativeBrief(),
+
         videos: []
     };
 
@@ -774,7 +806,7 @@ function logoutUser() {
 
     showToast(
         "Logged out",
-        "âœ“"
+        "✓"
     );
 
     showScreen("home");
@@ -806,9 +838,11 @@ function selectService(service) {
         service ===
         "reel-editing"
     ) {
+
         showScreen(
             "plan-reel-editing"
         );
+
         return;
     }
 
@@ -816,9 +850,11 @@ function selectService(service) {
         service ===
         "transformation"
     ) {
+
         showScreen(
             "plan-transformation"
         );
+
         return;
     }
 }
@@ -857,7 +893,6 @@ function selectPlan(
     } else {
 
         showScreen("login");
-
     }
 }
 
@@ -949,7 +984,7 @@ function ensureCreativeBriefFields() {
                 color:#ffffff;
                 font-size:18px;
             ">
-                ðŸŽ¬ Creative Brief
+                🎬 Creative Brief
             </h3>
 
             <p style="
@@ -964,27 +999,27 @@ function ensureCreativeBriefFields() {
             <input
                 id="gghqTrend"
                 type="text"
-                placeholder="ðŸ”¥ Trend / Reference"
+                placeholder="🔥 Trend / Reference"
                 style="width:100%;margin-bottom:12px;"
             >
 
             <input
                 id="gghqSong"
                 type="text"
-                placeholder="ðŸŽµ Song / Audio"
+                placeholder="🎵 Song / Audio"
                 style="width:100%;margin-bottom:12px;"
             >
 
             <input
                 id="gghqEditingStyle"
                 type="text"
-                placeholder="ðŸŽ¨ Editing Style"
+                placeholder="🎨 Editing Style"
                 style="width:100%;margin-bottom:12px;"
             >
 
             <textarea
                 id="gghqShotInstructions"
-                placeholder="ðŸŽ¥ How should the video be edited? Explain shots, cuts, transitions, timing..."
+                placeholder="🎥 How should the video be edited? Explain shots, cuts, transitions, timing..."
                 rows="4"
                 style="width:100%;margin-bottom:12px;"
             ></textarea>
@@ -992,20 +1027,20 @@ function ensureCreativeBriefFields() {
             <input
                 id="gghqHook"
                 type="text"
-                placeholder="âœï¸ Hook / On-screen Text"
+                placeholder="✍️ Hook / On-screen Text"
                 style="width:100%;margin-bottom:12px;"
             >
 
             <input
                 id="gghqCTA"
                 type="text"
-                placeholder="ðŸ“¢ CTA"
+                placeholder="📢 CTA"
                 style="width:100%;margin-bottom:12px;"
             >
 
             <textarea
                 id="gghqSpecialInstructions"
-                placeholder="ðŸ“ Special Instructions"
+                placeholder="📝 Special Instructions"
                 rows="4"
                 style="width:100%;"
             ></textarea>
@@ -1028,7 +1063,6 @@ function ensureCreativeBriefFields() {
             screen.appendChild(
                 wrapper
             );
-
         }
     }
 
@@ -1037,13 +1071,6 @@ function ensureCreativeBriefFields() {
 
 
 function saveCreativeBrief() {
-
-    if (
-        typeof currentOrder ===
-        "undefined"
-    ) {
-        return;
-    }
 
     currentOrder.creativeBrief = {
 
@@ -1290,6 +1317,7 @@ function formatVideoSize(bytes) {
         (1024 * 1024);
 
     if (mb < 1) {
+
         return Math.round(
             bytes / 1024
         ) + " KB";
@@ -1323,13 +1351,8 @@ function clearAllSelectedVideos() {
         container.innerHTML = "";
     }
 
-    if (
-        typeof currentOrder !==
-        "undefined"
-    ) {
-        currentOrder.videos =
-            [];
-    }
+    currentOrder.videos =
+        [];
 }
 
 
@@ -1398,7 +1421,7 @@ function renderSelectedVideos() {
                 "gghq-selected-badge";
 
             selectedBadge.textContent =
-                "âœ“ SELECTED";
+                "✓ SELECTED";
 
             const video =
                 document.createElement(
@@ -1407,8 +1430,7 @@ function renderSelectedVideos() {
 
             video.muted = true;
             video.playsInline = true;
-            video.preload =
-                "metadata";
+            video.preload = "metadata";
 
             video.setAttribute(
                 "playsinline",
@@ -1510,7 +1532,7 @@ function renderSelectedVideos() {
         files.length;
 
     count.appendChild(
-        document.createTextNode("âœ“ ")
+        document.createTextNode("✓ ")
     );
 
     count.appendChild(
@@ -1534,10 +1556,14 @@ function renderSelectedVideos() {
             file => ({
                 name:
                     file.name,
+
                 size:
                     file.size,
+
                 type:
-                    file.type || "video/mp4",
+                    file.type ||
+                    "video/mp4",
+
                 lastModified:
                     file.lastModified
             })
@@ -1602,7 +1628,7 @@ function handleVideoSelection(
                 ? ""
                 : "s"
         } selected`,
-        "âœ“"
+        "✓"
     );
 }
 
@@ -1635,7 +1661,6 @@ if (GGHQ_videoInput) {
             handleVideoSelection(
                 this.files
             );
-
         }
     );
 }
@@ -1654,7 +1679,7 @@ function updateReview() {
             : currentOrder.service ===
               "transformation"
                 ? "Transformation Reel"
-                : "â€”";
+                : "—";
 
     const plan =
         currentOrder.plan ===
@@ -1691,6 +1716,215 @@ function updateReview() {
         "reviewVideos",
         currentOrder.videos.length +
         " video(s)"
+    );
+
+
+    /* =====================================================
+       CREATIVE BRIEF IN REVIEW
+       ===================================================== */
+
+    const reviewVideos =
+        document.getElementById(
+            "reviewVideos"
+        );
+
+    if (!reviewVideos) {
+        return;
+    }
+
+    const oldBrief =
+        document.getElementById(
+            "gghqReviewCreativeBrief"
+        );
+
+    if (oldBrief) {
+        oldBrief.remove();
+    }
+
+    const brief =
+        currentOrder.creativeBrief ||
+        createEmptyCreativeBrief();
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+    wrapper.id =
+        "gghqReviewCreativeBrief";
+
+    wrapper.style.cssText = `
+        margin-top:20px;
+        padding:18px;
+        border-radius:18px;
+        background:rgba(145,92,255,0.07);
+        border:1px solid rgba(145,92,255,0.30);
+    `;
+
+
+    const title =
+        document.createElement(
+            "div"
+        );
+
+    title.textContent =
+        "🎬 Creative Brief";
+
+    title.style.cssText = `
+        margin-bottom:16px;
+        color:#ffffff;
+        font-size:17px;
+        font-weight:800;
+    `;
+
+    wrapper.appendChild(
+        title
+    );
+
+
+    const fields = [
+
+        [
+            "🔥 Trend / Reference",
+            brief.trend
+        ],
+
+        [
+            "🎵 Song / Audio",
+            brief.song
+        ],
+
+        [
+            "🎨 Editing Style",
+            brief.editingStyle
+        ],
+
+        [
+            "🎥 Shot Instructions",
+            brief.shotInstructions
+        ],
+
+        [
+            "✍️ Hook / On-screen Text",
+            brief.hook
+        ],
+
+        [
+            "📢 CTA",
+            brief.cta
+        ],
+
+        [
+            "📝 Special Instructions",
+            brief.specialInstructions
+        ]
+    ];
+
+
+    let hasContent =
+        false;
+
+
+    fields.forEach(
+        ([label, value]) => {
+
+            if (
+                value ===
+                    undefined ||
+                value ===
+                    null ||
+                !String(value).trim()
+            ) {
+                return;
+            }
+
+            hasContent =
+                true;
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.style.cssText = `
+                margin-bottom:14px;
+            `;
+
+
+            const labelEl =
+                document.createElement(
+                    "div"
+                );
+
+            labelEl.textContent =
+                label;
+
+            labelEl.style.cssText = `
+                color:#cdb5ff;
+                font-size:12px;
+                font-weight:700;
+                margin-bottom:5px;
+            `;
+
+
+            const valueEl =
+                document.createElement(
+                    "div"
+                );
+
+            valueEl.textContent =
+                value;
+
+            valueEl.style.cssText = `
+                color:#ffffff;
+                font-size:13px;
+                line-height:1.55;
+                white-space:pre-wrap;
+            `;
+
+
+            row.appendChild(
+                labelEl
+            );
+
+            row.appendChild(
+                valueEl
+            );
+
+            wrapper.appendChild(
+                row
+            );
+        }
+    );
+
+
+    if (!hasContent) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.textContent =
+            "No creative brief added.";
+
+        empty.style.cssText = `
+            padding:14px;
+            border-radius:12px;
+            background:rgba(255,255,255,0.03);
+            color:#8f8f9d;
+            font-size:13px;
+        `;
+
+        wrapper.appendChild(
+            empty
+        );
+    }
+
+
+    reviewVideos.insertAdjacentElement(
+        "afterend",
+        wrapper
     );
 }
 
@@ -1792,10 +2026,12 @@ async function uploadOrderVideos(
                 "/storage/v1/object/order-videos/" +
                 encodedPath,
                 {
+
                     method:
                         "POST",
 
                     headers: {
+
                         "apikey":
                             SUPABASE_PUBLISHABLE_KEY,
 
@@ -1865,7 +2101,9 @@ async function uploadOrderVideos(
 async function submitOrder() {
 
     if (!currentUser) {
+
         showScreen("login");
+
         return;
     }
 
@@ -1877,10 +2115,12 @@ async function submitOrder() {
         );
 
         showScreen("services");
+
         return;
     }
 
     if (!currentOrder.plan) {
+
         currentOrder.plan =
             "standard";
     }
@@ -1889,9 +2129,11 @@ async function submitOrder() {
 
     saveCreativeBrief();
 
+
     const orderId =
         "GGHQ-" +
         Date.now();
+
 
     const order = {
 
@@ -1949,17 +2191,20 @@ async function submitOrder() {
             new Date().toISOString()
     };
 
+
     try {
 
         const selectedVideoFiles =
             window.GGHQ_SELECTED_VIDEO_FILES ||
             [];
 
+
         const uploadedVideos =
             await uploadOrderVideos(
                 orderId,
                 selectedVideoFiles
             );
+
 
         order.videos =
             uploadedVideos;
@@ -2128,7 +2373,7 @@ async function submitOrder() {
 
         showToast(
             "Order submitted successfully",
-            "âœ“"
+            "✓"
         );
 
 
@@ -2256,7 +2501,7 @@ function renderOrders() {
 
         list.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">ðŸ“¦</div>
+                <div class="empty-icon">📦</div>
                 <h3>No Orders Yet</h3>
                 <p>Your submitted orders will appear here.</p>
             </div>
@@ -2282,11 +2527,13 @@ function renderOrders() {
                 card.className =
                     "order-history-card";
 
+
                 const service =
                     order.service ===
                     "reel-editing"
                         ? "Reel Editing"
                         : "Transformation Reel";
+
 
                 const plan =
                     order.plan ===
@@ -2294,10 +2541,11 @@ function renderOrders() {
                         ? "Premium"
                         : "Standard";
 
+
                 card.innerHTML = `
 
                     <div class="order-history-icon">
-                        ðŸ“¦
+                        📦
                     </div>
 
                     <div class="order-history-info">
@@ -2307,7 +2555,7 @@ function renderOrders() {
                         </strong>
 
                         <small>
-                            ${plan} â€¢
+                            ${plan} •
                             ${escapeHTML(
                                 order.gymName
                             )}
@@ -2322,9 +2570,10 @@ function renderOrders() {
                     </div>
 
                     <span class="account-menu-arrow">
-                        â†’
+                        →
                     </span>
                 `;
+
 
                 card.addEventListener(
                     "click",
@@ -2342,6 +2591,7 @@ function renderOrders() {
                         );
                     }
                 );
+
 
                 list.appendChild(
                     card
@@ -2373,6 +2623,7 @@ function renderOrderDetails(
             ? "Premium"
             : "Standard";
 
+
     setText(
         "detailOrderNumber",
         "#" +
@@ -2382,54 +2633,64 @@ function renderOrderDetails(
         )
     );
 
+
     setText(
         "detailOrderStatus",
         order.deliveryStatus ||
         order.status
     );
 
+
     setText(
         "detailService",
         service
     );
+
 
     setText(
         "detailPlan",
         plan
     );
 
+
     setText(
         "detailClient",
         order.clientName
     );
+
 
     setText(
         "detailGym",
         order.gymName
     );
 
+
     setText(
         "detailGoal",
         order.goal
     );
+
 
     setText(
         "detailVideos",
         order.videos
             ? order.videos.length +
               " video(s)"
-            : "â€”"
+            : "—"
     );
+
 
     setText(
         "detailInstructions",
         order.instructions ||
-        "â€”"
+        "—"
     );
+
 
     renderOrderCreativeBrief(
         order
     );
+
 
     renderOrderVideoGallery(
         order
@@ -2452,26 +2713,32 @@ function renderOrderCreativeBrief(
 
     if (!detailVideos) return;
 
+
     const oldBrief =
         document.getElementById(
             "gghqOrderCreativeBrief"
         );
 
+
     if (oldBrief) {
         oldBrief.remove();
     }
 
+
     const brief =
         order.creativeBrief ||
         {};
+
 
     const wrapper =
         document.createElement(
             "div"
         );
 
+
     wrapper.id =
         "gghqOrderCreativeBrief";
+
 
     wrapper.style.cssText = `
         margin-top:18px;
@@ -2481,13 +2748,16 @@ function renderOrderCreativeBrief(
         border:1px solid rgba(145,92,255,0.30);
     `;
 
+
     const title =
         document.createElement(
             "div"
         );
 
+
     title.textContent =
-        "ðŸŽ¬ Creative Brief";
+        "🎬 Creative Brief";
+
 
     title.style.cssText = `
         margin-bottom:14px;
@@ -2496,83 +2766,93 @@ function renderOrderCreativeBrief(
         color:#ffffff;
     `;
 
+
     wrapper.appendChild(
         title
     );
 
+
     const fields = [
 
         [
-            "ðŸ”¥ Trend / Reference",
+            "🔥 Trend / Reference",
             brief.trend
         ],
 
         [
-            "ðŸŽµ Song / Audio",
+            "🎵 Song / Audio",
             brief.song
         ],
 
         [
-            "ðŸŽ¨ Editing Style",
+            "🎨 Editing Style",
             brief.editingStyle
         ],
 
         [
-            "ðŸŽ¥ Shot Instructions",
+            "🎥 Shot Instructions",
             brief.shotInstructions
         ],
 
         [
-            "âœï¸ Hook / On-screen Text",
+            "✍️ Hook / On-screen Text",
             brief.hook
         ],
 
         [
-            "ðŸ“¢ CTA",
+            "📢 CTA",
             brief.cta
         ],
 
         [
-            "ðŸ“ Special Instructions",
+            "📝 Special Instructions",
             brief.specialInstructions
         ]
     ];
 
+
     let hasContent =
         false;
+
 
     fields.forEach(
         ([label, value]) => {
 
             if (
                 value ===
-                undefined ||
+                    undefined ||
                 value ===
-                null ||
+                    null ||
                 !String(value).trim()
             ) {
                 return;
             }
 
+
             hasContent =
                 true;
+
 
             const row =
                 document.createElement(
                     "div"
                 );
 
+
             row.style.cssText = `
                 margin-bottom:12px;
             `;
+
 
             const labelEl =
                 document.createElement(
                     "div"
                 );
 
+
             labelEl.textContent =
                 label;
+
 
             labelEl.style.cssText = `
                 color:#cdb5ff;
@@ -2581,13 +2861,16 @@ function renderOrderCreativeBrief(
                 margin-bottom:5px;
             `;
 
+
             const valueEl =
                 document.createElement(
                     "div"
                 );
 
+
             valueEl.textContent =
                 value;
+
 
             valueEl.style.cssText = `
                 color:#ffffff;
@@ -2596,19 +2879,23 @@ function renderOrderCreativeBrief(
                 white-space:pre-wrap;
             `;
 
+
             row.appendChild(
                 labelEl
             );
 
+
             row.appendChild(
                 valueEl
             );
+
 
             wrapper.appendChild(
                 row
             );
         }
     );
+
 
     if (!hasContent) {
 
@@ -2617,8 +2904,10 @@ function renderOrderCreativeBrief(
                 "div"
             );
 
+
         empty.textContent =
             "No creative brief was saved for this order.";
+
 
         empty.style.cssText = `
             padding:14px;
@@ -2628,10 +2917,12 @@ function renderOrderCreativeBrief(
             font-size:13px;
         `;
 
+
         wrapper.appendChild(
             empty
         );
     }
+
 
     detailVideos.insertAdjacentElement(
         "afterend",
@@ -2655,14 +2946,17 @@ function renderOrderVideoGallery(
 
     if (!detailVideos) return;
 
+
     const oldGallery =
         document.getElementById(
             "gghqOrderVideoGallery"
         );
 
+
     if (oldGallery) {
         oldGallery.remove();
     }
+
 
     const videos =
         Array.isArray(
@@ -2677,13 +2971,16 @@ function renderOrderVideoGallery(
             )
             : [];
 
+
     const wrapper =
         document.createElement(
             "div"
         );
 
+
     wrapper.id =
         "gghqOrderVideoGallery";
+
 
     wrapper.style.cssText = `
         margin-top:18px;
@@ -2693,13 +2990,16 @@ function renderOrderVideoGallery(
         border:1px solid rgba(145,92,255,0.30);
     `;
 
+
     const title =
         document.createElement(
             "div"
         );
 
+
     title.textContent =
-        "ðŸŽ¬ Uploaded Videos";
+        "🎬 Uploaded Videos";
+
 
     title.style.cssText = `
         margin-bottom:12px;
@@ -2708,9 +3008,11 @@ function renderOrderVideoGallery(
         color:#ffffff;
     `;
 
+
     wrapper.appendChild(
         title
     );
+
 
     if (!videos.length) {
 
@@ -2719,8 +3021,10 @@ function renderOrderVideoGallery(
                 "div"
             );
 
+
         empty.textContent =
             "No saved video preview is available for this order.";
+
 
         empty.style.cssText = `
             padding:14px;
@@ -2729,6 +3033,7 @@ function renderOrderVideoGallery(
             color:#8f8f9d;
             font-size:13px;
         `;
+
 
         wrapper.appendChild(
             empty
@@ -2741,11 +3046,13 @@ function renderOrderVideoGallery(
                 "div"
             );
 
+
         grid.style.cssText = `
             display:grid;
             grid-template-columns:repeat(1,minmax(0,1fr));
             gap:14px;
         `;
+
 
         videos.forEach(
             (video, index) => {
@@ -2755,6 +3062,7 @@ function renderOrderVideoGallery(
                         "div"
                     );
 
+
                 card.style.cssText = `
                     overflow:hidden;
                     border-radius:14px;
@@ -2762,22 +3070,28 @@ function renderOrderVideoGallery(
                     border:1px solid rgba(145,92,255,0.35);
                 `;
 
+
                 const player =
                     document.createElement(
                         "video"
                     );
 
+
                 player.src =
                     video.url;
+
 
                 player.controls =
                     true;
 
+
                 player.playsInline =
                     true;
 
+
                 player.preload =
                     "metadata";
+
 
                 player.style.cssText = `
                     display:block;
@@ -2786,18 +3100,22 @@ function renderOrderVideoGallery(
                     background:#08080c;
                 `;
 
+
                 const info =
                     document.createElement(
                         "div"
                     );
 
+
                 info.style.cssText =
                     "padding:10px 12px 12px;";
+
 
                 const name =
                     document.createElement(
                         "div"
                     );
+
 
                 name.textContent =
                     (
@@ -2809,6 +3127,7 @@ function renderOrderVideoGallery(
                         "Video"
                     );
 
+
                 name.style.cssText = `
                     color:#ffffff;
                     font-size:13px;
@@ -2818,22 +3137,28 @@ function renderOrderVideoGallery(
                     white-space:nowrap;
                 `;
 
+
                 const open =
                     document.createElement(
                         "a"
                     );
 
+
                 open.href =
                     video.url;
+
 
                 open.target =
                     "_blank";
 
+
                 open.rel =
                     "noopener noreferrer";
 
+
                 open.textContent =
-                    "Open Video â†—";
+                    "Open Video ↗";
+
 
                 open.style.cssText = `
                     display:inline-block;
@@ -2843,21 +3168,26 @@ function renderOrderVideoGallery(
                     text-decoration:none;
                 `;
 
+
                 info.appendChild(
                     name
                 );
+
 
                 info.appendChild(
                     open
                 );
 
+
                 card.appendChild(
                     player
                 );
 
+
                 card.appendChild(
                     info
                 );
+
 
                 grid.appendChild(
                     card
@@ -2865,10 +3195,12 @@ function renderOrderVideoGallery(
             }
         );
 
+
         wrapper.appendChild(
             grid
         );
     }
+
 
     detailVideos.insertAdjacentElement(
         "afterend",
@@ -2892,8 +3224,10 @@ if (
             "style"
         );
 
+
     style.id =
         "gghqVideoStyles";
+
 
     style.textContent = `
 
@@ -3005,12 +3339,14 @@ if (
         }
 
         @media (min-width:600px) {
+
             .video-gallery-preview {
                 grid-template-columns:
                     repeat(3,minmax(0,1fr));
             }
         }
     `;
+
 
     document.head.appendChild(
         style
@@ -3036,8 +3372,10 @@ function restoreSession() {
         return;
     }
 
+
     const users =
         getUsers();
+
 
     const user =
         users.find(
@@ -3047,6 +3385,7 @@ function restoreSession() {
                 item.email ===
                     session.email
         );
+
 
     if (!user) {
 
@@ -3058,6 +3397,7 @@ function restoreSession() {
 
         return;
     }
+
 
     currentUser = {
 
@@ -3076,6 +3416,7 @@ function restoreSession() {
         instagram:
             user.instagram || ""
     };
+
 
     updateAccountUI();
 }
@@ -3180,6 +3521,7 @@ document.addEventListener(
             const service =
                 button.dataset.planDetail;
 
+
             if (
                 service ===
                 "reel-editing"
@@ -3190,6 +3532,7 @@ document.addEventListener(
                 );
             }
 
+
             if (
                 service ===
                 "transformation"
@@ -3199,6 +3542,7 @@ document.addEventListener(
                     "plan-transformation"
                 );
             }
+
 
             return;
         }
@@ -3215,10 +3559,12 @@ document.addEventListener(
             const service =
                 button.dataset.plan;
 
+
             selectPlan(
                 service,
                 "standard"
             );
+
 
             return;
         }
@@ -3238,6 +3584,7 @@ document.addEventListener(
                 )
             );
 
+
             return;
         }
 
@@ -3256,6 +3603,7 @@ document.addEventListener(
                 )
             );
 
+
             return;
         }
 
@@ -3268,16 +3616,20 @@ document.addEventListener(
 
             event.preventDefault();
 
+
             if (
                 button.dataset.screen ===
                 "order"
             ) {
+
                 clearAllSelectedVideos();
             }
+
 
             showScreen(
                 button.dataset.screen
             );
+
 
             return;
         }
@@ -3333,7 +3685,7 @@ document
 
 
 /* =========================================================
-   LOGIN â†’ SIGNUP
+   LOGIN → SIGNUP
    ========================================================= */
 
 document
@@ -3354,7 +3706,7 @@ document
 
 
 /* =========================================================
-   SIGNUP â†’ LOGIN
+   SIGNUP → LOGIN
    ========================================================= */
 
 document
@@ -3362,60 +3714,3 @@ document
         "goToLogin"
     )
     ?.addEventListener(
-        "click",
-        function(event) {
-
-            event.preventDefault();
-
-            showScreen(
-                "login"
-            );
-        }
-    );
-
-
-/* =========================================================
-   SUBMIT
-   ========================================================= */
-
-document
-    .getElementById(
-        "submitOrderButton"
-    )
-    ?.addEventListener(
-        "click",
-        function(event) {
-
-            event.preventDefault();
-
-            submitOrder();
-        }
-    );
-
-
-/* =========================================================
-   RESTORE SESSION
-   ========================================================= */
-
-restoreSession();
-
-
-/* =========================================================
-   INITIAL SCREEN
-   ========================================================= */
-
-showScreen("home");
-
-
-/* =========================================================
-   SUPABASE NOTE
-   =========================================================
-   Before submitting an order with creative_brief,
-   the Supabase orders table must have this column:
-
-   ALTER TABLE public.orders
-   ADD COLUMN IF NOT EXISTS
-   creative_brief jsonb DEFAULT '{}'::jsonb;
-
-   Run that SQL once in Supabase SQL Editor.
-   ========================================================= */
