@@ -1,6 +1,6 @@
 /* =========================================================
    GYM GROWTH HQ
-   FINAL NAVIGATION + ORDER FLOW
+   FINAL JAVASCRIPT
    ========================================================= */
 
 
@@ -12,17 +12,26 @@ const AppState = {
 
     currentScreen: "home",
 
-    previousScreen: null,
-
-    screenHistory: [],
-
     selectedService: "",
 
     selectedPlan: "",
 
-    currentOrderStep: 1,
+    orderStep: 1,
 
-    orderData: {}
+    orderData: {
+
+        clientName: "",
+        gymName: "",
+        instagram: "",
+
+        projectGoal: "",
+        projectNotes: "",
+
+        specialInstructions: "",
+
+        videoFiles: []
+
+    }
 
 };
 
@@ -32,61 +41,113 @@ const AppState = {
    ========================================================= */
 
 function $(selector) {
+
     return document.querySelector(selector);
+
 }
 
 
 function $all(selector) {
+
     return Array.from(
         document.querySelectorAll(selector)
     );
+
 }
 
 
 /* =========================================================
-   SCREEN FINDER
+   SCREEN MAP
+   ========================================================= */
+
+const screens = {
+
+    home: "home",
+
+    services: "services",
+
+    "reel-editing": "reel-editing",
+
+    transformation: "transformation",
+
+    "gym-promotion": "gym-promotion",
+
+    pricing: "pricing",
+
+    "plan-reel-editing":
+        "plan-reel-editing",
+
+    "plan-transformation":
+        "plan-transformation",
+
+    "plan-gym-promotion":
+        "plan-gym-promotion",
+
+    order: "order",
+
+    "order-project":
+        "order-project",
+
+    "order-upload":
+        "order-upload",
+
+    "order-instructions":
+        "order-instructions",
+
+    "order-review":
+        "order-review",
+
+    "order-success":
+        "order-success",
+
+    support: "support"
+
+};
+
+
+/* =========================================================
+   GET SCREEN
    ========================================================= */
 
 function getScreen(name) {
 
-    if (!name) {
-        return null;
-    }
+    const id =
+        screens[name] || name;
 
-    const element =
-        document.getElementById(name);
+    return document.getElementById(id);
 
-    if (
-        element &&
-        element.classList.contains("app-screen")
-    ) {
-        return element;
-    }
-
-    return document.querySelector(
-        `[data-screen-section="${name}"]`
-    );
 }
 
 
 /* =========================================================
-   HIDE ALL SCREENS
+   HIDE EVERY SCREEN
    ========================================================= */
 
 function hideAllScreens() {
 
-    $all(".app-screen").forEach(screen => {
+    $all(".app-screen").forEach(
+        screen => {
 
-        screen.classList.remove(
-            "active-screen"
-        );
+            screen.classList.remove(
+                "active-screen"
+            );
 
-        screen.setAttribute(
-            "aria-hidden",
-            "true"
-        );
+            screen.setAttribute(
+                "aria-hidden",
+                "true"
+            );
 
-    });
+            /*
+             * This also guarantees that
+             * multiple pages do not appear
+             * together even before CSS loads.
+             */
+
+            screen.style.display =
+                "none";
+
+        }
+    );
 
 }
 
@@ -95,86 +156,45 @@ function hideAllScreens() {
    SHOW SCREEN
    ========================================================= */
 
-function showScreen(
-    screenName,
-    addHistory = true
-) {
+function showScreen(name) {
 
-    const target =
-        getScreen(screenName);
+    const screen =
+        getScreen(name);
 
-    if (!target) {
+
+    if (!screen) {
 
         console.error(
             "Screen not found:",
-            screenName
+            name
         );
 
         return;
 
     }
 
-
-    const targetId =
-        target.id;
-
-
-    if (
-        AppState.currentScreen ===
-        targetId
-    ) {
-
-        window.scrollTo(
-            0,
-            0
-        );
-
-        return;
-
-    }
-
-
-    if (
-        addHistory &&
-        AppState.currentScreen
-    ) {
-
-        AppState.screenHistory.push(
-            AppState.currentScreen
-        );
-
-    }
-
-
-    AppState.previousScreen =
-        AppState.currentScreen;
-
-    AppState.currentScreen =
-        targetId;
-
-
-    /*
-     * IMPORTANT:
-     * Only ONE screen can be visible.
-     */
 
     hideAllScreens();
 
 
-    target.classList.add(
+    screen.classList.add(
         "active-screen"
     );
 
-    target.setAttribute(
+
+    screen.setAttribute(
         "aria-hidden",
         "false"
     );
 
 
-    /*
-     * Always start the new screen
-     * from the top.
-     */
+    screen.style.display =
+        "block";
+
+
+    AppState.currentScreen =
+        screen.id;
+
 
     window.scrollTo(
         0,
@@ -182,34 +202,9 @@ function showScreen(
     );
 
 
-    updateNavigation(
-        targetId
-    );
-
-
     updateFloatingHome(
-        targetId
+        screen.id
     );
-
-}
-
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
-
-function updateNavigation(
-    screenName
-) {
-
-    $all(".nav-item").forEach(item => {
-
-        item.classList.toggle(
-            "active-nav",
-            item.dataset.screen === screenName
-        );
-
-    });
 
 }
 
@@ -219,51 +214,34 @@ function updateNavigation(
    ========================================================= */
 
 function updateFloatingHome(
-    screenName
+    currentScreen
 ) {
 
     const button =
         $("#floatingHomeButton");
 
+
     if (!button) {
+
         return;
+
     }
 
-    button.classList.toggle(
-        "visible",
-        screenName !== "home"
-    );
-
-}
-
-
-/* =========================================================
-   BACK
-   ========================================================= */
-
-function goBack() {
 
     if (
-        AppState.screenHistory.length
+        currentScreen ===
+        "home"
     ) {
 
-        const previous =
-            AppState.screenHistory.pop();
+        button.style.display =
+            "none";
 
-        showScreen(
-            previous,
-            false
-        );
+    } else {
 
-        return;
+        button.style.display =
+            "flex";
 
     }
-
-
-    showScreen(
-        "home",
-        false
-    );
 
 }
 
@@ -283,30 +261,8 @@ function setupScreenButtons() {
                     "[data-screen]"
                 );
 
+
             if (!button) {
-                return;
-            }
-
-
-            /*
-             * These buttons have their own
-             * special handlers.
-             */
-
-            if (
-                button.matches(
-                    "[data-detail]"
-                ) ||
-                button.matches(
-                    "[data-plan-detail]"
-                ) ||
-                button.matches(
-                    "[data-back]"
-                ) ||
-                button.matches(
-                    "[data-order-next]"
-                )
-            ) {
 
                 return;
 
@@ -321,8 +277,7 @@ function setupScreenButtons() {
 
 
             /*
-             * Save service when coming
-             * from Service Details.
+             * Save selected service
              */
 
             if (
@@ -336,8 +291,7 @@ function setupScreenButtons() {
 
 
             /*
-             * Save plan when coming
-             * from Plan Details.
+             * Save selected plan
              */
 
             if (
@@ -346,6 +300,22 @@ function setupScreenButtons() {
 
                 AppState.selectedPlan =
                     button.dataset.plan;
+
+            }
+
+
+            /*
+             * Starting Order
+             */
+
+            if (
+                target ===
+                "order"
+            ) {
+
+                startOrder();
+
+                return;
 
             }
 
@@ -375,8 +345,11 @@ function setupServiceButtons() {
                     "[data-detail]"
                 );
 
+
             if (!button) {
+
                 return;
+
             }
 
 
@@ -392,12 +365,10 @@ function setupServiceButtons() {
 
 
             /*
-             * HOME
-             *   ↓
              * SERVICES
-             *   ↓
+             *     ↓
              * SELECT SERVICE
-             *   ↓
+             *     ↓
              * SERVICE DETAILS
              */
 
@@ -412,10 +383,10 @@ function setupServiceButtons() {
 
 
 /* =========================================================
-   PLAN DETAIL
+   PLAN DETAILS
    ========================================================= */
 
-function setupPlanDetails() {
+function setupPlanButtons() {
 
     document.addEventListener(
         "click",
@@ -426,8 +397,11 @@ function setupPlanDetails() {
                     "[data-plan-detail]"
                 );
 
+
             if (!button) {
+
                 return;
+
             }
 
 
@@ -443,64 +417,7 @@ function setupPlanDetails() {
 
 
             const target =
-                document.querySelector(
-                    `[data-plan-detail-section="${plan}"]`
-                );
-
-
-            if (!target) {
-
-                console.error(
-                    "Plan detail not found:",
-                    plan
-                );
-
-                return;
-
-            }
-
-
-            /*
-             * PRICING
-             *   ↓
-             * PLAN DETAILS
-             */
-
-            showScreen(
-                target.id
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   BACK BUTTONS
-   ========================================================= */
-
-function setupBackButtons() {
-
-    document.addEventListener(
-        "click",
-        event => {
-
-            const button =
-                event.target.closest(
-                    "[data-back]"
-                );
-
-            if (!button) {
-                return;
-            }
-
-
-            event.preventDefault();
-
-
-            const target =
-                button.dataset.back;
+                `plan-${plan}`;
 
 
             showScreen(
@@ -514,84 +431,49 @@ function setupBackButtons() {
 
 
 /* =========================================================
-   ORDER — SERVICE
+   ORDER START
    ========================================================= */
 
-function setupOrderService() {
+function startOrder() {
 
-    document.addEventListener(
-        "click",
-        event => {
-
-            const button =
-                event.target.closest(
-                    "[data-order-service]"
-                );
-
-            if (!button) {
-                return;
-            }
+    AppState.orderStep =
+        1;
 
 
-            event.preventDefault();
-
-
-            AppState.selectedService =
-                button.dataset.orderService;
-
-
-            setOrderStep(
-                2
-            );
-
-        }
+    showScreen(
+        "order"
     );
+
+
+    updateOrderProgress();
 
 }
 
 
 /* =========================================================
-   ORDER — PLAN
+   ORDER ROOM MAP
    ========================================================= */
 
-function setupOrderPlan() {
+const orderRooms = {
 
-    document.addEventListener(
-        "click",
-        event => {
+    1: "order",
 
-            const button =
-                event.target.closest(
-                    "[data-order-plan]"
-                );
+    2: "order-project",
 
-            if (!button) {
-                return;
-            }
+    3: "order-upload",
 
+    4: "order-instructions",
 
-            event.preventDefault();
+    5: "order-review"
 
-
-            AppState.selectedPlan =
-                button.dataset.orderPlan;
-
-
-            setOrderStep(
-                3
-            );
-
-        }
-    );
-
-}
+};
 
 
 /* =========================================================
-   ORDER STEP SYSTEM
+   GO TO ORDER STEP
    ========================================================= */
 
-function setOrderStep(
+function goToOrderStep(
     step
 ) {
 
@@ -609,103 +491,51 @@ function setOrderStep(
     }
 
 
-    AppState.currentOrderStep =
+    /*
+     * Save current room data
+     * before moving forward.
+     */
+
+    collectOrderData();
+
+
+    AppState.orderStep =
         number;
 
 
-    /*
-     * Hide every order page.
-     */
-
-    $all(
-        "[data-order-step]"
-    ).forEach(
-        element => {
-
-            element.classList.remove(
-                "active-order-step"
-            );
-
-        }
-    );
-
-
-    /*
-     * Show ONLY selected order page.
-     */
-
     const target =
-        document.querySelector(
-            `[data-order-step="${number}"]`
-        );
+        orderRooms[number];
 
 
-    if (target) {
-
-        target.classList.add(
-            "active-order-step"
-        );
-
-    }
-
-
-    /*
-     * Progress indicators.
-     */
-
-    $all(
-        "[data-progress-step]"
-    ).forEach(
-        element => {
-
-            const progress =
-                Number(
-                    element.dataset.progressStep
-                );
-
-
-            element.classList.toggle(
-                "active-progress",
-                progress === number
-            );
-
-
-            element.classList.toggle(
-                "completed-progress",
-                progress < number
-            );
-
-        }
+    showScreen(
+        target
     );
 
 
+    updateOrderProgress();
+
+
     /*
-     * Update review when entering
-     * the review page.
+     * Review page needs
+     * fresh information.
      */
 
-    if (number === 5) {
-
-        collectOrderData();
+    if (
+        number === 5
+    ) {
 
         updateReview();
 
     }
 
-
-    window.scrollTo(
-        0,
-        0
-    );
-
 }
 
 
 /* =========================================================
-   ORDER NEXT BUTTONS
+   ORDER NEXT BUTTON
    ========================================================= */
 
-function setupOrderNext() {
+function setupOrderNextButtons() {
 
     document.addEventListener(
         "click",
@@ -716,25 +546,25 @@ function setupOrderNext() {
                     "[data-order-next]"
                 );
 
+
             if (!button) {
+
                 return;
+
             }
 
 
             event.preventDefault();
 
 
-            collectOrderData();
-
-
-            const nextStep =
+            const next =
                 Number(
                     button.dataset.orderNext
                 );
 
 
-            setOrderStep(
-                nextStep
+            goToOrderStep(
+                next
             );
 
         }
@@ -744,10 +574,10 @@ function setupOrderNext() {
 
 
 /* =========================================================
-   ORDER BACK
+   ORDER BACK BUTTON
    ========================================================= */
 
-function setupOrderBack() {
+function setupOrderBackButtons() {
 
     document.addEventListener(
         "click",
@@ -755,29 +585,55 @@ function setupOrderBack() {
 
             const button =
                 event.target.closest(
-                    "[data-order-go-step]"
+                    "[data-order-back]"
                 );
 
+
             if (!button) {
+
                 return;
+
             }
 
 
             event.preventDefault();
 
 
-            const step =
+            const previous =
                 Number(
-                    button.dataset.orderGoStep
+                    button.dataset.orderBack
                 );
 
 
-            setOrderStep(
-                step
+            goToOrderStep(
+                previous
             );
 
         }
     );
+
+}
+
+
+/* =========================================================
+   ORDER PROGRESS
+   ========================================================= */
+
+function updateOrderProgress() {
+
+    /*
+     * New HTML does not need visible
+     * progress circles, but we keep
+     * this function for future use.
+     */
+
+    document.documentElement
+        .setAttribute(
+            "data-order-step",
+            String(
+                AppState.orderStep
+            )
+        );
 
 }
 
@@ -803,41 +659,236 @@ function collectOrderData() {
     const projectNotes =
         $("#projectNotes");
 
+    const specialInstructions =
+        $("#specialInstructions");
 
-    AppState.orderData = {
 
-        service:
-            AppState.selectedService,
+    if (clientName) {
 
-        plan:
-            AppState.selectedPlan,
+        AppState.orderData.clientName =
+            clientName.value.trim();
 
-        clientName:
-            clientName
-                ? clientName.value.trim()
-                : "",
+    }
 
-        gymName:
-            gymName
-                ? gymName.value.trim()
-                : "",
 
-        instagram:
-            instagram
-                ? instagram.value.trim()
-                : "",
+    if (gymName) {
 
-        projectGoal:
-            projectGoal
-                ? projectGoal.value
-                : "",
+        AppState.orderData.gymName =
+            gymName.value.trim();
 
-        projectNotes:
-            projectNotes
-                ? projectNotes.value.trim()
-                : ""
+    }
 
-    };
+
+    if (instagram) {
+
+        AppState.orderData.instagram =
+            instagram.value.trim();
+
+    }
+
+
+    if (projectGoal) {
+
+        AppState.orderData.projectGoal =
+            projectGoal.value;
+
+    }
+
+
+    if (projectNotes) {
+
+        AppState.orderData.projectNotes =
+            projectNotes.value.trim();
+
+    }
+
+
+    if (specialInstructions) {
+
+        AppState.orderData.specialInstructions =
+            specialInstructions.value.trim();
+
+    }
+
+}
+
+
+/* =========================================================
+   VIDEO UPLOAD
+   ========================================================= */
+
+function setupVideoUpload() {
+
+    const input =
+        $("#videoFiles");
+
+
+    const output =
+        $("#selectedFiles");
+
+
+    if (
+        !input ||
+        !output
+    ) {
+
+        return;
+
+    }
+
+
+    input.addEventListener(
+        "change",
+        () => {
+
+            const files =
+                Array.from(
+                    input.files
+                );
+
+
+            AppState.orderData.videoFiles =
+                files;
+
+
+            output.innerHTML =
+                "";
+
+
+            if (
+                files.length === 0
+            ) {
+
+                return;
+
+            }
+
+
+            files.forEach(
+                file => {
+
+                    const item =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    item.className =
+                        "selected-file";
+
+
+                    item.textContent =
+                        `✓ ${file.name}`;
+
+
+                    output.appendChild(
+                        item
+                    );
+
+                }
+            );
+
+
+            showToast(
+                `${files.length} video file${files.length > 1 ? "s" : ""} selected.`,
+                "✓"
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   REVIEW
+   ========================================================= */
+
+function updateReview() {
+
+    collectOrderData();
+
+
+    const service =
+        $("#reviewService");
+
+    const plan =
+        $("#reviewPlan");
+
+    const client =
+        $("#reviewClient");
+
+    const gym =
+        $("#reviewGym");
+
+    const instagram =
+        $("#reviewInstagram");
+
+    const videos =
+        $("#reviewVideos");
+
+
+    if (service) {
+
+        service.textContent =
+            getServiceName(
+                AppState.selectedService
+            );
+
+    }
+
+
+    if (plan) {
+
+        plan.textContent =
+            getPlanName(
+                AppState.selectedPlan
+            );
+
+    }
+
+
+    if (client) {
+
+        client.textContent =
+            AppState.orderData.clientName ||
+            "Not provided";
+
+    }
+
+
+    if (gym) {
+
+        gym.textContent =
+            AppState.orderData.gymName ||
+            "Not provided";
+
+    }
+
+
+    if (instagram) {
+
+        instagram.textContent =
+            AppState.orderData.instagram ||
+            "Not provided";
+
+    }
+
+
+    if (videos) {
+
+        const count =
+            AppState.orderData
+                .videoFiles
+                .length;
+
+
+        videos.textContent =
+            count > 0
+                ? `${count} video${count > 1 ? "s" : ""} selected`
+                : "No videos selected";
+
+    }
 
 }
 
@@ -866,7 +917,7 @@ function getServiceName(
 
     return (
         names[service] ||
-        "Selected Service"
+        "Not selected"
     );
 
 }
@@ -882,12 +933,6 @@ function getPlanName(
 
     const names = {
 
-        "standard":
-            "Standard",
-
-        "premium":
-            "Premium",
-
         "reel-editing":
             "Standard Reel",
 
@@ -895,74 +940,21 @@ function getPlanName(
             "Transformation Reel",
 
         "gym-promotion":
-            "Promotional Video"
+            "Promotional Video",
+
+        "standard":
+            "Standard",
+
+        "premium":
+            "Premium"
 
     };
 
 
     return (
         names[plan] ||
-        "Selected Plan"
+        "Not selected"
     );
-
-}
-
-
-/* =========================================================
-   UPDATE REVIEW
-   ========================================================= */
-
-function updateReview() {
-
-    const service =
-        $("#reviewService");
-
-    const plan =
-        $("#reviewPlan");
-
-    const gym =
-        $("#reviewGym");
-
-    const instagram =
-        $("#reviewInstagram");
-
-
-    if (service) {
-
-        service.textContent =
-            getServiceName(
-                AppState.selectedService
-            );
-
-    }
-
-
-    if (plan) {
-
-        plan.textContent =
-            getPlanName(
-                AppState.selectedPlan
-            );
-
-    }
-
-
-    if (gym) {
-
-        gym.textContent =
-            AppState.orderData.gymName ||
-            "Not provided";
-
-    }
-
-
-    if (instagram) {
-
-        instagram.textContent =
-            AppState.orderData.instagram ||
-            "Not provided";
-
-    }
 
 }
 
@@ -971,14 +963,16 @@ function updateReview() {
    SUBMIT ORDER
    ========================================================= */
 
-function setupOrderSubmit() {
+function setupSubmitOrder() {
 
     const button =
         $("#submitOrderButton");
 
 
     if (!button) {
+
         return;
+
     }
 
 
@@ -993,8 +987,39 @@ function setupOrderSubmit() {
 
 
             /*
-             * Gym Name required.
+             * Basic validation
              */
+
+            if (
+                !AppState.orderData.clientName
+            ) {
+
+                showToast(
+                    "Please enter your name.",
+                    "!"
+                );
+
+
+                goToOrderStep(
+                    1
+                );
+
+
+                const field =
+                    $("#clientName");
+
+
+                if (field) {
+
+                    field.focus();
+
+                }
+
+
+                return;
+
+            }
+
 
             if (
                 !AppState.orderData.gymName
@@ -1006,18 +1031,18 @@ function setupOrderSubmit() {
                 );
 
 
-                setOrderStep(
-                    4
+                goToOrderStep(
+                    1
                 );
 
 
-                const gym =
+                const field =
                     $("#gymName");
 
 
-                if (gym) {
+                if (field) {
 
-                    gym.focus();
+                    field.focus();
 
                 }
 
@@ -1026,10 +1051,6 @@ function setupOrderSubmit() {
 
             }
 
-
-            /*
-             * Instagram required.
-             */
 
             if (
                 !AppState.orderData.instagram
@@ -1041,18 +1062,18 @@ function setupOrderSubmit() {
                 );
 
 
-                setOrderStep(
-                    4
+                goToOrderStep(
+                    1
                 );
 
 
-                const instagram =
+                const field =
                     $("#instagramHandle");
 
 
-                if (instagram) {
+                if (field) {
 
-                    instagram.focus();
+                    field.focus();
 
                 }
 
@@ -1063,31 +1084,42 @@ function setupOrderSubmit() {
 
 
             /*
-             * Order received.
+             * For now this is the
+             * front-end success state.
+             *
+             * Later we connect this
+             * to backend/database/payment.
              */
 
-            const success =
-                $("#orderSuccess");
+            console.log(
+                "ORDER DATA:",
+                {
+                    service:
+                        AppState.selectedService,
 
+                    plan:
+                        AppState.selectedPlan,
 
-            if (success) {
-
-                success.classList.add(
-                    "visible"
-                );
-
-
-                success.setAttribute(
-                    "aria-hidden",
-                    "false"
-                );
-
-            }
+                    ...AppState.orderData
+                }
+            );
 
 
             showToast(
                 "Order submitted successfully.",
                 "✓"
+            );
+
+
+            setTimeout(
+                () => {
+
+                    showScreen(
+                        "order-success"
+                    );
+
+                },
+                500
             );
 
         }
@@ -1108,20 +1140,49 @@ function resetOrder() {
     AppState.selectedPlan =
         "";
 
-    AppState.currentOrderStep =
+    AppState.orderStep =
         1;
 
-    AppState.orderData =
-        {};
+
+    AppState.orderData = {
+
+        clientName: "",
+
+        gymName: "",
+
+        instagram: "",
+
+        projectGoal: "",
+
+        projectNotes: "",
+
+        specialInstructions: "",
+
+        videoFiles: []
+
+    };
 
 
-    [
+    const fields = [
+
         "#clientName",
+
         "#gymName",
+
         "#instagramHandle",
+
         "#projectGoal",
-        "#projectNotes"
-    ].forEach(
+
+        "#projectNotes",
+
+        "#specialInstructions",
+
+        "#videoFiles"
+
+    ];
+
+
+    fields.forEach(
         selector => {
 
             const field =
@@ -1139,63 +1200,20 @@ function resetOrder() {
     );
 
 
-    const success =
-        $("#orderSuccess");
+    const selectedFiles =
+        $("#selectedFiles");
 
 
-    if (success) {
+    if (selectedFiles) {
 
-        success.classList.remove(
-            "visible"
-        );
-
-        success.setAttribute(
-            "aria-hidden",
-            "true"
-        );
+        selectedFiles.innerHTML =
+            "";
 
     }
 
 
-    setOrderStep(
-        1
-    );
-
-}
-
-
-/* =========================================================
-   BRAND → HOME
-   ========================================================= */
-
-function setupBrandButton() {
-
-    const brand =
-        $(".brand-button");
-
-
-    if (!brand) {
-        return;
-    }
-
-
-    brand.addEventListener(
-        "click",
-        event => {
-
-            event.preventDefault();
-
-
-            AppState.screenHistory =
-                [];
-
-
-            showScreen(
-                "home",
-                false
-            );
-
-        }
+    showScreen(
+        "home"
     );
 
 }
@@ -1212,7 +1230,9 @@ function setupFloatingHome() {
 
 
     if (!button) {
+
         return;
+
     }
 
 
@@ -1223,14 +1243,7 @@ function setupFloatingHome() {
             event.preventDefault();
 
 
-            AppState.screenHistory =
-                [];
-
-
-            showScreen(
-                "home",
-                false
-            );
+            resetOrder();
 
         }
     );
@@ -1239,210 +1252,34 @@ function setupFloatingHome() {
 
 
 /* =========================================================
-   SUPPORT
+   BRAND HOME
    ========================================================= */
 
-function setupSupport() {
+function setupBrandButton() {
 
-    document.addEventListener(
+    const button =
+        $(".brand-button");
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
         "click",
         event => {
-
-            const button =
-                event.target.closest(
-                    "[data-support]"
-                );
-
-            if (!button) {
-                return;
-            }
-
 
             event.preventDefault();
 
 
-            const type =
-                button.dataset.support;
-
-
-            const target =
-                document.querySelector(
-                    `[data-support-section="${type}"]`
-                );
-
-
-            if (target) {
-
-                showScreen(
-                    target.id
-                );
-
-            }
+            showScreen(
+                "home"
+            );
 
         }
-    );
-
-}
-
-
-/* =========================================================
-   MODAL
-   ========================================================= */
-
-function setupModal() {
-
-    const close =
-        $("#modalClose");
-
-
-    if (close) {
-
-        close.addEventListener(
-            "click",
-            closeInfoModal
-        );
-
-    }
-
-
-    document.addEventListener(
-        "click",
-        event => {
-
-            if (
-                event.target.closest(
-                    "[data-modal-close]"
-                )
-            ) {
-
-                closeInfoModal();
-
-            }
-
-        }
-    );
-
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Escape"
-            ) {
-
-                closeInfoModal();
-
-            }
-
-        }
-    );
-
-}
-
-
-function closeInfoModal() {
-
-    const modal =
-        $("#infoModal");
-
-
-    if (!modal) {
-        return;
-    }
-
-
-    modal.classList.remove(
-        "open"
-    );
-
-
-    modal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-}
-
-
-function openInfoModal(
-    data = {}
-) {
-
-    const modal =
-        $("#infoModal");
-
-
-    if (!modal) {
-        return;
-    }
-
-
-    const icon =
-        $("#modalIcon");
-
-    const eyebrow =
-        $("#modalEyebrow");
-
-    const title =
-        $("#modalTitle");
-
-    const text =
-        $("#modalText");
-
-
-    if (
-        icon &&
-        data.icon
-    ) {
-
-        icon.textContent =
-            data.icon;
-
-    }
-
-
-    if (
-        eyebrow &&
-        data.eyebrow
-    ) {
-
-        eyebrow.textContent =
-            data.eyebrow;
-
-    }
-
-
-    if (
-        title &&
-        data.title
-    ) {
-
-        title.textContent =
-            data.title;
-
-    }
-
-
-    if (
-        text &&
-        data.text
-    ) {
-
-        text.textContent =
-            data.text;
-
-    }
-
-
-    modal.classList.add(
-        "open"
-    );
-
-
-    modal.setAttribute(
-        "aria-hidden",
-        "false"
     );
 
 }
@@ -1465,7 +1302,9 @@ function showToast(
 
 
     if (!toast) {
+
         return;
+
     }
 
 
@@ -1530,14 +1369,89 @@ function showToast(
 
 
 /* =========================================================
-   INITIAL HOME
+   KEYBOARD ESCAPE
    ========================================================= */
 
-function initializeHome() {
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key !==
+            "Escape"
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+         * Escape returns to the
+         * previous logical place.
+         */
+
+        const current =
+            AppState.currentScreen;
+
+
+        if (
+            current ===
+            "order-project"
+        ) {
+
+            goToOrderStep(
+                1
+            );
+
+        }
+
+        else if (
+            current ===
+            "order-upload"
+        ) {
+
+            goToOrderStep(
+                2
+            );
+
+        }
+
+        else if (
+            current ===
+            "order-instructions"
+        ) {
+
+            goToOrderStep(
+                3
+            );
+
+        }
+
+        else if (
+            current ===
+            "order-review"
+        ) {
+
+            goToOrderStep(
+                4
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+function initializeApp() {
 
     /*
-     * IMPORTANT:
-     * Home is the ONLY initial screen.
+     * Make absolutely sure that
+     * only Home appears initially.
      */
 
     hideAllScreens();
@@ -1547,102 +1461,60 @@ function initializeHome() {
         getScreen("home");
 
 
-    if (!home) {
+    if (home) {
 
-        console.error(
-            "Home screen not found."
+        home.classList.add(
+            "active-screen"
         );
 
-        return;
+        home.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        home.style.display =
+            "block";
 
     }
-
-
-    home.classList.add(
-        "active-screen"
-    );
-
-
-    home.setAttribute(
-        "aria-hidden",
-        "false"
-    );
 
 
     AppState.currentScreen =
         "home";
 
 
-    AppState.previousScreen =
-        null;
-
-
-    AppState.screenHistory =
-        [];
-
-
-    window.scrollTo(
-        0,
-        0
-    );
-
-}
-
-
-/* =========================================================
-   INITIALIZE APP
-   ========================================================= */
-
-function initializeApp() {
-
-    initializeHome();
-
-
     setupScreenButtons();
 
     setupServiceButtons();
 
-    setupPlanDetails();
+    setupPlanButtons();
 
-    setupBackButtons();
+    setupOrderNextButtons();
 
-    setupOrderService();
+    setupOrderBackButtons();
 
-    setupOrderPlan();
+    setupVideoUpload();
 
-    setupOrderNext();
-
-    setupOrderBack();
-
-    setupOrderSubmit();
-
-    setupBrandButton();
+    setupSubmitOrder();
 
     setupFloatingHome();
 
-    setupSupport();
-
-    setupModal();
+    setupBrandButton();
 
 
-    /*
-     * Start Order at Page 1.
-     */
-
-    setOrderStep(
-        1
+    updateFloatingHome(
+        "home"
     );
 
 
     console.log(
-        "Gym Growth HQ — FINAL FLOW READY"
+        "Gym Growth HQ — JavaScript Ready"
     );
 
 }
 
 
 /* =========================================================
-   DOM READY
+   START
    ========================================================= */
 
 if (
@@ -1673,25 +1545,30 @@ window.GymGrowthHQ = {
 
     showScreen,
 
-    goBack,
+    startOrder,
 
-    setOrderStep,
+    goToOrderStep,
 
     resetOrder,
-
-    openInfoModal,
-
-    closeInfoModal,
-
-    showToast,
 
     getState() {
 
         return {
             ...AppState,
+
             orderData: {
-                ...AppState.orderData
+
+                ...AppState.orderData,
+
+                videoFiles:
+                    [
+                        ...AppState
+                            .orderData
+                            .videoFiles
+                    ]
+
             }
+
         };
 
     }
