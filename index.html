@@ -81,6 +81,33 @@
 
     </button>
 
+
+    <!-- ACCOUNT BUTTON -->
+
+    <button
+        id="accountHeaderButton"
+        class="account-header-button"
+        type="button"
+        data-screen="account"
+        style="display:none;"
+    >
+
+        <span
+            id="headerAccountInitial"
+            class="account-initial"
+        >
+            ?
+        </span>
+
+        <span
+            id="headerAccountName"
+            class="account-header-name"
+        >
+            Account
+        </span>
+
+    </button>
+
 </header>
 
 
@@ -94,10 +121,48 @@
 <section
     id="home"
     class="app-screen active-screen"
-    data-screen-section="home"
 >
 
     <div class="screen-inner">
+
+        <div
+            id="loggedInHomeCard"
+            class="logged-in-home-card"
+            style="display:none;"
+        >
+
+            <div class="account-initial large">
+                <span id="homeAccountInitial">
+                    ?
+                </span>
+            </div>
+
+            <div class="logged-in-home-info">
+
+                <span class="logged-in-label">
+                    LOGGED IN
+                </span>
+
+                <strong id="homeAccountName">
+                    Account
+                </strong>
+
+                <small id="homeAccountEmail">
+                    —
+                </small>
+
+            </div>
+
+            <button
+                class="account-open-button"
+                type="button"
+                data-screen="account"
+            >
+                →
+            </button>
+
+        </div>
+
 
         <span class="eyebrow">
             GYM GROWTH HQ
@@ -125,6 +190,18 @@
 
         </button>
 
+
+        <button
+            id="homeAccountButton"
+            class="outline-button full-button home-account-button"
+            type="button"
+            data-screen="login"
+        >
+
+            👤 Login / Create Account
+
+        </button>
+
     </div>
 
 </section>
@@ -138,7 +215,6 @@
 <section
     id="services"
     class="app-screen"
-    data-screen-section="services"
 >
 
     <div class="screen-inner">
@@ -150,7 +226,6 @@
         >
             ← Home
         </button>
-
 
         <span class="eyebrow">
             OUR SERVICES
@@ -168,7 +243,6 @@
 
         <div class="service-list">
 
-
             <article class="service-card">
 
                 <div class="service-icon">
@@ -180,8 +254,7 @@
                 </h3>
 
                 <p>
-                    Professional editing for
-                    gym reels.
+                    Professional editing for gym reels.
                 </p>
 
                 <button
@@ -196,7 +269,6 @@
             </article>
 
 
-
             <article class="service-card">
 
                 <div class="service-icon">
@@ -208,8 +280,7 @@
                 </h3>
 
                 <p>
-                    High-impact before and
-                    after transformation reels.
+                    High-impact before and after reels.
                 </p>
 
                 <button
@@ -224,7 +295,6 @@
             </article>
 
 
-
             <article class="service-card">
 
                 <div class="service-icon">
@@ -236,8 +306,7 @@
                 </h3>
 
                 <p>
-                    Promotional videos for
-                    gyms and campaigns.
+                    Promotional videos for gyms.
                 </p>
 
                 <button
@@ -278,7 +347,6 @@
             ← Services
         </button>
 
-
         <span class="eyebrow">
             SERVICE DETAILS
         </span>
@@ -305,21 +373,10 @@
 
             <ul>
 
-                <li>
-                    ✓ Clean professional cuts
-                </li>
-
-                <li>
-                    ✓ Music and beat matching
-                </li>
-
-                <li>
-                    ✓ Captions
-                </li>
-
-                <li>
-                    ✓ Instagram-ready format
-                </li>
+                <li>✓ Clean professional cuts</li>
+                <li>✓ Music and beat matching</li>
+                <li>✓ Captions</li>
+                <li>✓ Instagram-ready format</li>
 
             </ul>
 
@@ -332,11 +389,8 @@
             data-screen="pricing"
             data-service="reel-editing"
         >
-
             View Pricing
-
             <span>→</span>
-
         </button>
 
     </div>
@@ -364,7 +418,6 @@
             ← Services
         </button>
 
-
         <span class="eyebrow">
             SERVICE DETAILS
         </span>
@@ -391,21 +444,10 @@
 
             <ul>
 
-                <li>
-                    ✓ Before and after structure
-                </li>
-
-                <li>
-                    ✓ Strong visual pacing
-                </li>
-
-                <li>
-                    ✓ Music and beat matching
-                </li>
-
-                <li>
-                    ✓ Instagram-ready format
-                </li>
+                <li>✓ Before and after structure</li>
+                <li>✓ Strong visual pacing</li>
+                <li>✓ Music and beat matching</li>
+                <li>✓ Instagram-ready format</li>
 
             </ul>
 
@@ -418,11 +460,8 @@
             data-screen="pricing"
             data-service="transformation"
         >
-
             View Pricing
-
             <span>→</span>
-
         </button>
 
     </div>
@@ -450,7 +489,6 @@
             ← Services
         </button>
 
-
         <span class="eyebrow">
             SERVICE DETAILS
         </span>
@@ -464,8 +502,8 @@
         </h2>
 
         <p>
-            Promotional content for your
-            gym, offers and campaigns.
+            Promotional content for your gym,
+            offers and campaigns.
         </p>
 
 
@@ -477,21 +515,10 @@
 
             <ul>
 
-                <li>
-                    ✓ Promotional editing
-                </li>
-
-                <li>
-                    ✓ Offer highlights
-                </li>
-
-                <li>
-                    ✓ Music and pacing
-                </li>
-
-                <li>
-                    ✓ Social-media-ready video
-                </li>
+                <li>✓ Promotional editing</li>
+                <li>✓ Offer highlights</li>
+                <li>✓ Music and pacing</li>
+                <li>✓ Social-media-ready video</li>
 
             </ul>
 
@@ -504,11 +531,8 @@
             data-screen="pricing"
             data-service="gym-promotion"
         >
-
             View Pricing
-
             <span>→</span>
-
         </button>
 
     </div>
@@ -536,7 +560,6 @@
             ← Services
         </button>
 
-
         <span class="eyebrow">
             PRICING
         </span>
@@ -552,7 +575,6 @@
 
 
         <div class="pricing-list">
-
 
             <article class="pricing-card">
 
@@ -579,15 +601,11 @@
                     type="button"
                     data-plan-detail="reel-editing"
                 >
-
                     View Plan Details
-
                     <span>→</span>
-
                 </button>
 
             </article>
-
 
 
             <article class="pricing-card">
@@ -606,8 +624,7 @@
                 </div>
 
                 <p>
-                    Designed for
-                    transformation stories.
+                    Designed for transformation stories.
                 </p>
 
                 <button
@@ -615,15 +632,11 @@
                     type="button"
                     data-plan-detail="transformation"
                 >
-
                     View Plan Details
-
                     <span>→</span>
-
                 </button>
 
             </article>
-
 
 
             <article class="pricing-card">
@@ -642,8 +655,7 @@
                 </div>
 
                 <p>
-                    Promotional content
-                    for gyms.
+                    Promotional content for gyms.
                 </p>
 
                 <button
@@ -651,11 +663,8 @@
                     type="button"
                     data-plan-detail="gym-promotion"
                 >
-
                     View Plan Details
-
                     <span>→</span>
-
                 </button>
 
             </article>
@@ -669,7 +678,7 @@
 
 
 <!-- =====================================================
-     PLAN DETAILS — REEL EDITING
+     PLAN DETAILS
      ===================================================== -->
 
 <section
@@ -686,7 +695,6 @@
         >
             ← Pricing
         </button>
-
 
         <span class="eyebrow">
             PLAN DETAILS
@@ -710,21 +718,10 @@
 
             <ul>
 
-                <li>
-                    ✓ Professional editing
-                </li>
-
-                <li>
-                    ✓ Beat matching
-                </li>
-
-                <li>
-                    ✓ Captions
-                </li>
-
-                <li>
-                    ✓ Vertical export
-                </li>
+                <li>✓ Professional editing</li>
+                <li>✓ Beat matching</li>
+                <li>✓ Captions</li>
+                <li>✓ Vertical export</li>
 
             </ul>
 
@@ -737,11 +734,8 @@
             data-screen="login"
             data-plan="reel-editing"
         >
-
             Start Order
-
             <span>→</span>
-
         </button>
 
     </div>
@@ -749,10 +743,6 @@
 </section>
 
 
-
-<!-- =====================================================
-     PLAN DETAILS — TRANSFORMATION
-     ===================================================== -->
 
 <section
     id="plan-transformation"
@@ -768,7 +758,6 @@
         >
             ← Pricing
         </button>
-
 
         <span class="eyebrow">
             PLAN DETAILS
@@ -792,21 +781,10 @@
 
             <ul>
 
-                <li>
-                    ✓ Before & after structure
-                </li>
-
-                <li>
-                    ✓ Strong pacing
-                </li>
-
-                <li>
-                    ✓ Music matching
-                </li>
-
-                <li>
-                    ✓ Vertical export
-                </li>
+                <li>✓ Before & after structure</li>
+                <li>✓ Strong pacing</li>
+                <li>✓ Music matching</li>
+                <li>✓ Vertical export</li>
 
             </ul>
 
@@ -819,11 +797,8 @@
             data-screen="login"
             data-plan="transformation"
         >
-
             Start Order
-
             <span>→</span>
-
         </button>
 
     </div>
@@ -831,10 +806,6 @@
 </section>
 
 
-
-<!-- =====================================================
-     PLAN DETAILS — GYM PROMOTION
-     ===================================================== -->
 
 <section
     id="plan-gym-promotion"
@@ -850,7 +821,6 @@
         >
             ← Pricing
         </button>
-
 
         <span class="eyebrow">
             PLAN DETAILS
@@ -874,21 +844,10 @@
 
             <ul>
 
-                <li>
-                    ✓ Promotional editing
-                </li>
-
-                <li>
-                    ✓ Offer highlights
-                </li>
-
-                <li>
-                    ✓ Music and pacing
-                </li>
-
-                <li>
-                    ✓ Social-ready export
-                </li>
+                <li>✓ Promotional editing</li>
+                <li>✓ Offer highlights</li>
+                <li>✓ Music and pacing</li>
+                <li>✓ Social-ready export</li>
 
             </ul>
 
@@ -901,11 +860,8 @@
             data-screen="login"
             data-plan="gym-promotion"
         >
-
             Start Order
-
             <span>→</span>
-
         </button>
 
     </div>
@@ -928,11 +884,10 @@
         <button
             class="back-button"
             type="button"
-            data-screen="pricing"
+            data-screen="home"
         >
-            ← Back
+            ← Home
         </button>
-
 
         <span class="eyebrow">
             CLIENT ACCOUNT
@@ -987,11 +942,8 @@
                 class="primary-button full-button"
                 type="button"
             >
-
                 Login
-
                 <span>→</span>
-
             </button>
 
 
@@ -1005,11 +957,8 @@
                 class="outline-button full-button"
                 type="button"
             >
-
                 Create New Account
-
                 <span>→</span>
-
             </button>
 
         </div>
@@ -1038,7 +987,6 @@
         >
             ← Login
         </button>
-
 
         <span class="eyebrow">
             CLIENT ACCOUNT
@@ -1109,11 +1057,8 @@
                 class="primary-button full-button"
                 type="button"
             >
-
                 Create Account
-
                 <span>→</span>
-
             </button>
 
 
@@ -1122,9 +1067,7 @@
                 class="back-text-button"
                 type="button"
             >
-
                 Already have an account? Login
-
             </button>
 
         </div>
@@ -1136,8 +1079,7 @@
 
 
 <!-- =====================================================
-     ORDER — ROOM 1
-     CLIENT DETAILS
+     ORDER 01 — CLIENT
      ===================================================== -->
 
 <section
@@ -1171,7 +1113,6 @@
                 id="clientName"
                 type="text"
                 placeholder="Enter your name"
-                autocomplete="name"
             >
 
         </div>
@@ -1187,7 +1128,6 @@
                 id="gymName"
                 type="text"
                 placeholder="Enter your gym name"
-                autocomplete="organization"
             >
 
         </div>
@@ -1213,11 +1153,8 @@
             type="button"
             data-order-next="2"
         >
-
             Continue
-
             <span>→</span>
-
         </button>
 
     </div>
@@ -1227,8 +1164,7 @@
 
 
 <!-- =====================================================
-     ORDER — ROOM 2
-     PROJECT DETAILS
+     ORDER 02 — PROJECT
      ===================================================== -->
 
 <section
@@ -1309,11 +1245,8 @@
             type="button"
             data-order-next="3"
         >
-
             Continue
-
             <span>→</span>
-
         </button>
 
 
@@ -1322,9 +1255,7 @@
             type="button"
             data-order-back="1"
         >
-
             ← Back
-
         </button>
 
     </div>
@@ -1334,8 +1265,7 @@
 
 
 <!-- =====================================================
-     ORDER — ROOM 3
-     VIDEO UPLOAD
+     ORDER 03 — UPLOAD
      ===================================================== -->
 
 <section
@@ -1378,9 +1308,7 @@
                 class="upload-button"
                 for="videoFiles"
             >
-
                 Choose Videos
-
             </label>
 
 
@@ -1406,11 +1334,8 @@
             type="button"
             data-order-next="4"
         >
-
             Continue
-
             <span>→</span>
-
         </button>
 
 
@@ -1419,9 +1344,7 @@
             type="button"
             data-order-back="2"
         >
-
             ← Back
-
         </button>
 
     </div>
@@ -1431,8 +1354,7 @@
 
 
 <!-- =====================================================
-     ORDER — ROOM 4
-     INSTRUCTIONS
+     ORDER 04 — INSTRUCTIONS
      ===================================================== -->
 
 <section
@@ -1476,11 +1398,8 @@
             type="button"
             data-order-next="5"
         >
-
             Review Order
-
             <span>→</span>
-
         </button>
 
 
@@ -1489,9 +1408,7 @@
             type="button"
             data-order-back="3"
         >
-
             ← Back
-
         </button>
 
     </div>
@@ -1501,8 +1418,7 @@
 
 
 <!-- =====================================================
-     ORDER — ROOM 5
-     REVIEW
+     ORDER 05 — REVIEW
      ===================================================== -->
 
 <section
@@ -1613,11 +1529,8 @@
             type="button"
             id="submitOrderButton"
         >
-
             SUBMIT ORDER
-
             <span>✓</span>
-
         </button>
 
 
@@ -1626,9 +1539,7 @@
             type="button"
             data-order-back="4"
         >
-
             ← Back
-
         </button>
 
     </div>
@@ -1662,22 +1573,384 @@
         </h2>
 
         <p>
-            Your order request has been received.
-            We'll contact you with the next steps.
+            Your order has been saved to your account.
         </p>
 
 
         <button
             class="primary-button full-button"
             type="button"
+            data-screen="account"
+        >
+            View My Account
+            <span>→</span>
+        </button>
+
+
+        <button
+            class="back-text-button"
+            type="button"
             data-screen="home"
         >
-
             Back to Home
-
-            <span>→</span>
-
         </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     MY ACCOUNT
+     ===================================================== -->
+
+<section
+    id="account"
+    class="app-screen"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-screen="home"
+        >
+            ← Home
+        </button>
+
+
+        <span class="eyebrow">
+            MY ACCOUNT
+        </span>
+
+        <h2>
+            Your
+            <span>Account.</span>
+        </h2>
+
+
+        <div class="account-profile-card">
+
+            <div
+                id="accountInitial"
+                class="account-initial account-profile-initial"
+            >
+                ?
+            </div>
+
+
+            <div class="account-profile-info">
+
+                <h3 id="accountName">
+                    Account
+                </h3>
+
+                <p id="accountEmail">
+                    —
+                </p>
+
+                <span class="account-status">
+                    ● Logged in
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="account-menu">
+
+
+            <button
+                class="account-menu-item"
+                type="button"
+                data-screen="orders"
+            >
+
+                <span class="account-menu-icon">
+                    📦
+                </span>
+
+                <span class="account-menu-text">
+
+                    <strong>
+                        My Orders
+                    </strong>
+
+                    <small>
+                        View all your orders
+                    </small>
+
+                </span>
+
+                <span class="account-menu-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                class="account-menu-item"
+                type="button"
+                data-screen="services"
+            >
+
+                <span class="account-menu-icon">
+                    🎬
+                </span>
+
+                <span class="account-menu-text">
+
+                    <strong>
+                        New Order
+                    </strong>
+
+                    <small>
+                        Start another project
+                    </small>
+
+                </span>
+
+                <span class="account-menu-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                id="logoutButton"
+                class="account-menu-item logout-item"
+                type="button"
+            >
+
+                <span class="account-menu-icon">
+                    🚪
+                </span>
+
+                <span class="account-menu-text">
+
+                    <strong>
+                        Logout
+                    </strong>
+
+                    <small>
+                        Sign out of your account
+                    </small>
+
+                </span>
+
+                <span class="account-menu-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     MY ORDERS
+     ===================================================== -->
+
+<section
+    id="orders"
+    class="app-screen"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-screen="account"
+        >
+            ← My Account
+        </button>
+
+
+        <span class="eyebrow">
+            MY ORDERS
+        </span>
+
+        <h2>
+            Your
+            <span>Orders.</span>
+        </h2>
+
+        <p>
+            View the projects you have submitted.
+        </p>
+
+
+        <div
+            id="ordersList"
+            class="orders-list"
+        >
+
+            <!-- Orders will appear here -->
+
+        </div>
+
+
+        <button
+            class="primary-button full-button"
+            type="button"
+            data-screen="services"
+        >
+            Create New Order
+            <span>→</span>
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ORDER DETAILS
+     ===================================================== -->
+
+<section
+    id="order-details"
+    class="app-screen"
+>
+
+    <div class="screen-inner">
+
+        <button
+            class="back-button"
+            type="button"
+            data-screen="orders"
+        >
+            ← My Orders
+        </button>
+
+
+        <span class="eyebrow">
+            ORDER DETAILS
+        </span>
+
+        <h2>
+            Order
+            <span id="detailOrderNumber">
+                #001
+            </span>
+        </h2>
+
+
+        <div class="order-status-card">
+
+            <span>
+                STATUS
+            </span>
+
+            <strong id="detailOrderStatus">
+                Submitted
+            </strong>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Service
+            </h3>
+
+            <p id="detailService">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Plan
+            </h3>
+
+            <p id="detailPlan">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Client
+            </h3>
+
+            <p id="detailClient">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Gym
+            </h3>
+
+            <p id="detailGym">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Project Goal
+            </h3>
+
+            <p id="detailGoal">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Videos
+            </h3>
+
+            <p id="detailVideos">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Instructions
+            </h3>
+
+            <p id="detailInstructions">
+                —
+            </p>
+
+        </div>
 
     </div>
 
@@ -1703,7 +1976,6 @@
         >
             ← Home
         </button>
-
 
         <span class="eyebrow">
             SUPPORT
@@ -1798,4 +2070,4 @@
 
 </body>
 
-            </html>
+                    </html>
