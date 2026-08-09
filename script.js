@@ -6,7 +6,15 @@
 const USERS_KEY = "gghq_users";
 const SESSION_KEY = "gghq_session";
 const ORDERS_KEY = "gghq_orders";
+/* =========================================================
+   SUPABASE CONFIG
+   ========================================================= */
 
+const SUPABASE_URL =
+    "https://gcxsdpjkzrxmgbhcoeqn.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_Pcj2mwFWysWV2sQHwjAm_Q_qtv0I5hS";
 let currentUser = null;
 
 let currentOrder = {
