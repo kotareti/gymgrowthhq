@@ -82,8 +82,6 @@
     </button>
 
 
-    <!-- LOGGED-IN ACCOUNT BUTTON -->
-
     <button
         id="accountHeaderButton"
         class="account-header-button"
@@ -125,8 +123,6 @@
 
     <div class="screen-inner">
 
-
-        <!-- LOGGED IN USER CARD -->
 
         <div
             id="loggedInHomeCard"
@@ -303,32 +299,6 @@
             </article>
 
 
-            <article class="service-card">
-
-                <div class="service-icon">
-                    📈
-                </div>
-
-                <h3>
-                    Gym Promotion
-                </h3>
-
-                <p>
-                    Promotional videos for gyms.
-                </p>
-
-                <button
-                    class="primary-button full-button"
-                    type="button"
-                    data-detail="gym-promotion"
-                >
-                    Choose Gym Promotion
-                    <span>→</span>
-                </button>
-
-            </article>
-
-
         </div>
 
     </div>
@@ -488,80 +458,6 @@
 
 
 <!-- =====================================================
-     GYM PROMOTION
-     ===================================================== -->
-
-<section
-    id="gym-promotion"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="services"
-        >
-            ← Services
-        </button>
-
-
-        <span class="eyebrow">
-            SERVICE DETAILS
-        </span>
-
-
-        <div class="large-detail-icon">
-            📈
-        </div>
-
-
-        <h2>
-            Gym Promotion
-        </h2>
-
-
-        <p>
-            Promotional content for your gym.
-        </p>
-
-
-        <div class="detail-card">
-
-            <h3>
-                What You Get
-            </h3>
-
-            <ul>
-
-                <li>✓ Promotional editing</li>
-                <li>✓ Offer highlights</li>
-                <li>✓ Music and pacing</li>
-                <li>✓ Social-media-ready video</li>
-
-            </ul>
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="pricing"
-            data-service="gym-promotion"
-        >
-            View Pricing
-            <span>→</span>
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
      PRICING
      ===================================================== -->
 
@@ -663,37 +559,6 @@
             </article>
 
 
-            <article class="pricing-card">
-
-                <span class="plan-label">
-                    GYM PROMOTION
-                </span>
-
-                <h3>
-                    Promotional Video
-                </h3>
-
-                <div class="price">
-                    ₹499
-                    <small>/ video</small>
-                </div>
-
-                <p>
-                    Promotional content for gyms.
-                </p>
-
-                <button
-                    class="primary-button full-button"
-                    type="button"
-                    data-plan-detail="gym-promotion"
-                >
-                    View Plan Details
-                    <span>→</span>
-                </button>
-
-            </article>
-
-
         </div>
 
     </div>
@@ -703,7 +568,7 @@
 
 
 <!-- =====================================================
-     PLAN DETAILS
+     PLAN DETAILS - REEL EDITING
      ===================================================== -->
 
 <section
@@ -772,6 +637,10 @@
 
 
 
+<!-- =====================================================
+     PLAN DETAILS - TRANSFORMATION
+     ===================================================== -->
+
 <section
     id="plan-transformation"
     class="app-screen"
@@ -827,72 +696,6 @@
             type="button"
             data-screen="login"
             data-plan="transformation"
-        >
-            Start Order
-            <span>→</span>
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<section
-    id="plan-gym-promotion"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="pricing"
-        >
-            ← Pricing
-        </button>
-
-
-        <span class="eyebrow">
-            PLAN DETAILS
-        </span>
-
-
-        <h2>
-            Promotional Video
-        </h2>
-
-
-        <div class="price">
-            ₹499
-            <small>/ video</small>
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Included
-            </h3>
-
-            <ul>
-
-                <li>✓ Promotional editing</li>
-                <li>✓ Offer highlights</li>
-                <li>✓ Music and pacing</li>
-                <li>✓ Social-ready export</li>
-
-            </ul>
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="login"
-            data-plan="gym-promotion"
         >
             Start Order
             <span>→</span>
@@ -1121,7 +924,7 @@
 
 
 <!-- =====================================================
-     ORDER 1
+     ORDER 1 - CLIENT DETAILS
      ===================================================== -->
 
 <section
@@ -1180,14 +983,20 @@
         <div class="form-group">
 
             <label for="instagramHandle">
-                Instagram
+                Instagram Profile Link
             </label>
 
             <input
                 id="instagramHandle"
-                type="text"
-                placeholder="@yourgym"
+                type="url"
+                placeholder="https://instagram.com/yourgym"
+                inputmode="url"
             >
+
+            <small>
+                We use your Instagram profile to understand
+                your current content, style and topics.
+            </small>
 
         </div>
 
@@ -1208,7 +1017,7 @@
 
 
 <!-- =====================================================
-     ORDER 2
+     ORDER 2 - CREATIVE BRIEF
      ===================================================== -->
 
 <section
@@ -1224,15 +1033,19 @@
 
 
         <h2>
-            Project
-            <span>Details.</span>
+            Tell Us Your
+            <span>Vision.</span>
         </h2>
 
 
         <p>
-            Tell us what you want from this project.
+            Give us the reference and instructions
+            for your reel. You only need to explain
+            the editing once.
         </p>
 
+
+        <!-- MAIN GOAL -->
 
         <div class="form-group">
 
@@ -1250,16 +1063,12 @@
                     Grow Instagram reach
                 </option>
 
-                <option value="promotion">
-                    Promote my gym
+                <option value="engagement">
+                    Increase engagement
                 </option>
 
                 <option value="transformation">
                     Show a transformation
-                </option>
-
-                <option value="engagement">
-                    Increase engagement
                 </option>
 
                 <option value="other">
@@ -1271,17 +1080,145 @@
         </div>
 
 
-        <div class="form-group">
+        <!-- REFERENCE REEL -->
 
-            <label for="projectNotes">
-                Project Notes
+        <div class="detail-card">
+
+            <h3>
+                🔥 Reference Reel
+            </h3>
+
+            <p>
+                Saw a reel you really liked?
+                Upload it here and we'll use it
+                as your editing reference.
+            </p>
+
+
+            <label
+                class="upload-button"
+                for="referenceReelFile"
+            >
+                Choose Reference Reel
             </label>
 
-            <textarea
-                id="projectNotes"
-                rows="5"
-                placeholder="Tell us what you want..."
-            ></textarea>
+
+            <input
+                id="referenceReelFile"
+                type="file"
+                accept="video/*"
+                hidden
+            >
+
+
+            <div
+                id="referenceReelSelected"
+                class="selected-files"
+            ></div>
+
+        </div>
+
+
+        <!-- SONG -->
+
+        <div class="detail-card">
+
+            <h3>
+                🎵 Song / Audio
+            </h3>
+
+            <p>
+                Don't worry about knowing the song name.
+                Just select the audio file from your phone.
+            </p>
+
+
+            <label
+                class="upload-button"
+                for="songFile"
+            >
+                Choose Song / Audio
+            </label>
+
+
+            <input
+                id="songFile"
+                type="file"
+                accept="audio/*"
+                hidden
+            >
+
+
+            <div
+                id="songSelected"
+                class="selected-files"
+            ></div>
+
+        </div>
+
+
+        <!-- EDITING INSTRUCTIONS - ASK ONCE -->
+
+        <div class="detail-card">
+
+            <h3>
+                🎬 How Should We Edit It?
+            </h3>
+
+            <p>
+                Explain everything here once:
+                cuts, pacing, transitions, captions,
+                effects, hook, style and anything else.
+            </p>
+
+
+            <div class="form-group">
+
+                <label for="editingInstructions">
+                    Editing Instructions
+                </label>
+
+                <textarea
+                    id="editingInstructions"
+                    rows="8"
+                    placeholder="Example: Use the reference reel style, keep the first shot as the hook, fast cuts on the beat, add clean captions, use energetic pacing..."
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <!-- OPTIONAL HOOK -->
+
+        <div class="form-group">
+
+            <label for="projectHook">
+                Hook / On-screen Text (Optional)
+            </label>
+
+            <input
+                id="projectHook"
+                type="text"
+                placeholder="Example: 30 days. One transformation."
+            >
+
+        </div>
+
+
+        <!-- OPTIONAL CTA -->
+
+        <div class="form-group">
+
+            <label for="projectCTA">
+                CTA (Optional)
+            </label>
+
+            <input
+                id="projectCTA"
+                type="text"
+                placeholder="Example: Join us today"
+            >
 
         </div>
 
@@ -1311,7 +1248,7 @@
 
 
 <!-- =====================================================
-     ORDER 3
+     ORDER 3 - RAW VIDEO UPLOAD
      ===================================================== -->
 
 <section
@@ -1404,7 +1341,7 @@
 
 
 <!-- =====================================================
-     ORDER 4
+     ORDER 4 - SPECIAL INSTRUCTIONS
      ===================================================== -->
 
 <section
@@ -1420,26 +1357,27 @@
 
 
         <h2>
-            Special
-            <span>Instructions.</span>
+            Final
+            <span>Notes.</span>
         </h2>
 
 
         <p>
-            Tell us anything specific you want.
+            Anything important we should know
+            before we start editing?
         </p>
 
 
         <div class="form-group">
 
             <label for="specialInstructions">
-                Instructions
+                Additional Notes (Optional)
             </label>
 
             <textarea
                 id="specialInstructions"
                 rows="7"
-                placeholder="Example: Use this song, keep this clip first, add captions..."
+                placeholder="Example: Please avoid this clip, keep the logo visible, don't use heavy effects..."
             ></textarea>
 
         </div>
@@ -1470,7 +1408,7 @@
 
 
 <!-- =====================================================
-     ORDER 5
+     ORDER 5 - REVIEW
      ===================================================== -->
 
 <section
@@ -1567,10 +1505,49 @@
             <div class="review-row">
 
                 <span>
-                    Videos
+                    Reference Reel
+                </span>
+
+                <strong id="reviewReference">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <span>
+                    Song / Audio
+                </span>
+
+                <strong id="reviewSong">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <span>
+                    Raw Videos
                 </span>
 
                 <strong id="reviewVideos">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <span>
+                    Editing Instructions
+                </span>
+
+                <strong id="reviewEditingInstructions">
                     —
                 </strong>
 
@@ -1692,8 +1669,6 @@
         </h2>
 
 
-        <!-- ACCOUNT PROFILE -->
-
         <div class="account-profile-card">
 
 
@@ -1727,12 +1702,8 @@
 
 
 
-        <!-- ACCOUNT OPTIONS -->
-
         <div class="account-menu">
 
-
-            <!-- MY ORDERS -->
 
             <button
                 class="account-menu-item"
@@ -1766,8 +1737,6 @@
 
 
 
-            <!-- NEW ORDER -->
-
             <button
                 class="account-menu-item"
                 type="button"
@@ -1800,8 +1769,6 @@
 
 
 
-            <!-- SUPPORT -->
-
             <button
                 class="account-menu-item"
                 type="button"
@@ -1833,8 +1800,6 @@
             </button>
 
 
-
-            <!-- LOGOUT -->
 
             <button
                 id="logoutButton"
@@ -2037,10 +2002,49 @@
         <div class="detail-card">
 
             <h3>
+                Instagram
+            </h3>
+
+            <p id="detailInstagram">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
                 Project Goal
             </h3>
 
             <p id="detailGoal">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Reference Reel
+            </h3>
+
+            <p id="detailReference">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Song / Audio
+            </h3>
+
+            <p id="detailSong">
                 —
             </p>
 
@@ -2063,7 +2067,20 @@
         <div class="detail-card">
 
             <h3>
-                Instructions
+                Editing Instructions
+            </h3>
+
+            <p id="detailEditingInstructions">
+                —
+            </p>
+
+        </div>
+
+
+        <div class="detail-card">
+
+            <h3>
+                Additional Notes
             </h3>
 
             <p id="detailInstructions">
@@ -2339,4 +2356,4 @@
 
 </body>
 
-                </html>
+    </html>
