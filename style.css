@@ -1,6 +1,6 @@
 /* =========================================================
    GYM GROWTH HQ
-   MAIN STYLE.CSS
+   COMPLETE STYLE.CSS
    ========================================================= */
 
 * {
@@ -50,6 +50,11 @@ select {
     transition: 0.2s ease;
 }
 
+input::placeholder,
+textarea::placeholder {
+    color: #666672;
+}
+
 input:focus,
 textarea:focus,
 select:focus {
@@ -60,10 +65,6 @@ select:focus {
 textarea {
     resize: vertical;
     min-height: 110px;
-}
-
-select {
-    appearance: auto;
 }
 
 option {
@@ -96,19 +97,14 @@ option {
     position: sticky;
     top: 0;
     z-index: 1000;
-
     width: 100%;
     min-height: 70px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding: 10px 18px;
-
     background: rgba(8,9,13,0.92);
     border-bottom: 1px solid rgba(255,255,255,0.06);
-
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
 }
@@ -117,25 +113,20 @@ option {
     display: flex;
     align-items: center;
     gap: 11px;
-
     border: 0;
     background: transparent;
     color: white;
-
     text-align: left;
 }
 
 .brand-logo {
     width: 42px;
     height: 42px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 12px;
     overflow: hidden;
-
     background: #14151d;
     border: 1px solid rgba(145,92,255,0.30);
 }
@@ -170,12 +161,9 @@ option {
     display: none;
     align-items: center;
     gap: 8px;
-
     padding: 7px 10px 7px 7px;
-
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 30px;
-
     background: rgba(255,255,255,0.04);
     color: #ffffff;
 }
@@ -185,7 +173,6 @@ option {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
     font-size: 12px;
     font-weight: 700;
 }
@@ -198,22 +185,12 @@ option {
 .account-initial {
     width: 34px;
     height: 34px;
-
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 50%;
-
-    background:
-        linear-gradient(
-            135deg,
-            #915cff,
-            #6840d8
-        );
-
+    background: linear-gradient(135deg, #915cff, #6840d8);
     color: #ffffff;
     font-size: 14px;
     font-weight: 800;
@@ -227,7 +204,7 @@ option {
 
 
 /* =========================================================
-   CONTENT
+   CONTENT / SCREENS
    ========================================================= */
 
 .app-content {
@@ -248,7 +225,6 @@ option {
 .screen-inner {
     width: min(100%, 620px);
     margin: 0 auto;
-
     padding: 38px 20px 90px;
 }
 
@@ -263,9 +239,7 @@ option {
 
 .eyebrow {
     display: inline-block;
-
     margin-bottom: 12px;
-
     color: #a57cff;
     font-size: 10px;
     font-weight: 800;
@@ -280,7 +254,6 @@ h3 {
 
 h1 {
     max-width: 560px;
-
     font-size: clamp(38px, 10vw, 64px);
     line-height: 1.02;
     letter-spacing: -2.2px;
@@ -303,7 +276,6 @@ h2 span {
 .screen-inner > p {
     margin-top: 15px;
     max-width: 520px;
-
     color: #8f8f9d;
     font-size: 14px;
     line-height: 1.65;
@@ -318,19 +290,14 @@ h2 span {
 .outline-button,
 .submit-button {
     min-height: 52px;
-
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-
     border-radius: 15px;
-
     padding: 14px 18px;
-
     font-weight: 800;
     font-size: 14px;
-
     transition:
         transform 0.18s ease,
         opacity 0.18s ease,
@@ -339,19 +306,9 @@ h2 span {
 
 .primary-button {
     border: 0;
-
-    background:
-        linear-gradient(
-            135deg,
-            #9b67ff,
-            #7041dc
-        );
-
+    background: linear-gradient(135deg, #9b67ff, #7041dc);
     color: #ffffff;
-
-    box-shadow:
-        0 12px 30px
-        rgba(115,70,220,0.20);
+    box-shadow: 0 12px 30px rgba(115,70,220,0.20);
 }
 
 .primary-button:hover {
@@ -366,23 +323,13 @@ h2 span {
 
 .outline-button {
     border: 1px solid rgba(145,92,255,0.45);
-
-    background:
-        rgba(145,92,255,0.06);
-
+    background: rgba(145,92,255,0.06);
     color: #d8c8ff;
 }
 
 .submit-button {
     border: 0;
-
-    background:
-        linear-gradient(
-            135deg,
-            #8f5cff,
-            #673bd2
-        );
-
+    background: linear-gradient(135deg, #8f5cff, #673bd2);
     color: white;
 }
 
@@ -398,12 +345,9 @@ h2 span {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-
     margin-bottom: 34px;
-
     border: 0;
     background: transparent;
-
     color: #9696a4;
     font-size: 13px;
     font-weight: 700;
@@ -415,14 +359,10 @@ h2 span {
 
 .back-text-button {
     display: block;
-
     margin: 16px auto 0;
-
     border: 0;
     background: transparent;
-
     color: #898996;
-
     font-size: 13px;
     font-weight: 700;
 }
@@ -438,7 +378,6 @@ h2 span {
 
 #home .screen-inner {
     min-height: calc(100vh - 70px);
-
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -459,34 +398,24 @@ h2 span {
 
 .logged-in-home-card {
     display: none;
-
     align-items: center;
     gap: 12px;
-
     margin-bottom: 34px;
     padding: 14px;
-
     border-radius: 18px;
-
-    background:
-        rgba(255,255,255,0.035);
-
-    border:
-        1px solid
-        rgba(145,92,255,0.20);
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(145,92,255,0.20);
 }
 
 .logged-in-home-info {
     min-width: 0;
     flex: 1;
-
     display: flex;
     flex-direction: column;
 }
 
 .logged-in-label {
     margin-bottom: 3px;
-
     color: #a57cff;
     font-size: 8px;
     font-weight: 800;
@@ -497,17 +426,14 @@ h2 span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
     font-size: 14px;
 }
 
 .logged-in-home-info small {
     margin-top: 2px;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
     color: #777783;
     font-size: 11px;
 }
@@ -515,10 +441,8 @@ h2 span {
 .account-open-button {
     width: 38px;
     height: 38px;
-
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 50%;
-
     background: rgba(255,255,255,0.04);
     color: white;
     font-size: 18px;
@@ -526,14 +450,13 @@ h2 span {
 
 
 /* =========================================================
-   SERVICES
+   SERVICES / PRICING
    ========================================================= */
 
 .service-list,
 .pricing-list {
     display: grid;
     gap: 15px;
-
     margin-top: 30px;
 }
 
@@ -547,21 +470,14 @@ h2 span {
 .video-status-card,
 .video-ready-card {
     border-radius: 20px;
-
     background:
         linear-gradient(
             145deg,
             rgba(255,255,255,0.045),
             rgba(255,255,255,0.018)
         );
-
-    border:
-        1px solid
-        rgba(255,255,255,0.075);
-
-    box-shadow:
-        0 18px 50px
-        rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.075);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.15);
 }
 
 .service-card {
@@ -571,18 +487,12 @@ h2 span {
 .service-icon {
     width: 48px;
     height: 48px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     margin-bottom: 16px;
-
     border-radius: 15px;
-
-    background:
-        rgba(145,92,255,0.12);
-
+    background: rgba(145,92,255,0.12);
     font-size: 23px;
 }
 
@@ -592,7 +502,6 @@ h2 span {
 
 .service-card p {
     margin: 8px 0 18px;
-
     color: #858592;
     font-size: 13px;
     line-height: 1.5;
@@ -606,22 +515,13 @@ h2 span {
 .large-detail-icon {
     width: 64px;
     height: 64px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     margin: 4px 0 20px;
-
     border-radius: 20px;
-
-    background:
-        rgba(145,92,255,0.12);
-
-    border:
-        1px solid
-        rgba(145,92,255,0.20);
-
+    background: rgba(145,92,255,0.12);
+    border: 1px solid rgba(145,92,255,0.20);
     font-size: 30px;
 }
 
@@ -647,7 +547,6 @@ h2 span {
 
 .detail-card li {
     padding: 8px 0;
-
     color: #a7a7b4;
     font-size: 13px;
 }
@@ -679,9 +578,7 @@ h2 span {
 
 .price {
     margin-top: 15px;
-
     color: #ffffff;
-
     font-family: "Manrope", sans-serif;
     font-size: 35px;
     font-weight: 800;
@@ -696,7 +593,6 @@ h2 span {
 
 .pricing-card > p {
     margin: 9px 0 18px;
-
     color: #858592;
     font-size: 13px;
     line-height: 1.5;
@@ -713,9 +609,7 @@ h2 span {
 
 .form-group label {
     display: block;
-
     margin-bottom: 8px;
-
     color: #c6c6d0;
     font-size: 12px;
     font-weight: 700;
@@ -734,9 +628,7 @@ h2 span {
     display: flex;
     align-items: center;
     gap: 12px;
-
     margin: 20px 0;
-
     color: #5d5d68;
     font-size: 10px;
     font-weight: 800;
@@ -758,17 +650,10 @@ h2 span {
 .upload-box {
     margin-top: 24px;
     padding: 25px 18px;
-
     text-align: center;
-
     border-radius: 20px;
-
-    background:
-        rgba(145,92,255,0.045);
-
-    border:
-        1px dashed
-        rgba(145,92,255,0.45);
+    background: rgba(145,92,255,0.045);
+    border: 1px dashed rgba(145,92,255,0.45);
 }
 
 .upload-icon {
@@ -782,7 +667,6 @@ h2 span {
 
 .upload-box p {
     margin: 7px 0 17px;
-
     color: #858592;
     font-size: 12px;
 }
@@ -791,25 +675,114 @@ h2 span {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     min-height: 46px;
     padding: 12px 18px;
-
     border-radius: 13px;
-
-    background:
-        rgba(145,92,255,0.15);
-
-    border:
-        1px solid
-        rgba(145,92,255,0.40);
-
+    background: rgba(145,92,255,0.15);
+    border: 1px solid rgba(145,92,255,0.40);
     color: #d9caff;
-
     font-size: 13px;
     font-weight: 800;
-
     cursor: pointer;
+}
+
+
+/* =========================================================
+   VIDEO SELECTION PREVIEW
+   ========================================================= */
+
+.video-gallery-preview {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.video-preview-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #111118;
+    border: 2px solid rgba(145,92,255,0.65);
+}
+
+.video-preview-card video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    background: #08080c;
+}
+
+.video-preview-info {
+    padding: 9px 10px 11px;
+}
+
+.video-preview-name {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.video-preview-number {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 5;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.78);
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.gghq-selected-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    padding: 6px 9px;
+    border-radius: 20px;
+    background: rgba(70,220,130,0.95);
+    color: #07140c;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.gghq-video-selected-count {
+    margin-top: 16px;
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(145,92,255,0.14);
+    border: 1px solid rgba(145,92,255,0.45);
+    color: white;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.video-empty-message {
+    margin-top: 16px;
+    padding: 18px;
+    border-radius: 14px;
+    text-align: center;
+    color: #8f8f9d;
+    background: rgba(255,255,255,0.03);
+    font-size: 14px;
+}
+
+#submitOrderButton:disabled {
+    pointer-events: none;
 }
 
 
@@ -826,12 +799,8 @@ h2 span {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-
     padding: 13px 0;
-
-    border-bottom:
-        1px solid
-        rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .review-row:last-child {
@@ -845,11 +814,8 @@ h2 span {
 
 .review-row strong {
     max-width: 60%;
-
     overflow-wrap: anywhere;
-
     text-align: right;
-
     color: #ffffff;
     font-size: 12px;
 }
@@ -861,36 +827,24 @@ h2 span {
 
 .success-screen {
     min-height: calc(100vh - 70px);
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     text-align: center;
 }
 
 .success-icon {
     width: 75px;
     height: 75px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     margin-bottom: 22px;
-
     border-radius: 50%;
-
-    background:
-        rgba(70,220,130,0.12);
-
-    border:
-        1px solid
-        rgba(70,220,130,0.35);
-
+    background: rgba(70,220,130,0.12);
+    border: 1px solid rgba(70,220,130,0.35);
     color: #63e293;
-
     font-size: 35px;
     font-weight: 800;
 }
@@ -908,18 +862,11 @@ h2 span {
     display: flex;
     align-items: center;
     gap: 14px;
-
     margin-top: 25px;
     padding: 18px;
-
     border-radius: 20px;
-
-    background:
-        rgba(255,255,255,0.035);
-
-    border:
-        1px solid
-        rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
 }
 
 .account-profile-initial {
@@ -934,7 +881,6 @@ h2 span {
 
 .account-profile-info h3 {
     font-size: 17px;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -942,16 +888,13 @@ h2 span {
 
 .account-profile-info p {
     margin-top: 4px;
-
     color: #777783;
     font-size: 11px;
 }
 
 .account-status {
     display: inline-block;
-
     margin-top: 7px;
-
     color: #63df91;
     font-size: 10px;
     font-weight: 700;
@@ -960,55 +903,37 @@ h2 span {
 .account-menu {
     display: grid;
     gap: 10px;
-
     margin-top: 18px;
 }
 
 .account-menu-item {
     width: 100%;
-
     display: flex;
     align-items: center;
     gap: 13px;
-
     padding: 15px;
-
-    border:
-        1px solid
-        rgba(255,255,255,0.065);
-
+    border: 1px solid rgba(255,255,255,0.065);
     border-radius: 17px;
-
-    background:
-        rgba(255,255,255,0.025);
-
+    background: rgba(255,255,255,0.025);
     color: #ffffff;
-
     text-align: left;
 }
 
 .account-menu-icon {
     width: 40px;
     height: 40px;
-
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 12px;
-
-    background:
-        rgba(145,92,255,0.10);
-
+    background: rgba(145,92,255,0.10);
     font-size: 18px;
 }
 
 .account-menu-text {
     min-width: 0;
     flex: 1;
-
     display: flex;
     flex-direction: column;
 }
@@ -1019,7 +944,6 @@ h2 span {
 
 .account-menu-text small {
     margin-top: 4px;
-
     color: #73737f;
     font-size: 10px;
 }
@@ -1030,13 +954,11 @@ h2 span {
 }
 
 .logout-item {
-    border-color:
-        rgba(255,80,100,0.12);
+    border-color: rgba(255,80,100,0.12);
 }
 
 .logout-item .account-menu-icon {
-    background:
-        rgba(255,80,100,0.08);
+    background: rgba(255,80,100,0.08);
 }
 
 
@@ -1047,54 +969,37 @@ h2 span {
 .orders-list {
     display: grid;
     gap: 11px;
-
     margin-top: 25px;
     margin-bottom: 20px;
 }
 
 .order-history-card {
     width: 100%;
-
     display: flex;
     align-items: center;
     gap: 12px;
-
     padding: 15px;
-
-    border:
-        1px solid
-        rgba(255,255,255,0.07);
-
+    border: 1px solid rgba(255,255,255,0.07);
     border-radius: 17px;
-
-    background:
-        rgba(255,255,255,0.025);
-
+    background: rgba(255,255,255,0.025);
     color: white;
-
     text-align: left;
 }
 
 .order-history-icon {
     width: 42px;
     height: 42px;
-
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 12px;
-
-    background:
-        rgba(145,92,255,0.10);
+    background: rgba(145,92,255,0.10);
 }
 
 .order-history-info {
     min-width: 0;
     flex: 1;
-
     display: flex;
     flex-direction: column;
 }
@@ -1105,10 +1010,8 @@ h2 span {
 
 .order-history-info small {
     margin-top: 4px;
-
     color: #777783;
     font-size: 10px;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1116,7 +1019,6 @@ h2 span {
 
 .order-status-small {
     margin-top: 6px;
-
     color: #63df91;
     font-size: 9px;
     font-weight: 700;
@@ -1129,17 +1031,10 @@ h2 span {
 
 .empty-state {
     padding: 35px 20px;
-
     text-align: center;
-
     border-radius: 18px;
-
-    background:
-        rgba(255,255,255,0.025);
-
-    border:
-        1px solid
-        rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
 }
 
 .empty-icon {
@@ -1153,7 +1048,6 @@ h2 span {
 
 .empty-state p {
     margin-top: 7px;
-
     color: #777783;
     font-size: 12px;
 }
@@ -1167,7 +1061,6 @@ h2 span {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     margin-top: 22px;
     padding: 16px 18px;
 }
@@ -1193,7 +1086,6 @@ h2 span {
 .video-ready-card {
     margin-top: 25px;
     padding: 25px 20px;
-
     text-align: center;
 }
 
@@ -1210,11 +1102,306 @@ h2 span {
 .video-status-card p,
 .video-ready-card p {
     margin-top: 8px;
-
     color: #858592;
     font-size: 12px;
     line-height: 1.6;
 }
 
 .status-pill {
-    display:
+    display: inline-flex;
+    margin-top: 18px;
+    padding: 8px 13px;
+    border-radius: 30px;
+    background: rgba(255,190,50,0.10);
+    color: #ffc94f;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.video-preview {
+    margin-top: 18px;
+    overflow: hidden;
+    border-radius: 15px;
+    background: #050509;
+}
+
+.video-preview video {
+    display: block;
+    width: 100%;
+    max-height: 500px;
+}
+
+.delivery-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(70,220,130,0.06);
+}
+
+.delivery-note span {
+    color: #63df91;
+}
+
+.delivery-note p {
+    margin: 0;
+    text-align: left;
+}
+
+
+/* =========================================================
+   SUPPORT
+   ========================================================= */
+
+.support-card {
+    margin-top: 15px;
+    padding: 20px;
+}
+
+.support-card:first-of-type {
+    margin-top: 25px;
+}
+
+.support-card h3 {
+    font-size: 17px;
+}
+
+.support-card p {
+    margin-top: 7px;
+    color: #858592;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 25px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 190px;
+    max-width: calc(100% - 30px);
+    padding: 12px 15px;
+    border-radius: 14px;
+    background: rgba(25,25,32,0.96);
+    border: 1px solid rgba(255,255,255,0.09);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    transform: translate(-50%, 20px);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+#toastIcon {
+    color: #8f62ff;
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   FLOATING HOME
+   ========================================================= */
+
+.floating-home-button {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 900;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(145,92,255,0.35);
+    border-radius: 50%;
+    background: rgba(15,15,22,0.92);
+    color: #cdb5ff;
+    font-size: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    backdrop-filter: blur(12px);
+}
+
+
+/* =========================================================
+   CREATIVE BRIEF
+   ========================================================= */
+
+#gghqCreativeBrief {
+    margin-top: 24px;
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(145,92,255,0.07);
+    border: 1px solid rgba(145,92,255,0.30);
+    color: white;
+}
+
+#gghqCreativeBrief h3 {
+    margin: 0 0 8px;
+    color: #ffffff;
+    font-size: 18px;
+}
+
+#gghqCreativeBrief p {
+    margin: 0 0 18px;
+    color: #8f8f9d;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+#gghqCreativeBrief input,
+#gghqCreativeBrief textarea {
+    margin-top: 0;
+    margin-bottom: 12px;
+    background: rgba(0,0,0,0.20);
+}
+
+#gghqCreativeBrief textarea:last-child,
+#gghqCreativeBrief input:last-child {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   ORDER CREATIVE BRIEF DISPLAY
+   ========================================================= */
+
+#gghqOrderCreativeBrief,
+#gghqOrderVideoGallery {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(145,92,255,0.30);
+}
+
+#gghqOrderCreativeBrief > div:first-child,
+#gghqOrderVideoGallery > div:first-child {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid #a57cff;
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .top-bar {
+        padding: 9px 14px;
+    }
+
+    .screen-inner {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    h1 {
+        font-size: 40px;
+    }
+
+    h2 {
+        font-size: 34px;
+    }
+
+    .service-card,
+    .pricing-card {
+        padding: 18px;
+    }
+
+    .review-row {
+        gap: 12px;
+    }
+
+    .review-row strong {
+        max-width: 55%;
+    }
+
+    .video-gallery-preview {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   TABLET / DESKTOP
+   ========================================================= */
+
+@media (min-width: 600px) {
+
+    .video-gallery-preview {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 700px) {
+
+    .screen-inner {
+        padding-top: 55px;
+    }
+
+    .service-list,
+    .pricing-list {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .service-card:last-child,
+    .pricing-card:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .top-bar {
+        padding-left: 28px;
+        padding-right: 28px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    * {
+        scroll-behavior: auto !important;
+        transition: none !important;
+        animation: none !important;
+    }
+}
