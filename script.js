@@ -1254,178 +1254,336 @@ function updateReview() {
 
 
 /* =========================================================
-   SUBMIT ORDER
+   SUBMIT ORDER — SUPABASE VIDEO UPLOAD
    ========================================================= */
 
-function submitOrder() {
-
-    /*
-       NEVER redirect to Plan here.
-    */
+async function submitOrder() {
 
     if (!currentUser) {
-
         showScreen("login");
-
         return;
-
     }
 
-
     if (!currentOrder.service) {
-
         showToast(
             "Please select a service",
             "!"
         );
 
         showScreen("services");
-
         return;
-
     }
-
 
     if (!currentOrder.plan) {
-
-        currentOrder.plan =
-            "standard";
-
+        currentOrder.plan = "standard";
     }
 
-
-    /*
-       Make sure client details
-       are saved before order.
-    */
+    /* -----------------------------------------
+       SAVE CLIENT DETAILS
+       ----------------------------------------- */
 
     saveStepOne();
 
+    /* -----------------------------------------
+       GET ACTUAL SELECTED VIDEO FILES
+       ----------------------------------------- */
 
-    const orders =
-        getOrders();
+    const selectedFiles =
+        window.GGHQ_SELECTED_VIDEO_FILES || [];
 
+    if (!selectedFiles.length) {
 
-    const order = {
+        showToast(
+            "Please select at least one video",
+            "!"
+        );
 
-        id:
-            "GGHQ-" +
-            Date.now(),
+        showScreen("order-upload");
 
-        userId:
-            currentUser.id,
+        return;
+    }
 
-        userEmail:
-            currentUser.email,
+    /* -----------------------------------------
+       CREATE ORDER ID
+       ----------------------------------------- */
 
-        service:
-            currentOrder.service,
+    const orderId =
+        "GGHQ-" + Date.now();
 
-        plan:
-            currentOrder.plan,
+    const uploadedVideoUrls = [];
 
-        clientName:
-            currentOrder.clientName,
-
-        gymName:
-            currentOrder.gymName,
-
-        instagram:
-            currentOrder.instagram,
-
-        goal:
-            currentOrder.goal,
-
-        notes:
-            currentOrder.notes,
-
-        instructions:
-            currentOrder.instructions,
-
-        videos:
-            currentOrder.videos,
-
-        status:
-            "Submitted",
-
-        deliveryStatus:
-            "Editing in Progress",
-
-        finalVideo:
-            "",
-
-        createdAt:
-            new Date().toISOString()
-
-    };
-
-
-    orders.push(order);
-
-    saveOrders(orders);
-
-
-    currentOrderId =
-        order.id;
-
-
-    /*
-       IMPORTANT:
-
-       Do NOT reset before navigating.
-       Go directly to Account.
-    */
+    /* -----------------------------------------
+       SHOW UPLOADING MESSAGE
+       ----------------------------------------- */
 
     showToast(
-        "Order submitted successfully",
-        "✓"
+        "Uploading videos...",
+        "↑"
     );
 
+    /* -----------------------------------------
+       UPLOAD EACH VIDEO
+       ----------------------------------------- */
 
-    /*
-       Small delay only for toast.
-       Then Account.
-    */
+    try {
 
-    setTimeout(
-        () => {
+        for (
+            let i = 0;
+            i < selectedFiles.length;
+            i++
+        ) {
 
-            renderOrders();
+            const file =
+                selectedFiles[i];
 
-            showScreen(
-                "account"
+            const safeFileName =
+                file.name
+                    .replace(
+                        /[^a-zA-Z0-9._-]/g,
+                        "_"
+                    );
+
+            const filePath =
+                `${currentUser.id}/${orderId}/${Date.now()}_${i}_${safeFileName}`;
+
+            /* Upload */
+
+            const {
+                error: uploadError
+            } =
+                await supabaseClient
+                    .storage
+                    .from(
+                        SUPABASE_VIDEO_BUCKET
+                    )
+                    .upload(
+                        filePath,
+                        file,
+                        {
+                            cacheControl: "3600",
+                            upsert: false,
+                            contentType:
+                                file.type ||
+                                "video/mp4"
+                        }
+                    );
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+            /* Get public URL */
+
+            const {
+                data: publicData
+            } =
+                supabaseClient
+                    .storage
+                    .from(
+                        SUPABASE_VIDEO_BUCKET
+                    )
+                    .getPublicUrl(
+                        filePath
+                    );
+
+            uploadedVideoUrls.push(
+                publicData.publicUrl
             );
+        }
 
-        },
-        500
-    );
+        /* -----------------------------------------
+           CREATE DATABASE ORDER
+           ----------------------------------------- */
 
+        const order = {
 
-    /*
-       Prepare blank order AFTER
-       saving everything.
-       Client profile stays saved.
-    */
+            id: orderId,
 
-    currentOrder = {
+            userId:
+                currentUser.id,
 
-        service: "",
-        plan: "",
-        clientName:
-            currentUser.name || "",
-        gymName:
-            currentUser.gymName || "",
-        instagram:
-            currentUser.instagram || "",
-        goal: "",
-        notes: "",
-        instructions: "",
-        videos: []
+            userEmail:
+                currentUser.email,
 
-    };
+            service:
+                currentOrder.service,
 
-}
+            plan:
+                currentOrder.plan,
 
+            clientName:
+                currentOrder.clientName,
+
+            gymName:
+                currentOrder.gymName,
+
+            instagram:
+                currentOrder.instagram,
+
+            goal:
+                currentOrder.goal,
+
+            notes:
+                currentOrder.notes,
+
+            instructions:
+                currentOrder.instructions,
+
+            videos:
+                currentOrder.videos,
+
+            raw_video_urls:
+                uploadedVideoUrls,
+
+            status:
+                "Submitted",
+
+            deliveryStatus:
+                "Editing in Progress",
+
+            finalVideo:
+                "",
+
+            createdAt:
+                new Date().toISOString()
+        };
+
+        /* -----------------------------------------
+           SAVE TO LOCAL STORAGE
+           ----------------------------------------- */
+
+        const orders =
+            getOrders();
+
+        orders.push(order);
+
+        saveOrders(orders);
+
+        currentOrderId =
+            order.id;
+
+        /* -----------------------------------------
+           SAVE TO SUPABASE DATABASE
+           ----------------------------------------- */
+
+        const {
+            error: databaseError
+        } =
+            await supabaseClient
+                .from("orders")
+                .insert({
+                    user_id:
+                        currentUser.id,
+
+                    customer_name:
+                        currentOrder.clientName,
+
+                    gym_name:
+                        currentOrder.gymName,
+
+                    instagram:
+                        currentOrder.instagram,
+
+                    service:
+                        currentOrder.service,
+
+                    plan:
+                        currentOrder.plan,
+
+                    goal:
+                        currentOrder.goal,
+
+                    notes:
+                        currentOrder.notes,
+
+                    instructions:
+                        currentOrder.instructions,
+
+                    raw_video_urls:
+                        uploadedVideoUrls,
+
+                    status:
+                        "Submitted",
+
+                    delivery_status:
+                        "Editing in Progress",
+
+                    final_video:
+                        "",
+
+                    created_at:
+                        new Date().toISOString()
+                });
+
+        if (databaseError) {
+            throw databaseError;
+        }
+
+        /* -----------------------------------------
+           SUCCESS
+           ----------------------------------------- */
+
+        showToast(
+            "Order submitted successfully",
+            "✓"
+        );
+
+        setTimeout(
+            () => {
+
+                renderOrders();
+
+                showScreen(
+                    "account"
+                );
+
+            },
+            500
+        );
+
+        /* -----------------------------------------
+           RESET FOR NEXT ORDER
+           ----------------------------------------- */
+
+        currentOrder = {
+
+            service: "",
+
+            plan: "",
+
+            clientName:
+                currentUser.name || "",
+
+            gymName:
+                currentUser.gymName || "",
+
+            instagram:
+                currentUser.instagram || "",
+
+            goal: "",
+
+            notes: "",
+
+            instructions: "",
+
+            videos: []
+
+        };
+
+    } catch (error) {
+
+        console.error(
+            "SUPABASE ORDER ERROR:",
+            error
+        );
+
+        showToast(
+            "Video upload failed. Please try again.",
+            "!"
+        );
+    }
+    }
+                        
 
 /* =========================================================
    FIND CURRENT ORDER
