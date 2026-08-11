@@ -2,7 +2,18 @@
    GYM GROWTH HQ
    FINAL FLOW SCRIPT
    ========================================================= */
+const SUPABASE_URL =
+  "https://gcxsdpjkzrxmgbhcoeqn.supabase.co";
 
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_Pcj2mwFWysWV2sQHwjAm_Q_qtv0I5hS";
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+const SUPABASE_VIDEO_BUCKET = "order-videos";
 const USERS_KEY = "gghq_users";
 const SESSION_KEY = "gghq_session";
 const ORDERS_KEY = "gghq_orders";
