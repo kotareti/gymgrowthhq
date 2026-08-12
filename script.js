@@ -603,22 +603,18 @@ function startOrder() {
    CREATE ACCOUNT
    ========================================================= */
 
+
+    
 function createAccount() {
 
     const nameInput =
-        document.getElementById(
-            "signupName"
-        );
+        document.getElementById("signupName");
 
     const emailInput =
-        document.getElementById(
-            "signupEmail"
-        );
+        document.getElementById("signupEmail");
 
     const passwordInput =
-        document.getElementById(
-            "signupPassword"
-        );
+        document.getElementById("signupPassword");
 
 
     const name =
@@ -633,6 +629,10 @@ function createAccount() {
         passwordInput.value;
 
 
+    /* -----------------------------------------
+       VALIDATION
+       ----------------------------------------- */
+
     if (!name || !email || !password) {
 
         showToast(
@@ -641,7 +641,6 @@ function createAccount() {
         );
 
         return;
-
     }
 
 
@@ -653,107 +652,146 @@ function createAccount() {
         );
 
         return;
-
     }
 
 
-    const users =
-        getUsers();
+    /* -----------------------------------------
+       SUPABASE SIGN UP
+       ----------------------------------------- */
+
+    supabaseClient.auth
+        .signUp({
+
+            email: email,
+
+            password: password,
+
+            options: {
+                data: {
+                    name: name
+                }
+            }
+
+        })
+        .then(({ data, error }) => {
+
+            /* -----------------------------------------
+               ERROR
+               ----------------------------------------- */
+
+            if (error) {
+
+                console.error(
+                    "SUPABASE SIGNUP ERROR:",
+                    error
+                );
+
+                showToast(
+                    error.message,
+                    "!"
+                );
+
+                return;
+            }
 
 
-    if (
-        users.some(
-            user =>
-                user.email === email
-        )
-    ) {
+            /* -----------------------------------------
+               EMAIL CONFIRMATION REQUIRED
+               ----------------------------------------- */
 
-        showToast(
-            "Email already registered",
-            "!"
-        );
+            if (
+                data.user &&
+                !data.session
+            ) {
 
-        return;
+                nameInput.value = "";
+                emailInput.value = "";
+                passwordInput.value = "";
 
-    }
+                showToast(
+                    "Account created. Check your email to confirm.",
+                    "✓"
+                );
 
-
-    const newUser = {
-
-        id:
-            "USER-" +
-            Date.now(),
-
-        name:
-            name,
-
-        email:
-            email,
-
-        password:
-            password,
-
-        gymName:
-            "",
-
-        instagram:
-            "",
-
-        createdAt:
-            new Date().toISOString()
-
-    };
+                return;
+            }
 
 
-    users.push(newUser);
+            /* -----------------------------------------
+               SESSION CREATED
+               ----------------------------------------- */
 
-    saveUsers(users);
+            if (data.user) {
 
+                const user =
+                    data.user;
 
-    currentUser = {
+                currentUser = {
 
-        id:
-            newUser.id,
+                    id:
+                        user.id,
 
-        name:
-            newUser.name,
+                    name:
+                        user.user_metadata?.name || name,
 
-        email:
-            newUser.email,
+                    email:
+                        user.email,
 
-        gymName:
-            "",
+                    gymName:
+                        user.user_metadata?.gymName || "",
 
-        instagram:
-            ""
+                    instagram:
+                        user.user_metadata?.instagram || ""
 
-    };
-
-
-    saveSession(
-        currentUser
-    );
-
-
-    nameInput.value = "";
-    emailInput.value = "";
-    passwordInput.value = "";
+                };
 
 
-    updateAccountUI();
-
-    fillClientDetails();
-
-
-    showToast(
-        "Account created",
-        "✓"
-    );
+                saveSession(
+                    currentUser
+                );
 
 
-    showScreen("order");
+                nameInput.value = "";
+                emailInput.value = "";
+                passwordInput.value = "";
+
+
+                updateAccountUI();
+
+                fillClientDetails();
+
+
+                showToast(
+                    "Account created",
+                    "✓"
+                );
+
+
+                showScreen(
+                    "order"
+                );
+
+            }
+
+        })
+
+        .catch(error => {
+
+            console.error(
+                "SIGNUP ERROR:",
+                error
+            );
+
+            showToast(
+                "Something went wrong. Please try again.",
+                "!"
+            );
+
+        });
 
 }
+
+        
 
 
 /* =========================================================
