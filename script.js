@@ -146,7 +146,7 @@ function setText(id, value) {
         document.getElementById(id);
 
     if (el) {
-        el.textContent = value || "—";
+        el.textContent = value || "â€”";
     }
 
 }
@@ -166,7 +166,7 @@ function escapeHTML(value) {
 }
 
 
-function showToast(message, icon = "✓") {
+function showToast(message, icon = "âœ“") {
 
     const toast =
         document.getElementById("toast");
@@ -535,12 +535,18 @@ function startOrder() {
    LOGIN
    ========================================================= */
 
-        async function loginUser() {
+function loginUser() {
+
     const emailInput =
-        document.getElementById("loginEmail");
+        document.getElementById(
+            "loginEmail"
+        );
 
     const passwordInput =
-        document.getElementById("loginPassword");
+        document.getElementById(
+            "loginPassword"
+        );
+
 
     const email =
         emailInput.value
@@ -550,52 +556,91 @@ function startOrder() {
     const password =
         passwordInput.value;
 
+
     if (!email || !password) {
+
         showToast(
             "Enter email and password",
             "!"
         );
+
         return;
+
     }
 
-    const { data, error } =
-        await supabaseClient.auth.signInWithPassword({
-            email,
-            password
-        });
 
-    if (error) {
+    const users =
+        getUsers();
+
+
+    const user =
+        users.find(
+            item =>
+                item.email === email
+        );
+
+
+    if (!user) {
+
         showToast(
-            error.message,
+            "Account not found",
             "!"
         );
+
         return;
+
     }
 
-    const user = data.user;
+
+    if (
+        user.password !== password
+    ) {
+
+        showToast(
+            "Wrong password",
+            "!"
+        );
+
+        return;
+
+    }
+
 
     currentUser = {
         id: user.id,
-        name: user.user_metadata?.name || "",
+        name: user.name,
         email: user.email,
-        gymName: user.user_metadata?.gymName || "",
-        instagram: user.user_metadata?.instagram || ""
+        gymName: user.gymName || "",
+        instagram: user.instagram || ""
     };
+
 
     saveSession(currentUser);
 
     updateAccountUI();
+
     fillClientDetails();
+
 
     emailInput.value = "";
     passwordInput.value = "";
 
+
     showToast(
         "Login successful",
-        "✓"
+        "âœ“"
     );
 
+
+    /*
+       IMPORTANT:
+       Login finished.
+       Go directly to Order.
+       Never show Login again.
+    */
+
     showScreen("order");
+
 }
 
 
@@ -603,18 +648,22 @@ function startOrder() {
    CREATE ACCOUNT
    ========================================================= */
 
-
-    
 function createAccount() {
 
     const nameInput =
-        document.getElementById("signupName");
+        document.getElementById(
+            "signupName"
+        );
 
     const emailInput =
-        document.getElementById("signupEmail");
+        document.getElementById(
+            "signupEmail"
+        );
 
     const passwordInput =
-        document.getElementById("signupPassword");
+        document.getElementById(
+            "signupPassword"
+        );
 
 
     const name =
@@ -629,10 +678,6 @@ function createAccount() {
         passwordInput.value;
 
 
-    /* -----------------------------------------
-       VALIDATION
-       ----------------------------------------- */
-
     if (!name || !email || !password) {
 
         showToast(
@@ -641,6 +686,7 @@ function createAccount() {
         );
 
         return;
+
     }
 
 
@@ -652,146 +698,107 @@ function createAccount() {
         );
 
         return;
+
     }
 
 
-    /* -----------------------------------------
-       SUPABASE SIGN UP
-       ----------------------------------------- */
-
-    supabaseClient.auth
-        .signUp({
-
-            email: email,
-
-            password: password,
-
-            options: {
-                data: {
-                    name: name
-                }
-            }
-
-        })
-        .then(({ data, error }) => {
-
-            /* -----------------------------------------
-               ERROR
-               ----------------------------------------- */
-
-            if (error) {
-
-                console.error(
-                    "SUPABASE SIGNUP ERROR:",
-                    error
-                );
-
-                showToast(
-                    error.message,
-                    "!"
-                );
-
-                return;
-            }
+    const users =
+        getUsers();
 
 
-            /* -----------------------------------------
-               EMAIL CONFIRMATION REQUIRED
-               ----------------------------------------- */
+    if (
+        users.some(
+            user =>
+                user.email === email
+        )
+    ) {
 
-            if (
-                data.user &&
-                !data.session
-            ) {
+        showToast(
+            "Email already registered",
+            "!"
+        );
 
-                nameInput.value = "";
-                emailInput.value = "";
-                passwordInput.value = "";
+        return;
 
-                showToast(
-                    "Account created. Check your email to confirm.",
-                    "✓"
-                );
-
-                return;
-            }
+    }
 
 
-            /* -----------------------------------------
-               SESSION CREATED
-               ----------------------------------------- */
+    const newUser = {
 
-            if (data.user) {
+        id:
+            "USER-" +
+            Date.now(),
 
-                const user =
-                    data.user;
+        name:
+            name,
 
-                currentUser = {
+        email:
+            email,
 
-                    id:
-                        user.id,
+        password:
+            password,
 
-                    name:
-                        user.user_metadata?.name || name,
+        gymName:
+            "",
 
-                    email:
-                        user.email,
+        instagram:
+            "",
 
-                    gymName:
-                        user.user_metadata?.gymName || "",
+        createdAt:
+            new Date().toISOString()
 
-                    instagram:
-                        user.user_metadata?.instagram || ""
-
-                };
+    };
 
 
-                saveSession(
-                    currentUser
-                );
+    users.push(newUser);
+
+    saveUsers(users);
 
 
-                nameInput.value = "";
-                emailInput.value = "";
-                passwordInput.value = "";
+    currentUser = {
+
+        id:
+            newUser.id,
+
+        name:
+            newUser.name,
+
+        email:
+            newUser.email,
+
+        gymName:
+            "",
+
+        instagram:
+            ""
+
+    };
 
 
-                updateAccountUI();
-
-                fillClientDetails();
-
-
-                showToast(
-                    "Account created",
-                    "✓"
-                );
+    saveSession(
+        currentUser
+    );
 
 
-                showScreen(
-                    "order"
-                );
+    nameInput.value = "";
+    emailInput.value = "";
+    passwordInput.value = "";
 
-            }
 
-        })
+    updateAccountUI();
 
-        .catch(error => {
+    fillClientDetails();
 
-            console.error(
-                "SIGNUP ERROR:",
-                error
-            );
 
-            showToast(
-                "Something went wrong. Please try again.",
-                "!"
-            );
+    showToast(
+        "Account created",
+        "âœ“"
+    );
 
-        });
+
+    showScreen("order");
 
 }
-
-        
 
 
 /* =========================================================
@@ -826,7 +833,7 @@ function logoutUser() {
 
     showToast(
         "Logged out",
-        "✓"
+        "âœ“"
     );
 
 
@@ -1174,7 +1181,7 @@ function handleVideoFiles(files) {
 
 
             item.innerHTML = `
-                <span>🎬</span>
+                <span>ðŸŽ¬</span>
                 <span>${escapeHTML(video.name)}</span>
             `;
 
@@ -1202,7 +1209,7 @@ function updateReview() {
             : currentOrder.service ===
               "transformation"
                 ? "Transformation Reel"
-                : "—";
+                : "â€”";
 
 
     const plan =
@@ -1247,7 +1254,7 @@ function updateReview() {
 
 
 /* =========================================================
-   SUBMIT ORDER — SUPABASE VIDEO UPLOAD
+   SUBMIT ORDER â€” SUPABASE VIDEO UPLOAD
    ========================================================= */
 
 async function submitOrder() {
@@ -1311,7 +1318,7 @@ async function submitOrder() {
 
     showToast(
         "Uploading videos...",
-        "↑"
+        "â†‘"
     );
 
     /* -----------------------------------------
@@ -1518,7 +1525,7 @@ async function submitOrder() {
 
         showToast(
             "Order submitted successfully",
-            "✓"
+            "âœ“"
         );
 
         setTimeout(
@@ -1662,7 +1669,7 @@ function renderOrders() {
 
         list.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">📦</div>
+                <div class="empty-icon">ðŸ“¦</div>
                 <h3>No Orders Yet</h3>
                 <p>Your submitted orders will appear here.</p>
             </div>
@@ -1707,7 +1714,7 @@ function renderOrders() {
             card.innerHTML = `
 
                 <div class="order-history-icon">
-                    📦
+                    ðŸ“¦
                 </div>
 
                 <div class="order-history-info">
@@ -1717,7 +1724,7 @@ function renderOrders() {
                     </strong>
 
                     <small>
-                        ${plan} •
+                        ${plan} â€¢
                         ${escapeHTML(order.gymName)}
                     </small>
 
@@ -1730,7 +1737,7 @@ function renderOrders() {
                 </div>
 
                 <span class="account-menu-arrow">
-                    →
+                    â†’
                 </span>
 
             `;
@@ -1841,14 +1848,14 @@ function renderOrderDetails(
         order.videos
             ? order.videos.length +
               " video(s)"
-            : "—"
+            : "â€”"
     );
 
 
     setText(
         "detailInstructions",
         order.instructions ||
-        "—"
+        "â€”"
     );
 
 
@@ -2207,7 +2214,7 @@ document
 
 
 /* =========================================================
-   LOGIN → SIGNUP
+   LOGIN â†’ SIGNUP
    ========================================================= */
 
 document
@@ -2227,7 +2234,7 @@ document
 
 
 /* =========================================================
-   SIGNUP → LOGIN
+   SIGNUP â†’ LOGIN
    ========================================================= */
 
 document
@@ -2521,7 +2528,7 @@ function GGHQ_renderSelectedVideos() {
                 "gghq-selected-badge";
 
             selectedBadge.textContent =
-                "✓ SELECTED";
+                "âœ“ SELECTED";
 
 
             /* Video thumbnail */
@@ -2610,7 +2617,7 @@ function GGHQ_renderSelectedVideos() {
         files.length;
 
     count.appendChild(
-        document.createTextNode("✓ ")
+        document.createTextNode("âœ“ ")
     );
 
     count.appendChild(number);
@@ -2735,7 +2742,7 @@ if (GGHQ_videoInput) {
                             ? ""
                             : "s"
                     } selected`,
-                    "✓"
+                    "âœ“"
                 );
 
             }
@@ -2778,7 +2785,7 @@ document.addEventListener(
 
 /* ---------------------------------------------------------
    Entering Upload screen through
-   Order Next → Upload.
+   Order Next â†’ Upload.
 
    This is a NEW upload stage, so old videos
    must not appear.
