@@ -535,18 +535,12 @@ function startOrder() {
    LOGIN
    ========================================================= */
 
-function loginUser() {
-
+        async function loginUser() {
     const emailInput =
-        document.getElementById(
-            "loginEmail"
-        );
+        document.getElementById("loginEmail");
 
     const passwordInput =
-        document.getElementById(
-            "loginPassword"
-        );
-
+        document.getElementById("loginPassword");
 
     const email =
         emailInput.value
@@ -556,91 +550,52 @@ function loginUser() {
     const password =
         passwordInput.value;
 
-
     if (!email || !password) {
-
         showToast(
             "Enter email and password",
             "!"
         );
-
         return;
-
     }
 
+    const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
 
-    const users =
-        getUsers();
-
-
-    const user =
-        users.find(
-            item =>
-                item.email === email
-        );
-
-
-    if (!user) {
-
+    if (error) {
         showToast(
-            "Account not found",
+            error.message,
             "!"
         );
-
         return;
-
     }
 
-
-    if (
-        user.password !== password
-    ) {
-
-        showToast(
-            "Wrong password",
-            "!"
-        );
-
-        return;
-
-    }
-
+    const user = data.user;
 
     currentUser = {
         id: user.id,
-        name: user.name,
+        name: user.user_metadata?.name || "",
         email: user.email,
-        gymName: user.gymName || "",
-        instagram: user.instagram || ""
+        gymName: user.user_metadata?.gymName || "",
+        instagram: user.user_metadata?.instagram || ""
     };
-
 
     saveSession(currentUser);
 
     updateAccountUI();
-
     fillClientDetails();
-
 
     emailInput.value = "";
     passwordInput.value = "";
-
 
     showToast(
         "Login successful",
         "✓"
     );
 
-
-    /*
-       IMPORTANT:
-       Login finished.
-       Go directly to Order.
-       Never show Login again.
-    */
-
     showScreen("order");
-
 }
 
 
