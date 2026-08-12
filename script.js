@@ -29,6 +29,8 @@ let currentOrder = {
     goal: "",
     notes: "",
     instructions: "",
+    referenceReel: null,
+    song: null,
     videos: []
 };
 
@@ -146,7 +148,7 @@ function setText(id, value) {
         document.getElementById(id);
 
     if (el) {
-        el.textContent = value || "â€”";
+        el.textContent = value || "—";
     }
 
 }
@@ -166,7 +168,7 @@ function escapeHTML(value) {
 }
 
 
-function showToast(message, icon = "âœ“") {
+function showToast(message, icon = "✓") {
 
     const toast =
         document.getElementById("toast");
@@ -628,7 +630,7 @@ function loginUser() {
 
     showToast(
         "Login successful",
-        "âœ“"
+        "✓"
     );
 
 
@@ -792,7 +794,7 @@ function createAccount() {
 
     showToast(
         "Account created",
-        "âœ“"
+        "✓"
     );
 
 
@@ -821,6 +823,8 @@ function logoutUser() {
         goal: "",
         notes: "",
         instructions: "",
+        referenceReel: null,
+        song: null,
         videos: []
 
     };
@@ -833,7 +837,7 @@ function logoutUser() {
 
     showToast(
         "Logged out",
-        "âœ“"
+        "✓"
     );
 
 
@@ -1181,7 +1185,7 @@ function handleVideoFiles(files) {
 
 
             item.innerHTML = `
-                <span>ðŸŽ¬</span>
+                <span>🎬</span>
                 <span>${escapeHTML(video.name)}</span>
             `;
 
@@ -1209,7 +1213,7 @@ function updateReview() {
             : currentOrder.service ===
               "transformation"
                 ? "Transformation Reel"
-                : "â€”";
+                : "—";
 
 
     const plan =
@@ -1250,26 +1254,37 @@ function updateReview() {
         " video(s)"
     );
 
+    setText(
+        "reviewReference",
+        currentOrder.referenceReel?.name ||
+        "Not selected"
+    );
+
+    setText(
+        "reviewSong",
+        currentOrder.song?.name ||
+        "Not selected"
+    );
+
 }
 
 
 /* =========================================================
-   SUBMIT ORDER â€” SUPABASE VIDEO UPLOAD
+   SUBMIT ORDER — SUPABASE VIDEO UPLOAD
    ========================================================= */
 
 async function submitOrder() {
 
+    console.log("GGHQ: SUBMIT ORDER CLICKED");
+
     if (!currentUser) {
+        showToast("Please login first", "!");
         showScreen("login");
         return;
     }
 
     if (!currentOrder.service) {
-        showToast(
-            "Please select a service",
-            "!"
-        );
-
+        showToast("Please select a service", "!");
         showScreen("services");
         return;
     }
@@ -1278,54 +1293,92 @@ async function submitOrder() {
         currentOrder.plan = "standard";
     }
 
-    /* -----------------------------------------
-       SAVE CLIENT DETAILS
-       ----------------------------------------- */
-
-    saveStepOne();
-
-    /* -----------------------------------------
-       GET ACTUAL SELECTED VIDEO FILES
-       ----------------------------------------- */
+    if (!saveStepOne()) {
+        showToast(
+            "Please enter your name and gym name",
+            "!"
+        );
+        showScreen("order");
+        return;
+    }
 
     const selectedFiles =
         window.GGHQ_SELECTED_VIDEO_FILES || [];
 
     if (!selectedFiles.length) {
-
         showToast(
             "Please select at least one video",
             "!"
         );
-
         showScreen("order-upload");
-
         return;
     }
 
-    /* -----------------------------------------
-       CREATE ORDER ID
-       ----------------------------------------- */
+    const submitButton =
+        document.getElementById("submitOrderButton");
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.style.opacity = "0.6";
+        submitButton.innerHTML =
+            "SUBMITTING... ⏳";
+    }
 
     const orderId =
         "GGHQ-" + Date.now();
 
     const uploadedVideoUrls = [];
-
-    /* -----------------------------------------
-       SHOW UPLOADING MESSAGE
-       ----------------------------------------- */
-
-    showToast(
-        "Uploading videos...",
-        "â†‘"
-    );
-
-    /* -----------------------------------------
-       UPLOAD EACH VIDEO
-       ----------------------------------------- */
+    let referenceReelUpload = null;
+    let songUpload = null;
 
     try {
+
+        /* =====================================================
+           1. REFERENCE REEL
+           ===================================================== */
+
+        if (window.GGHQ_REFERENCE_REEL_FILE) {
+
+            showToast(
+                "Uploading reference reel...",
+                "🎬"
+            );
+
+            referenceReelUpload =
+                await uploadFileToSupabase(
+                    orderId,
+                    window.GGHQ_REFERENCE_REEL_FILE,
+                    "reference-reel"
+                );
+        }
+
+        /* =====================================================
+           2. SONG / AUDIO
+           ===================================================== */
+
+        if (window.GGHQ_SONG_FILE) {
+
+            showToast(
+                "Uploading song / audio...",
+                "🎵"
+            );
+
+            songUpload =
+                await uploadFileToSupabase(
+                    orderId,
+                    window.GGHQ_SONG_FILE,
+                    "song"
+                );
+        }
+
+        /* =====================================================
+           3. RAW SOURCE VIDEOS
+           ===================================================== */
+
+        showToast(
+            "Uploading videos...",
+            "↑"
+        );
 
         for (
             let i = 0;
@@ -1345,8 +1398,6 @@ async function submitOrder() {
 
             const filePath =
                 `${currentUser.id}/${orderId}/${Date.now()}_${i}_${safeFileName}`;
-
-            /* Upload */
 
             const {
                 error: uploadError
@@ -1369,10 +1420,11 @@ async function submitOrder() {
                     );
 
             if (uploadError) {
-                throw uploadError;
+                throw new Error(
+                    "Video upload failed: " +
+                    uploadError.message
+                );
             }
-
-            /* Get public URL */
 
             const {
                 data: publicData
@@ -1391,9 +1443,9 @@ async function submitOrder() {
             );
         }
 
-        /* -----------------------------------------
-           CREATE DATABASE ORDER
-           ----------------------------------------- */
+        /* =====================================================
+           4. BUILD COMPLETE LOCAL ORDER
+           ===================================================== */
 
         const order = {
 
@@ -1421,16 +1473,22 @@ async function submitOrder() {
                 currentOrder.instagram,
 
             goal:
-                currentOrder.goal,
+                currentOrder.goal || "",
 
             notes:
-                currentOrder.notes,
+                currentOrder.notes || "",
 
             instructions:
-                currentOrder.instructions,
+                currentOrder.instructions || "",
+
+            referenceReel:
+                referenceReelUpload,
+
+            song:
+                songUpload,
 
             videos:
-                currentOrder.videos,
+                currentOrder.videos || [],
 
             raw_video_urls:
                 uploadedVideoUrls,
@@ -1448,9 +1506,15 @@ async function submitOrder() {
                 new Date().toISOString()
         };
 
-        /* -----------------------------------------
-           SAVE TO LOCAL STORAGE
-           ----------------------------------------- */
+        /* =====================================================
+           5. SAVE ORDER LOCALLY
+
+           IMPORTANT:
+           Current login uses LocalStorage USER-* IDs.
+           The existing Supabase orders table requires
+           auth.users UUIDs, so inserting that LocalStorage
+           ID into orders.user_id would fail.
+           ===================================================== */
 
         const orders =
             getOrders();
@@ -1462,70 +1526,13 @@ async function submitOrder() {
         currentOrderId =
             order.id;
 
-        /* -----------------------------------------
-           SAVE TO SUPABASE DATABASE
-           ----------------------------------------- */
-
-        const {
-            error: databaseError
-        } =
-            await supabaseClient
-                .from("orders")
-                .insert({
-                    user_id:
-                        currentUser.id,
-
-                    customer_name:
-                        currentOrder.clientName,
-
-                    gym_name:
-                        currentOrder.gymName,
-
-                    instagram:
-                        currentOrder.instagram,
-
-                    service:
-                        currentOrder.service,
-
-                    plan:
-                        currentOrder.plan,
-
-                    goal:
-                        currentOrder.goal,
-
-                    notes:
-                        currentOrder.notes,
-
-                    instructions:
-                        currentOrder.instructions,
-
-                    raw_video_urls:
-                        uploadedVideoUrls,
-
-                    status:
-                        "Submitted",
-
-                    delivery_status:
-                        "Editing in Progress",
-
-                    final_video:
-                        "",
-
-                    created_at:
-                        new Date().toISOString()
-                });
-
-        if (databaseError) {
-            throw databaseError;
-        }
-
-        /* -----------------------------------------
-           SUCCESS
-           ----------------------------------------- */
+        /* =====================================================
+           6. SUCCESS
+           ===================================================== */
 
         showToast(
             "Order submitted successfully",
-            "âœ“"
+            "✓"
         );
 
         setTimeout(
@@ -1541,14 +1548,13 @@ async function submitOrder() {
             500
         );
 
-        /* -----------------------------------------
-           RESET FOR NEXT ORDER
-           ----------------------------------------- */
+        /* =====================================================
+           7. RESET FOR NEXT ORDER
+           ===================================================== */
 
         currentOrder = {
 
             service: "",
-
             plan: "",
 
             clientName:
@@ -1561,29 +1567,51 @@ async function submitOrder() {
                 currentUser.instagram || "",
 
             goal: "",
-
             notes: "",
-
             instructions: "",
+
+            referenceReel: null,
+            song: null,
 
             videos: []
 
         };
 
+        GGHQ_clearAllSelectedVideos();
+
+        if (typeof clearReferenceReel === "function") {
+            clearReferenceReel();
+        }
+
+        if (typeof clearSong === "function") {
+            clearSong();
+        }
+
     } catch (error) {
 
         console.error(
-            "SUPABASE ORDER ERROR:",
+            "GGHQ ORDER ERROR:",
             error
         );
 
         showToast(
-            "Video upload failed. Please try again.",
+            error?.message ||
+            "Order submission failed. Please try again.",
             "!"
         );
+
+    } finally {
+
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.style.opacity = "1";
+            submitButton.innerHTML =
+                "SUBMIT ORDER <span>✓</span>";
+        }
+
     }
-    }
-                        
+}
+
 
 /* =========================================================
    FIND CURRENT ORDER
@@ -1669,7 +1697,7 @@ function renderOrders() {
 
         list.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">ðŸ“¦</div>
+                <div class="empty-icon">📦</div>
                 <h3>No Orders Yet</h3>
                 <p>Your submitted orders will appear here.</p>
             </div>
@@ -1714,7 +1742,7 @@ function renderOrders() {
             card.innerHTML = `
 
                 <div class="order-history-icon">
-                    ðŸ“¦
+                    📦
                 </div>
 
                 <div class="order-history-info">
@@ -1724,7 +1752,7 @@ function renderOrders() {
                     </strong>
 
                     <small>
-                        ${plan} â€¢
+                        ${plan} •
                         ${escapeHTML(order.gymName)}
                     </small>
 
@@ -1737,7 +1765,7 @@ function renderOrders() {
                 </div>
 
                 <span class="account-menu-arrow">
-                    â†’
+                    →
                 </span>
 
             `;
@@ -1848,14 +1876,14 @@ function renderOrderDetails(
         order.videos
             ? order.videos.length +
               " video(s)"
-            : "â€”"
+            : "—"
     );
 
 
     setText(
         "detailInstructions",
         order.instructions ||
-        "â€”"
+        "—"
     );
 
 
@@ -2214,7 +2242,7 @@ document
 
 
 /* =========================================================
-   LOGIN â†’ SIGNUP
+   LOGIN → SIGNUP
    ========================================================= */
 
 document
@@ -2234,7 +2262,7 @@ document
 
 
 /* =========================================================
-   SIGNUP â†’ LOGIN
+   SIGNUP → LOGIN
    ========================================================= */
 
 document
@@ -2283,6 +2311,387 @@ restoreSession();
    ========================================================= */
 
 showScreen("home");
+/* =========================================================
+   REFERENCE REEL + SONG / AUDIO UPLOAD SYSTEM
+   ========================================================= */
+
+window.GGHQ_REFERENCE_REEL_FILE =
+    window.GGHQ_REFERENCE_REEL_FILE || null;
+
+window.GGHQ_SONG_FILE =
+    window.GGHQ_SONG_FILE || null;
+
+function formatFileSize(bytes) {
+
+    if (!bytes) return "";
+
+    const mb =
+        bytes / (1024 * 1024);
+
+    if (mb < 1) {
+        return Math.round(
+            bytes / 1024
+        ) + " KB";
+    }
+
+    return mb.toFixed(1) + " MB";
+}
+
+
+async function uploadFileToSupabase(
+    orderId,
+    file,
+    folder
+) {
+
+    if (!file) {
+        return null;
+    }
+
+    if (!currentUser) {
+        throw new Error(
+            "User not logged in"
+        );
+    }
+
+    const safeName =
+        file.name
+            .replace(
+                /[^a-zA-Z0-9._-]/g,
+                "_"
+            )
+            .replace(
+                /_+/g,
+                "_"
+            );
+
+    const uniquePart =
+        window.crypto &&
+        typeof window.crypto.randomUUID ===
+            "function"
+
+            ? window.crypto.randomUUID()
+
+            : Date.now() +
+              "-" +
+              Math.random()
+                  .toString(36)
+                  .slice(2);
+
+    const filePath =
+        `${currentUser.id}/${orderId}/${folder}/${uniquePart}-${safeName}`;
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .storage
+            .from(
+                SUPABASE_VIDEO_BUCKET
+            )
+            .upload(
+                filePath,
+                file,
+                {
+                    cacheControl: "3600",
+                    upsert: false,
+                    contentType:
+                        file.type ||
+                        "application/octet-stream"
+                }
+            );
+
+    if (error) {
+        throw new Error(
+            "Upload failed: " +
+            file.name +
+            " — " +
+            error.message
+        );
+    }
+
+    const {
+        data
+    } =
+        supabaseClient
+            .storage
+            .from(
+                SUPABASE_VIDEO_BUCKET
+            )
+            .getPublicUrl(
+                filePath
+            );
+
+    return {
+
+        name:
+            file.name,
+
+        size:
+            file.size,
+
+        type:
+            file.type ||
+            "application/octet-stream",
+
+        url:
+            data.publicUrl
+
+    };
+}
+
+
+function setupReferenceReel() {
+
+    const input =
+        document.getElementById(
+            "referenceReelFile"
+        );
+
+    if (!input) return;
+
+    input.addEventListener(
+        "change",
+        function() {
+
+            const file =
+                this.files &&
+                this.files[0];
+
+            if (!file) return;
+
+            if (
+                !file.type.startsWith(
+                    "video/"
+                )
+            ) {
+
+                showToast(
+                    "Please select a video",
+                    "!"
+                );
+
+                return;
+            }
+
+            window.GGHQ_REFERENCE_REEL_FILE =
+                file;
+
+            currentOrder.referenceReel = {
+
+                name:
+                    file.name,
+
+                size:
+                    file.size,
+
+                type:
+                    file.type,
+
+                lastModified:
+                    file.lastModified
+
+            };
+
+            renderReferenceReel();
+
+            showToast(
+                "Reference reel selected",
+                "✓"
+            );
+
+        }
+    );
+}
+
+
+function renderReferenceReel() {
+
+    const container =
+        document.getElementById(
+            "referenceReelSelected"
+        );
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const file =
+        window.GGHQ_REFERENCE_REEL_FILE;
+
+    if (!file) return;
+
+    container.innerHTML = `
+
+        <div class="selected-file-item">
+
+            <span>🎬</span>
+
+            <span>
+                ${escapeHTML(file.name)}
+            </span>
+
+            <small>
+                ${formatFileSize(file.size)}
+            </small>
+
+        </div>
+
+    `;
+}
+
+
+function clearReferenceReel() {
+
+    window.GGHQ_REFERENCE_REEL_FILE =
+        null;
+
+    currentOrder.referenceReel =
+        null;
+
+    const input =
+        document.getElementById(
+            "referenceReelFile"
+        );
+
+    if (input) {
+        input.value = "";
+    }
+
+    renderReferenceReel();
+}
+
+
+function setupSongInput() {
+
+    const input =
+        document.getElementById(
+            "songFile"
+        );
+
+    if (!input) return;
+
+    input.addEventListener(
+        "change",
+        function() {
+
+            const file =
+                this.files &&
+                this.files[0];
+
+            if (!file) return;
+
+            if (
+                !file.type.startsWith(
+                    "audio/"
+                )
+            ) {
+
+                showToast(
+                    "Please select an audio file",
+                    "!"
+                );
+
+                return;
+            }
+
+            window.GGHQ_SONG_FILE =
+                file;
+
+            currentOrder.song = {
+
+                name:
+                    file.name,
+
+                size:
+                    file.size,
+
+                type:
+                    file.type,
+
+                lastModified:
+                    file.lastModified
+
+            };
+
+            renderSong();
+
+            showToast(
+                "Song / audio selected",
+                "✓"
+            );
+
+        }
+    );
+}
+
+
+function renderSong() {
+
+    const container =
+        document.getElementById(
+            "songSelected"
+        );
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const file =
+        window.GGHQ_SONG_FILE;
+
+    if (!file) return;
+
+    container.innerHTML = `
+
+        <div class="selected-file-item">
+
+            <span>🎵</span>
+
+            <span>
+                ${escapeHTML(file.name)}
+            </span>
+
+            <small>
+                ${formatFileSize(file.size)}
+            </small>
+
+        </div>
+
+    `;
+}
+
+
+function clearSong() {
+
+    window.GGHQ_SONG_FILE =
+        null;
+
+    currentOrder.song =
+        null;
+
+    const input =
+        document.getElementById(
+            "songFile"
+        );
+
+    if (input) {
+        input.value = "";
+    }
+
+    renderSong();
+}
+
+
+setupReferenceReel();
+setupSongInput();
+
+
+/* =========================================================
+   END REFERENCE / AUDIO SYSTEM
+   ========================================================= */
+
+
 /* =========================================================
    FINAL VIDEO UPLOAD SYSTEM
    - Fresh upload for every new order
@@ -2528,7 +2937,7 @@ function GGHQ_renderSelectedVideos() {
                 "gghq-selected-badge";
 
             selectedBadge.textContent =
-                "âœ“ SELECTED";
+                "✓ SELECTED";
 
 
             /* Video thumbnail */
@@ -2617,7 +3026,7 @@ function GGHQ_renderSelectedVideos() {
         files.length;
 
     count.appendChild(
-        document.createTextNode("âœ“ ")
+        document.createTextNode("✓ ")
     );
 
     count.appendChild(number);
@@ -2742,7 +3151,7 @@ if (GGHQ_videoInput) {
                             ? ""
                             : "s"
                     } selected`,
-                    "âœ“"
+                    "✓"
                 );
 
             }
@@ -2785,7 +3194,7 @@ document.addEventListener(
 
 /* ---------------------------------------------------------
    Entering Upload screen through
-   Order Next â†’ Upload.
+   Order Next → Upload.
 
    This is a NEW upload stage, so old videos
    must not appear.
@@ -2853,29 +3262,10 @@ document.addEventListener(
    clear video selection for the NEXT order.
    --------------------------------------------------------- */
 
-document.addEventListener(
-    "click",
-    function(event) {
+/* Successful submitOrder() now clears selected videos itself.
+   Do not clear them on button click, because submitOrder()
+   is asynchronous and needs the File objects while uploading. */
 
-        const button =
-            event.target.closest(
-                "#submitOrderButton"
-            );
-
-        if (!button) return;
-
-        setTimeout(
-            function() {
-
-                GGHQ_clearAllSelectedVideos();
-
-            },
-            1000
-        );
-
-    },
-    true
-);
 
 
 /* =========================================================
