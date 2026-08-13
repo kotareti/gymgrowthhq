@@ -947,7 +947,6 @@ function goOrderNext(step) {
             return;
         }
         showScreen("order-project");
-        setTimeout(gghqCleanProjectUI, 0);
         return;
     }
     if (step === 3) {
@@ -2879,7 +2878,7 @@ function gghqEnsureReferenceInputs() {
             lastModified: file.lastModified
         };
         renderReferenceReel();
-        showToast("Reference reel added ✓", "✓");
+        showToast("Reference reel selected", "✓");
     });
 
     songInput?.addEventListener("change", function () {
@@ -2898,10 +2897,27 @@ function gghqEnsureReferenceInputs() {
             lastModified: file.lastModified
         };
         renderSong();
-        showToast("Song / audio added ✓", "✓");
+        showToast("Song / audio selected", "✓");
     });
 }
 
+function renderReferenceReel() {
+    const container = document.getElementById("referenceReelSelected");
+    if (!container) return;
+    const file = window.GGHQ_REFERENCE_REEL_FILE;
+    container.innerHTML = file
+        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatFileSize(file.size)}</div>`
+        : "";
+}
+
+function renderSong() {
+    const container = document.getElementById("songSelected");
+    if (!container) return;
+    const file = window.GGHQ_SONG_FILE;
+    container.innerHTML = file
+        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatFileSize(file.size)}</div>`
+        : "";
+}
 
 /* ---------- FILE UPLOAD ---------- */
 
@@ -3362,97 +3378,6 @@ startOrder = function () {
     gghqEnsureReferenceInputs();
 };
 
-
-/* =========================================================
-   GGHQ CUSTOMER PROJECT UI CLEANUP
-   - Remove Main Goal
-   - Remove old Creative Brief / editing instructions
-   - Keep only Reference Reel + Song/Audio
-   - Show ✓ selected state immediately after file selection
-   ========================================================= */
-
-function gghqRemoveSectionByHeading(headingText) {
-    const nodes = Array.from(document.querySelectorAll("h1,h2,h3,h4,h5,h6,label,div,p,span"));
-    const target = nodes.find(el => {
-        const t = (el.textContent || "").replace(/\s+/g, " ").trim();
-        return t === headingText || t.startsWith(headingText);
-    });
-    if (!target) return false;
-
-    let parent = target;
-    for (let i = 0; i < 6 && parent && parent !== document.body; i++) {
-        const text = (parent.textContent || "").replace(/\s+/g, " ").trim();
-        const childCount = parent.children ? parent.children.length : 0;
-
-        if (
-            parent !== document.getElementById("order-project") &&
-            childCount >= 1 &&
-            text.length < 5000
-        ) {
-            parent.remove();
-            return true;
-        }
-        parent = parent.parentElement;
-    }
-    return false;
-}
-
-function gghqSelectedStatusHTML(file, typeLabel) {
-    if (!file) {
-        return `<div class="gghq-file-status" style="margin-top:12px;color:#888;font-size:13px;">Not added</div>`;
-    }
-
-    return `<div class="gghq-file-status" style="margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(145,92,255,.10);border:1px solid rgba(145,92,255,.25);color:#d8c8ff;font-size:13px;line-height:1.45;">
-        <strong style="color:#fff;">✓ ${escapeHTML(typeLabel)} added</strong><br>
-        <span>${escapeHTML(file.name)} — ${formatFileSize(file.size)}</span>
-    </div>`;
-}
-
-function gghqRenderReferenceStatus() {
-    const reelStatus = document.getElementById("referenceReelSelected");
-    const songStatus = document.getElementById("songSelected");
-
-    if (reelStatus) {
-        reelStatus.innerHTML = gghqSelectedStatusHTML(
-            window.GGHQ_REFERENCE_REEL_FILE || null,
-            "Reference Reel"
-        );
-    }
-
-    if (songStatus) {
-        songStatus.innerHTML = gghqSelectedStatusHTML(
-            window.GGHQ_SONG_FILE || null,
-            "Song / Audio"
-        );
-    }
-}
-
-function renderReferenceReel() {
-    gghqRenderReferenceStatus();
-}
-
-function renderSong() {
-    gghqRenderReferenceStatus();
-}
-
-function gghqCleanProjectUI() {
-    const screen = document.getElementById("order-project");
-    if (!screen) return;
-
-    gghqRemoveSectionByHeading("Main Goal");
-    gghqRemoveSectionByHeading("How Should We Edit It?");
-    gghqRemoveSectionByHeading("Creative Brief");
-
-    /* Remove old standalone reference cards; the controlled Reference Files
-       box below is the single source of truth. */
-    gghqRemoveSectionByHeading("🔥 Reference Reel");
-    gghqRemoveSectionByHeading("🎬 Reference Reel");
-    gghqRemoveSectionByHeading("🎵 Song / Audio");
-
-    gghqEnsureReferenceInputs();
-    gghqRenderReferenceStatus();
-}
-
 /* ---------- INITIALIZE V2 ---------- */
 
 function gghqInitializeV2() {
@@ -3482,3 +3407,264 @@ if (document.readyState === "loading") {
 /* =========================================================
    END GGHQ V2 PRODUCTION PATCH
    ========================================================= */
+
+
+/* =========================================================
+   GGHQ FINAL CUSTOMER-FLOW PATCH
+   1. Hide Main Goal section (plan already determines service)
+   2. Hide old Creative Brief / editing-instructions UI
+   3. Keep ONE Reference Files box with real file pickers
+   4. Show immediate ✓ selected status + original filename
+   5. Keep Raw Video upload untouched
+   6. Review shows ONE Reference Reel row + ONE Song/Audio row
+   ========================================================= */
+
+(function gghqInstallFinalCustomerPatch() {
+    const HIDDEN_CLASS = "gghq-legacy-hidden";
+
+    function hideElement(el) {
+        if (!el || el === document.body) return;
+        el.classList.add(HIDDEN_CLASS);
+    }
+
+    function findCardForText(root, text) {
+        if (!root) return null;
+        const nodes = Array.from(root.querySelectorAll("h1,h2,h3,h4,h5,h6,label,p,span,div"));
+        const target = nodes.find(el => {
+            const value = (el.textContent || "").replace(/\s+/g, " ").trim();
+            return value === text || value.startsWith(text);
+        });
+        if (!target) return null;
+
+        const referenceBox = document.getElementById("gghqReferenceFilesBox");
+        if (referenceBox && referenceBox.contains(target)) return null;
+
+        let p = target;
+        for (let i = 0; i < 8 && p && p !== root; i++, p = p.parentElement) {
+            const cls = String(p.className || "").toLowerCase();
+            const tag = p.tagName.toLowerCase();
+            if (
+                tag === "section" || tag === "article" ||
+                cls.includes("card") || cls.includes("panel") ||
+                cls.includes("glass") || cls.includes("form")
+            ) return p;
+        }
+
+        p = target.parentElement;
+        for (let i = 0; i < 5 && p && p !== root; i++, p = p.parentElement) {
+            const textLen = (p.textContent || "").trim().length;
+            if (textLen > 30 && textLen < 3500 && p.children.length >= 1) return p;
+        }
+        return target.parentElement || target;
+    }
+
+    function hideLegacyProjectSections() {
+        const screen = document.getElementById("order-project");
+        if (!screen) return;
+
+        [
+            "Main Goal",
+            "How Should We Edit It?",
+            "Creative Brief",
+            "Tell us exactly how you want your video edited."
+        ].forEach(text => {
+            const card = findCardForText(screen, text);
+            if (card && !card.id?.includes("gghqReferenceFilesBox")) hideElement(card);
+        });
+
+        // Hide old standalone reference cards, but NEVER hide our controlled box.
+        ["Choose Reference Reel", "Choose Song / Audio"].forEach(text => {
+            const card = findCardForText(screen, text);
+            if (card && !card.id?.includes("gghqReferenceFilesBox")) hideElement(card);
+        });
+    }
+
+    function fileStatus(file, label) {
+        if (!file) {
+            return `<div class="gghq-file-status" style="margin-top:12px;padding:9px 12px;border-radius:12px;color:#888;font-size:13px;">Not added</div>`;
+        }
+        const size = typeof formatFileSize === "function"
+            ? formatFileSize(file.size)
+            : ((file.size / (1024 * 1024)).toFixed(1) + " MB");
+        return `<div class="gghq-file-status" style="margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(145,92,255,.10);border:1px solid rgba(145,92,255,.25);color:#d8c8ff;font-size:13px;line-height:1.45;"><strong style="color:#fff;">✓ ${escapeHTML(label)} added</strong><br><span>${escapeHTML(file.name)} — ${escapeHTML(size)}</span></div>`;
+    }
+
+    function renderReferenceStatus() {
+        const reel = document.getElementById("referenceReelSelected");
+        const song = document.getElementById("songSelected");
+        if (reel) reel.innerHTML = fileStatus(window.GGHQ_REFERENCE_REEL_FILE || null, "Reference Reel");
+        if (song) song.innerHTML = fileStatus(window.GGHQ_SONG_FILE || null, "Song / Audio");
+    }
+
+    // Replace the previous reference-box builder so it cannot leave only "Not added" text.
+    gghqEnsureReferenceInputs = function () {
+        const screen = document.getElementById("order-project");
+        if (!screen) return;
+
+        let box = document.getElementById("gghqReferenceFilesBox");
+        if (!box) {
+            box = document.createElement("div");
+            box.id = "gghqReferenceFilesBox";
+            box.style.cssText = "margin-top:20px;padding:18px;border-radius:18px;background:rgba(145,92,255,0.07);border:1px solid rgba(145,92,255,0.30);";
+            screen.appendChild(box);
+        }
+
+        // Repair an already-existing broken box from an earlier JS version.
+        if (!box.querySelector("#referenceReelFile") || !box.querySelector("#songFile")) {
+            box.innerHTML = `
+                <div style="font-size:16px;font-weight:800;margin-bottom:6px;color:#fff;">Reference Files</div>
+                <div style="font-size:12px;color:#999;margin-bottom:14px;line-height:1.5;">Optional: upload one reference reel and one song/audio file for this order.</div>
+                <div style="display:grid;gap:12px;">
+                    <label style="display:block;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);cursor:pointer;">
+                        <strong style="display:block;color:#fff;margin-bottom:5px;">🎬 Reference Reel</strong>
+                        <span style="font-size:12px;color:#999;">Choose a video</span>
+                        <input id="referenceReelFile" type="file" accept="video/*" style="display:block;margin-top:10px;width:100%;">
+                    </label>
+                    <label style="display:block;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);cursor:pointer;">
+                        <strong style="display:block;color:#fff;margin-bottom:5px;">🎵 Song / Audio</strong>
+                        <span style="font-size:12px;color:#999;">Choose an audio file</span>
+                        <input id="songFile" type="file" accept="audio/*" style="display:block;margin-top:10px;width:100%;">
+                    </label>
+                </div>
+                <div id="referenceReelSelected"></div>
+                <div id="songSelected"></div>
+            `;
+        }
+
+        const reelInput = document.getElementById("referenceReelFile");
+        const songInput = document.getElementById("songFile");
+
+        if (reelInput && reelInput.dataset.gghqBound !== "1") {
+            reelInput.dataset.gghqBound = "1";
+            reelInput.addEventListener("change", function () {
+                const file = this.files?.[0] || null;
+                if (!file) return;
+                if (!file.type.startsWith("video/")) {
+                    this.value = "";
+                    showToast("Please select a video", "!");
+                    return;
+                }
+                window.GGHQ_REFERENCE_REEL_FILE = file;
+                currentOrder.referenceReel = { name:file.name, size:file.size, type:file.type, lastModified:file.lastModified };
+                renderReferenceStatus();
+                showToast("Reference reel added ✓", "✓");
+            });
+        }
+
+        if (songInput && songInput.dataset.gghqBound !== "1") {
+            songInput.dataset.gghqBound = "1";
+            songInput.addEventListener("change", function () {
+                const file = this.files?.[0] || null;
+                if (!file) return;
+                if (!file.type.startsWith("audio/")) {
+                    this.value = "";
+                    showToast("Please select an audio file", "!");
+                    return;
+                }
+                window.GGHQ_SONG_FILE = file;
+                currentOrder.song = { name:file.name, size:file.size, type:file.type, lastModified:file.lastModified };
+                renderReferenceStatus();
+                showToast("Song / audio added ✓", "✓");
+            });
+        }
+
+        renderReferenceStatus();
+        hideLegacyProjectSections();
+    };
+
+    function hideOldReviewRows() {
+        const videoEl = document.getElementById("reviewVideos");
+        if (!videoEl) return null;
+        const container = videoEl.parentElement?.parentElement || videoEl.parentElement;
+        if (!container) return null;
+
+        Array.from(container.children).forEach(el => {
+            if (el.hasAttribute("data-gghq-reference-row")) return;
+            const t = (el.textContent || "").replace(/\s+/g, " ").trim();
+            if (
+                t === "Reference Reel" || t.startsWith("Reference Reel ") ||
+                t === "Song / Audio" || t.startsWith("Song / Audio ") ||
+                t.startsWith("Editing Instructions")
+            ) {
+                el.style.display = "none";
+            }
+        });
+        return container;
+    }
+
+    // One clean review renderer; keep the original service/plan/client/gym/Instagram/video rows.
+    updateReview = function () {
+        const service = currentOrder.service === "reel-editing" ? "Reel Editing" : currentOrder.service === "transformation" ? "Transformation Reel" : "—";
+        const plan = currentOrder.plan === "premium" ? "Premium" : "Standard";
+        setText("reviewService", service);
+        setText("reviewPlan", plan);
+        setText("reviewClient", currentOrder.clientName || "—");
+        setText("reviewGym", currentOrder.gymName || "—");
+        setText("reviewInstagram", currentOrder.instagram || "—");
+        const videos = window.GGHQ_SELECTED_VIDEO_FILES || [];
+        setText("reviewVideos", videos.length + " video(s)");
+
+        const container = hideOldReviewRows();
+        if (!container) return;
+
+        container.querySelectorAll("[data-gghq-reference-row]").forEach(el => el.remove());
+
+        const makeRow = (label, file) => {
+            const row = document.createElement("div");
+            row.setAttribute("data-gghq-reference-row", "1");
+            row.style.cssText = "display:flex;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08);";
+            const left = document.createElement("span");
+            left.textContent = label;
+            left.style.color = "#8f8f9d";
+            const right = document.createElement("strong");
+            right.textContent = file ? "✓ " + file.name : "Not added";
+            right.style.cssText = "color:#fff;text-align:right;max-width:62%;overflow-wrap:anywhere;";
+            row.append(left, right);
+            return row;
+        };
+
+        const reel = window.GGHQ_REFERENCE_REEL_FILE || null;
+        const audio = window.GGHQ_SONG_FILE || null;
+        const videoRow = videoEl.parentElement || videoEl;
+        container.insertBefore(makeRow("Reference Reel", reel), videoRow);
+        container.insertBefore(makeRow("Song / Audio", audio), videoRow);
+
+        document.getElementById("gghqCreativeBrief")?.remove();
+        document.getElementById("gghqReviewCreativeBrief")?.remove();
+        document.getElementById("gghqOrderCreativeBrief")?.remove();
+    };
+
+    const originalShowScreen = showScreen;
+    showScreen = function (id) {
+        originalShowScreen(id);
+        if (id === "order-project") {
+            setTimeout(() => {
+                gghqEnsureReferenceInputs();
+                hideLegacyProjectSections();
+            }, 0);
+        }
+        if (id === "order-review") {
+            setTimeout(() => updateReview(), 0);
+        }
+    };
+
+    // Global observer catches legacy sections rendered by the HTML after navigation.
+    const observer = new MutationObserver(() => {
+        const project = document.getElementById("order-project");
+        if (project?.classList.contains("active-screen")) {
+            gghqEnsureReferenceInputs();
+            hideLegacyProjectSections();
+        }
+    });
+    observer.observe(document.body, { childList:true, subtree:true });
+
+    const style = document.createElement("style");
+    style.textContent = `.${HIDDEN_CLASS}{display:none !important;}`;
+    document.head.appendChild(style);
+
+    // Initial pass.
+    setTimeout(() => {
+        gghqEnsureReferenceInputs();
+        hideLegacyProjectSections();
+    }, 0);
+})();
