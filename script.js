@@ -947,6 +947,7 @@ function goOrderNext(step) {
             return;
         }
         showScreen("order-project");
+        setTimeout(gghqCleanProjectUI, 0);
         return;
     }
     if (step === 3) {
@@ -2878,7 +2879,7 @@ function gghqEnsureReferenceInputs() {
             lastModified: file.lastModified
         };
         renderReferenceReel();
-        showToast("Reference reel selected", "✓");
+        showToast("Reference reel added ✓", "✓");
     });
 
     songInput?.addEventListener("change", function () {
@@ -2897,27 +2898,10 @@ function gghqEnsureReferenceInputs() {
             lastModified: file.lastModified
         };
         renderSong();
-        showToast("Song / audio selected", "✓");
+        showToast("Song / audio added ✓", "✓");
     });
 }
 
-function renderReferenceReel() {
-    const container = document.getElementById("referenceReelSelected");
-    if (!container) return;
-    const file = window.GGHQ_REFERENCE_REEL_FILE;
-    container.innerHTML = file
-        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatFileSize(file.size)}</div>`
-        : "";
-}
-
-function renderSong() {
-    const container = document.getElementById("songSelected");
-    if (!container) return;
-    const file = window.GGHQ_SONG_FILE;
-    container.innerHTML = file
-        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatFileSize(file.size)}</div>`
-        : "";
-}
 
 /* ---------- FILE UPLOAD ---------- */
 
@@ -3377,6 +3361,97 @@ startOrder = function () {
     currentOrder.song = null;
     gghqEnsureReferenceInputs();
 };
+
+
+/* =========================================================
+   GGHQ CUSTOMER PROJECT UI CLEANUP
+   - Remove Main Goal
+   - Remove old Creative Brief / editing instructions
+   - Keep only Reference Reel + Song/Audio
+   - Show ✓ selected state immediately after file selection
+   ========================================================= */
+
+function gghqRemoveSectionByHeading(headingText) {
+    const nodes = Array.from(document.querySelectorAll("h1,h2,h3,h4,h5,h6,label,div,p,span"));
+    const target = nodes.find(el => {
+        const t = (el.textContent || "").replace(/\s+/g, " ").trim();
+        return t === headingText || t.startsWith(headingText);
+    });
+    if (!target) return false;
+
+    let parent = target;
+    for (let i = 0; i < 6 && parent && parent !== document.body; i++) {
+        const text = (parent.textContent || "").replace(/\s+/g, " ").trim();
+        const childCount = parent.children ? parent.children.length : 0;
+
+        if (
+            parent !== document.getElementById("order-project") &&
+            childCount >= 1 &&
+            text.length < 5000
+        ) {
+            parent.remove();
+            return true;
+        }
+        parent = parent.parentElement;
+    }
+    return false;
+}
+
+function gghqSelectedStatusHTML(file, typeLabel) {
+    if (!file) {
+        return `<div class="gghq-file-status" style="margin-top:12px;color:#888;font-size:13px;">Not added</div>`;
+    }
+
+    return `<div class="gghq-file-status" style="margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(145,92,255,.10);border:1px solid rgba(145,92,255,.25);color:#d8c8ff;font-size:13px;line-height:1.45;">
+        <strong style="color:#fff;">✓ ${escapeHTML(typeLabel)} added</strong><br>
+        <span>${escapeHTML(file.name)} — ${formatFileSize(file.size)}</span>
+    </div>`;
+}
+
+function gghqRenderReferenceStatus() {
+    const reelStatus = document.getElementById("referenceReelSelected");
+    const songStatus = document.getElementById("songSelected");
+
+    if (reelStatus) {
+        reelStatus.innerHTML = gghqSelectedStatusHTML(
+            window.GGHQ_REFERENCE_REEL_FILE || null,
+            "Reference Reel"
+        );
+    }
+
+    if (songStatus) {
+        songStatus.innerHTML = gghqSelectedStatusHTML(
+            window.GGHQ_SONG_FILE || null,
+            "Song / Audio"
+        );
+    }
+}
+
+function renderReferenceReel() {
+    gghqRenderReferenceStatus();
+}
+
+function renderSong() {
+    gghqRenderReferenceStatus();
+}
+
+function gghqCleanProjectUI() {
+    const screen = document.getElementById("order-project");
+    if (!screen) return;
+
+    gghqRemoveSectionByHeading("Main Goal");
+    gghqRemoveSectionByHeading("How Should We Edit It?");
+    gghqRemoveSectionByHeading("Creative Brief");
+
+    /* Remove old standalone reference cards; the controlled Reference Files
+       box below is the single source of truth. */
+    gghqRemoveSectionByHeading("🔥 Reference Reel");
+    gghqRemoveSectionByHeading("🎬 Reference Reel");
+    gghqRemoveSectionByHeading("🎵 Song / Audio");
+
+    gghqEnsureReferenceInputs();
+    gghqRenderReferenceStatus();
+}
 
 /* ---------- INITIALIZE V2 ---------- */
 
