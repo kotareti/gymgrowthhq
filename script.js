@@ -4102,6 +4102,7 @@ function gghqEnsureReferenceInputs() {
     `;
 
     screen.appendChild(box);
+    box.scrollIntoView({ block: "nearest", behavior: "smooth" });
 
     const reelInput = document.getElementById("referenceReelFile");
     const songInput = document.getElementById("songFile");
@@ -4122,7 +4123,7 @@ function gghqEnsureReferenceInputs() {
             lastModified: file.lastModified
         };
         renderReferenceReel();
-        showToast("Reference reel selected", "✓");
+        showToast("Reference Reel selected ✓", "✓");
     });
 
     songInput?.addEventListener("change", function () {
@@ -4141,26 +4142,47 @@ function gghqEnsureReferenceInputs() {
             lastModified: file.lastModified
         };
         renderSong();
-        showToast("Song / audio selected", "✓");
+        showToast("Song / Audio selected ✓", "✓");
     });
 }
 
-function renderReferenceReel() {
-    const container = document.getElementById("referenceReelSelected");
+function gghqRenderSelectedFile(containerId, file, label) {
+    const container = document.getElementById(containerId);
     if (!container) return;
-    const file = window.GGHQ_REFERENCE_REEL_FILE;
-    container.innerHTML = file
-        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatFileSize(file.size)}</div>`
-        : "";
+
+    if (!file) {
+        container.innerHTML = "";
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="gghq-selected-file"
+             style="margin-top:12px;padding:11px 12px;border-radius:12px;
+                    background:rgba(145,92,255,.10);
+                    border:1px solid rgba(145,92,255,.28);
+                    color:#d8c8ff;font-size:13px;line-height:1.45;">
+            <strong style="display:block;color:#fff;font-size:14px;">
+                ✓ ${escapeHTML(label)} selected
+            </strong>
+            <span>${escapeHTML(file.name)} — ${formatFileSize(file.size)}</span>
+        </div>
+    `;
+}
+
+function renderReferenceReel() {
+    gghqRenderSelectedFile(
+        "referenceReelSelected",
+        window.GGHQ_REFERENCE_REEL_FILE || null,
+        "Reference Reel"
+    );
 }
 
 function renderSong() {
-    const container = document.getElementById("songSelected");
-    if (!container) return;
-    const file = window.GGHQ_SONG_FILE;
-    container.innerHTML = file
-        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatFileSize(file.size)}</div>`
-        : "";
+    gghqRenderSelectedFile(
+        "songSelected",
+        window.GGHQ_SONG_FILE || null,
+        "Song / Audio"
+    );
 }
 
 /* ---------- FILE UPLOAD ---------- */
