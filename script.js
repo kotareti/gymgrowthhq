@@ -4695,6 +4695,46 @@ window.addEventListener("unhandledrejection", event => {
     console.error("Unhandled promise rejection:", event.reason);
 });
 
+
+
+/* =========================================================
+   UI UPDATE: REMOVE CREATIVE BRIEF SECTION
+   Keep only the two useful reference-file options:
+   1. Reference Reel
+   2. Song / Audio
+   ========================================================= */
+
+function gghqRemoveCreativeBriefUI() {
+    const ids = [
+        "gghqCreativeBrief",
+        "gghqReviewCreativeBrief",
+        "gghqOrderCreativeBrief"
+    ];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    });
+}
+
+/* Disable the old Creative Brief UI while keeping its data structure
+   harmlessly available for backwards compatibility with old orders. */
+ensureCreativeBriefFields = function () {
+    gghqRemoveCreativeBriefUI();
+};
+
+renderOrderCreativeBrief = function () {
+    gghqRemoveCreativeBriefUI();
+};
+
+/* The old text-based brief is no longer part of the customer flow. */
+saveCreativeBrief = function () {
+    if (!currentOrder) return;
+    currentOrder.creativeBrief = currentOrder.creativeBrief || createEmptyCreativeBrief();
+};
+
+/* Always remove any legacy brief markup after navigation/re-rendering. */
+gghqRemoveCreativeBriefUI();
+
 /* =========================================================
    END GGHQ V2 PRODUCTION PATCH
    ========================================================= */
