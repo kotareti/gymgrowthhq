@@ -241,7 +241,13 @@ function showScreen(id) {
     }
 
     if (id === "order-project") {
-        gghqEnsureReferenceInputs();
+        /*
+         * Customer flow no longer injects the Creative Brief.
+         * Reference Reel + Song/Audio are handled by the V2 upload module.
+         */
+        setTimeout(() => {
+            gghqPrepareCustomerProjectScreen();
+        }, 0);
     }
 }
 
@@ -937,10 +943,251 @@ function saveStepOne() {
 
 
 /* =========================================================
+   CREATIVE BRIEF UI
+   ========================================================= */
+
+function ensureCreativeBriefFields() {
+
+    const screen =
+        document.getElementById(
+            "order-project"
+        );
+
+    if (!screen) return;
+
+    let wrapper =
+        document.getElementById(
+            "gghqCreativeBrief"
+        );
+
+    if (!wrapper) {
+
+        wrapper =
+            document.createElement(
+                "div"
+            );
+
+        wrapper.id =
+            "gghqCreativeBrief";
+
+        wrapper.style.cssText = `
+            margin-top:24px;
+            padding:18px;
+            border-radius:18px;
+            background:rgba(145,92,255,0.07);
+            border:1px solid rgba(145,92,255,0.30);
+        `;
+
+        wrapper.innerHTML = `
+
+            <h3 style="
+                margin:0 0 8px;
+                color:#ffffff;
+                font-size:18px;
+            ">
+                🎬 Creative Brief
+            </h3>
+
+            <p style="
+                margin:0 0 18px;
+                color:#8f8f9d;
+                font-size:13px;
+                line-height:1.5;
+            ">
+                Tell us exactly how you want your video edited.
+            </p>
+
+            <input
+                id="gghqTrend"
+                type="text"
+                placeholder="🔥 Trend / Reference"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <input
+                id="gghqSong"
+                type="text"
+                placeholder="🎵 Song / Audio"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <input
+                id="gghqEditingStyle"
+                type="text"
+                placeholder="🎨 Editing Style"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <textarea
+                id="gghqShotInstructions"
+                placeholder="🎥 How should the video be edited? Explain shots, cuts, transitions, timing..."
+                rows="4"
+                style="width:100%;margin-bottom:12px;"
+            ></textarea>
+
+            <input
+                id="gghqHook"
+                type="text"
+                placeholder="✍️ Hook / On-screen Text"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <input
+                id="gghqCTA"
+                type="text"
+                placeholder="📢 CTA"
+                style="width:100%;margin-bottom:12px;"
+            >
+
+            <textarea
+                id="gghqSpecialInstructions"
+                placeholder="📝 Special Instructions"
+                rows="4"
+                style="width:100%;"
+            ></textarea>
+        `;
+
+        const nextButton =
+            screen.querySelector(
+                '[data-order-next="3"]'
+            );
+
+        if (nextButton) {
+
+            nextButton.parentNode.insertBefore(
+                wrapper,
+                nextButton
+            );
+
+        } else {
+
+            screen.appendChild(
+                wrapper
+            );
+        }
+    }
+
+    restoreCreativeBriefFields();
+}
+
+
+function saveCreativeBrief() {
+
+    currentOrder.creativeBrief = {
+
+        trend:
+            document
+                .getElementById(
+                    "gghqTrend"
+                )
+                ?.value
+                .trim() || "",
+
+        song:
+            document
+                .getElementById(
+                    "gghqSong"
+                )
+                ?.value
+                .trim() || "",
+
+        editingStyle:
+            document
+                .getElementById(
+                    "gghqEditingStyle"
+                )
+                ?.value
+                .trim() || "",
+
+        shotInstructions:
+            document
+                .getElementById(
+                    "gghqShotInstructions"
+                )
+                ?.value
+                .trim() || "",
+
+        hook:
+            document
+                .getElementById(
+                    "gghqHook"
+                )
+                ?.value
+                .trim() || "",
+
+        cta:
+            document
+                .getElementById(
+                    "gghqCTA"
+                )
+                ?.value
+                .trim() || "",
+
+        specialInstructions:
+            document
+                .getElementById(
+                    "gghqSpecialInstructions"
+                )
+                ?.value
+                .trim() || ""
+    };
+}
+
+
+function restoreCreativeBriefFields() {
+
+    const brief =
+        currentOrder.creativeBrief ||
+        createEmptyCreativeBrief();
+
+    const fields = {
+
+        gghqTrend:
+            brief.trend || "",
+
+        gghqSong:
+            brief.song || "",
+
+        gghqEditingStyle:
+            brief.editingStyle || "",
+
+        gghqShotInstructions:
+            brief.shotInstructions || "",
+
+        gghqHook:
+            brief.hook || "",
+
+        gghqCTA:
+            brief.cta || "",
+
+        gghqSpecialInstructions:
+            brief.specialInstructions || ""
+    };
+
+    Object.entries(fields)
+        .forEach(
+            ([id, value]) => {
+
+                const element =
+                    document.getElementById(
+                        id
+                    );
+
+                if (element) {
+                    element.value =
+                        value;
+                }
+            }
+        );
+}
+
+
+/* =========================================================
    ORDER NEXT
    ========================================================= */
 
 function goOrderNext(step) {
+
     if (step === 2) {
         if (!saveStepOne()) {
             showToast("Please enter your details", "!");
@@ -949,15 +1196,27 @@ function goOrderNext(step) {
         showScreen("order-project");
         return;
     }
+
+    /* Main Goal / Creative Brief are not part of the customer flow. */
     if (step === 3) {
         showScreen("order-upload");
         return;
     }
-    if (step === 4 || step === 5) {
+
+    /* Skip the old editing-instructions screen. */
+    if (step === 4) {
+        updateReview();
+        showScreen("order-review");
+        return;
+    }
+
+    /* Backward compatibility for any old button still using step 5. */
+    if (step === 5) {
         updateReview();
         showScreen("order-review");
     }
 }
+
 
 
 /* =========================================================
@@ -1361,6 +1620,265 @@ if (GGHQ_videoInput) {
    REVIEW
    ========================================================= */
 
+function updateReview() {
+
+    const service =
+        currentOrder.service ===
+        "reel-editing"
+            ? "Reel Editing"
+            : currentOrder.service ===
+              "transformation"
+                ? "Transformation Reel"
+                : "—";
+
+    const plan =
+        currentOrder.plan ===
+        "premium"
+            ? "Premium"
+            : "Standard";
+
+    setText(
+        "reviewService",
+        service
+    );
+
+    setText(
+        "reviewPlan",
+        plan
+    );
+
+    setText(
+        "reviewClient",
+        currentOrder.clientName
+    );
+
+    setText(
+        "reviewGym",
+        currentOrder.gymName
+    );
+
+    setText(
+        "reviewInstagram",
+        currentOrder.instagram
+    );
+
+    setText(
+        "reviewVideos",
+        currentOrder.videos.length +
+        " video(s)"
+    );
+
+
+    /* =====================================================
+       CREATIVE BRIEF IN REVIEW
+       ===================================================== */
+
+    const reviewVideos =
+        document.getElementById(
+            "reviewVideos"
+        );
+
+    if (!reviewVideos) {
+        return;
+    }
+
+    const oldBrief =
+        document.getElementById(
+            "gghqReviewCreativeBrief"
+        );
+
+    if (oldBrief) {
+        oldBrief.remove();
+    }
+
+    const brief =
+        currentOrder.creativeBrief ||
+        createEmptyCreativeBrief();
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+    wrapper.id =
+        "gghqReviewCreativeBrief";
+
+    wrapper.style.cssText = `
+        margin-top:20px;
+        padding:18px;
+        border-radius:18px;
+        background:rgba(145,92,255,0.07);
+        border:1px solid rgba(145,92,255,0.30);
+    `;
+
+
+    const title =
+        document.createElement(
+            "div"
+        );
+
+    title.textContent =
+        "🎬 Creative Brief";
+
+    title.style.cssText = `
+        margin-bottom:16px;
+        color:#ffffff;
+        font-size:17px;
+        font-weight:800;
+    `;
+
+    wrapper.appendChild(
+        title
+    );
+
+
+    const fields = [
+
+        [
+            "🔥 Trend / Reference",
+            brief.trend
+        ],
+
+        [
+            "🎵 Song / Audio",
+            brief.song
+        ],
+
+        [
+            "🎨 Editing Style",
+            brief.editingStyle
+        ],
+
+        [
+            "🎥 Shot Instructions",
+            brief.shotInstructions
+        ],
+
+        [
+            "✍️ Hook / On-screen Text",
+            brief.hook
+        ],
+
+        [
+            "📢 CTA",
+            brief.cta
+        ],
+
+        [
+            "📝 Special Instructions",
+            brief.specialInstructions
+        ]
+    ];
+
+
+    let hasContent =
+        false;
+
+
+    fields.forEach(
+        ([label, value]) => {
+
+            if (
+                value ===
+                    undefined ||
+                value ===
+                    null ||
+                !String(value).trim()
+            ) {
+                return;
+            }
+
+            hasContent =
+                true;
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.style.cssText = `
+                margin-bottom:14px;
+            `;
+
+
+            const labelEl =
+                document.createElement(
+                    "div"
+                );
+
+            labelEl.textContent =
+                label;
+
+            labelEl.style.cssText = `
+                color:#cdb5ff;
+                font-size:12px;
+                font-weight:700;
+                margin-bottom:5px;
+            `;
+
+
+            const valueEl =
+                document.createElement(
+                    "div"
+                );
+
+            valueEl.textContent =
+                value;
+
+            valueEl.style.cssText = `
+                color:#ffffff;
+                font-size:13px;
+                line-height:1.55;
+                white-space:pre-wrap;
+            `;
+
+
+            row.appendChild(
+                labelEl
+            );
+
+            row.appendChild(
+                valueEl
+            );
+
+            wrapper.appendChild(
+                row
+            );
+        }
+    );
+
+
+    if (!hasContent) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.textContent =
+            "No creative brief added.";
+
+        empty.style.cssText = `
+            padding:14px;
+            border-radius:12px;
+            background:rgba(255,255,255,0.03);
+            color:#8f8f9d;
+            font-size:13px;
+        `;
+
+        wrapper.appendChild(
+            empty
+        );
+    }
+
+
+    reviewVideos.insertAdjacentElement(
+        "afterend",
+        wrapper
+    );
+}
+
+
 /* =========================================================
    FIND CURRENT ORDER
    ========================================================= */
@@ -1386,9 +1904,500 @@ function findCurrentOrder() {
    SUPABASE STORAGE VIDEO UPLOAD
    ========================================================= */
 
+async function uploadOrderVideos(
+    orderId,
+    files
+) {
+
+    const selectedFiles =
+        Array.from(
+            files || []
+        );
+
+    if (
+        !selectedFiles.length
+    ) {
+        return [];
+    }
+
+    const uploaded = [];
+
+    for (
+        const file
+        of selectedFiles
+    ) {
+
+        const safeName =
+            file.name
+                .replace(
+                    /[^a-zA-Z0-9._-]/g,
+                    "_"
+                )
+                .replace(
+                    /_+/g,
+                    "_"
+                );
+
+        const uniquePart =
+            (
+                window.crypto &&
+                crypto.randomUUID
+            )
+                ? crypto.randomUUID()
+                : Date.now() +
+                  "-" +
+                  Math.random()
+                      .toString(36)
+                      .slice(2);
+
+        const path =
+            currentUser.id +
+            "/" +
+            orderId +
+            "/" +
+            uniquePart +
+            "-" +
+            safeName;
+
+        const encodedPath =
+            path
+                .split("/")
+                .map(
+                    part =>
+                        encodeURIComponent(
+                            part
+                        )
+                )
+                .join("/");
+
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/storage/v1/object/order-videos/" +
+                encodedPath,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "apikey":
+                            SUPABASE_PUBLISHABLE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            SUPABASE_PUBLISHABLE_KEY,
+
+                        "Content-Type":
+                            file.type ||
+                            "video/mp4",
+
+                        "x-upsert":
+                            "false"
+                    },
+
+                    body:
+                        file
+                }
+            );
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Video upload error:",
+                errorText
+            );
+
+            throw new Error(
+                "Video upload failed: " +
+                (
+                    file.name ||
+                    "video"
+                )
+            );
+        }
+
+        uploaded.push({
+
+            name:
+                file.name,
+
+            size:
+                file.size,
+
+            type:
+                file.type ||
+                "video/mp4",
+
+            url:
+                SUPABASE_URL +
+                "/storage/v1/object/public/order-videos/" +
+                encodedPath
+        });
+    }
+
+    return uploaded;
+}
+
+
 /* =========================================================
    SUBMIT ORDER
    ========================================================= */
+
+async function submitOrder() {
+
+    if (!currentUser) {
+
+        showScreen("login");
+
+        return;
+    }
+
+    if (!currentOrder.service) {
+
+        showToast(
+            "Please select a service",
+            "!"
+        );
+
+        showScreen("services");
+
+        return;
+    }
+
+    if (!currentOrder.plan) {
+
+        currentOrder.plan =
+            "standard";
+    }
+
+    saveStepOne();
+
+    saveCreativeBrief();
+
+
+    const orderId =
+        "GGHQ-" +
+        Date.now();
+
+
+    const order = {
+
+        id:
+            orderId,
+
+        userId:
+            currentUser.id,
+
+        userEmail:
+            currentUser.email,
+
+        service:
+            currentOrder.service,
+
+        plan:
+            currentOrder.plan,
+
+        clientName:
+            currentOrder.clientName,
+
+        gymName:
+            currentOrder.gymName,
+
+        instagram:
+            currentOrder.instagram,
+
+        goal:
+            currentOrder.goal,
+
+        notes:
+            currentOrder.notes,
+
+        instructions:
+            currentOrder.instructions,
+
+        creativeBrief:
+            currentOrder.creativeBrief ||
+            createEmptyCreativeBrief(),
+
+        videos:
+            currentOrder.videos ||
+            [],
+
+        status:
+            "Submitted",
+
+        deliveryStatus:
+            "Editing in Progress",
+
+        finalVideo:
+            "",
+
+        createdAt:
+            new Date().toISOString()
+    };
+
+
+    try {
+
+        const selectedVideoFiles =
+            window.GGHQ_SELECTED_VIDEO_FILES ||
+            [];
+
+
+        const uploadedVideos =
+            await uploadOrderVideos(
+                orderId,
+                selectedVideoFiles
+            );
+
+
+        order.videos =
+            uploadedVideos;
+
+
+        /* =====================================================
+           SAVE ORDER TO SUPABASE
+           ===================================================== */
+
+        const response =
+            await fetch(
+                SUPABASE_URL +
+                "/rest/v1/orders",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "apikey":
+                            SUPABASE_PUBLISHABLE_KEY,
+
+                        "Authorization":
+                            "Bearer " +
+                            SUPABASE_PUBLISHABLE_KEY,
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Prefer":
+                            "return=representation"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            user_id:
+                                currentUser.id,
+
+                            service:
+                                order.service,
+
+                            plan:
+                                order.plan,
+
+                            amount:
+                                0,
+
+                            payment_status:
+                                "pending",
+
+                            order_status:
+                                "pending",
+
+                            gym_name:
+                                order.gymName,
+
+                            instagram_url:
+                                order.instagram,
+
+                            raw_video_urls:
+                                order.videos ||
+                                [],
+
+                            final_video_url:
+                                "",
+
+                            creative_brief: {
+
+                                goal:
+                                    order.goal ||
+                                    "",
+
+                                notes:
+                                    order.notes ||
+                                    "",
+
+                                trend:
+                                    order
+                                        .creativeBrief
+                                        ?.trend ||
+                                    "",
+
+                                song:
+                                    order
+                                        .creativeBrief
+                                        ?.song ||
+                                    "",
+
+                                editingStyle:
+                                    order
+                                        .creativeBrief
+                                        ?.editingStyle ||
+                                    "",
+
+                                shotInstructions:
+                                    order
+                                        .creativeBrief
+                                        ?.shotInstructions ||
+                                    "",
+
+                                hook:
+                                    order
+                                        .creativeBrief
+                                        ?.hook ||
+                                    "",
+
+                                cta:
+                                    order
+                                        .creativeBrief
+                                        ?.cta ||
+                                    "",
+
+                                specialInstructions:
+                                    order
+                                        .creativeBrief
+                                        ?.specialInstructions ||
+                                    ""
+                            },
+
+                            created_at:
+                                order.createdAt
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Supabase order error:",
+                errorText
+            );
+
+            showToast(
+                "Order could not be submitted",
+                "!"
+            );
+
+            return;
+        }
+
+
+        /* =====================================================
+           SAVE LOCALLY
+           ===================================================== */
+
+        const orders =
+            getOrders();
+
+        orders.push(
+            order
+        );
+
+        saveOrders(
+            orders
+        );
+
+        currentOrderId =
+            order.id;
+
+
+        showToast(
+            "Order submitted successfully",
+            "✓"
+        );
+
+
+        /* =====================================================
+           PREPARE NEXT ORDER
+           ===================================================== */
+
+        clearAllSelectedVideos();
+
+        currentOrder = {
+
+            service:
+                "",
+
+            plan:
+                "",
+
+            clientName:
+                currentUser.name ||
+                "",
+
+            gymName:
+                currentUser.gymName ||
+                "",
+
+            instagram:
+                currentUser.instagram ||
+                "",
+
+            goal:
+                "",
+
+            notes:
+                "",
+
+            instructions:
+                "",
+
+            creativeBrief:
+                createEmptyCreativeBrief(),
+
+            videos:
+                []
+        };
+
+
+        setTimeout(
+            () => {
+
+                renderOrders();
+
+                showScreen(
+                    "account"
+                );
+
+            },
+            500
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Supabase connection error:",
+            error
+        );
+
+        showToast(
+            "Connection error",
+            "!"
+        );
+    }
+}
+
 
 /* =========================================================
    MY ORDERS
@@ -1628,11 +2637,246 @@ function renderOrderDetails(
     );
 
 
-
+    renderOrderCreativeBrief(
+        order
+    );
 
 
     renderOrderVideoGallery(
         order
+    );
+}
+
+
+/* =========================================================
+   ORDER CREATIVE BRIEF DISPLAY
+   ========================================================= */
+
+function renderOrderCreativeBrief(
+    order
+) {
+
+    const detailVideos =
+        document.getElementById(
+            "detailVideos"
+        );
+
+    if (!detailVideos) return;
+
+
+    const oldBrief =
+        document.getElementById(
+            "gghqOrderCreativeBrief"
+        );
+
+
+    if (oldBrief) {
+        oldBrief.remove();
+    }
+
+
+    const brief =
+        order.creativeBrief ||
+        {};
+
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+
+    wrapper.id =
+        "gghqOrderCreativeBrief";
+
+
+    wrapper.style.cssText = `
+        margin-top:18px;
+        padding:16px;
+        border-radius:16px;
+        background:rgba(255,255,255,0.03);
+        border:1px solid rgba(145,92,255,0.30);
+    `;
+
+
+    const title =
+        document.createElement(
+            "div"
+        );
+
+
+    title.textContent =
+        "🎬 Creative Brief";
+
+
+    title.style.cssText = `
+        margin-bottom:14px;
+        font-size:16px;
+        font-weight:700;
+        color:#ffffff;
+    `;
+
+
+    wrapper.appendChild(
+        title
+    );
+
+
+    const fields = [
+
+        [
+            "🔥 Trend / Reference",
+            brief.trend
+        ],
+
+        [
+            "🎵 Song / Audio",
+            brief.song
+        ],
+
+        [
+            "🎨 Editing Style",
+            brief.editingStyle
+        ],
+
+        [
+            "🎥 Shot Instructions",
+            brief.shotInstructions
+        ],
+
+        [
+            "✍️ Hook / On-screen Text",
+            brief.hook
+        ],
+
+        [
+            "📢 CTA",
+            brief.cta
+        ],
+
+        [
+            "📝 Special Instructions",
+            brief.specialInstructions
+        ]
+    ];
+
+
+    let hasContent =
+        false;
+
+
+    fields.forEach(
+        ([label, value]) => {
+
+            if (
+                value ===
+                    undefined ||
+                value ===
+                    null ||
+                !String(value).trim()
+            ) {
+                return;
+            }
+
+
+            hasContent =
+                true;
+
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.style.cssText = `
+                margin-bottom:12px;
+            `;
+
+
+            const labelEl =
+                document.createElement(
+                    "div"
+                );
+
+
+            labelEl.textContent =
+                label;
+
+
+            labelEl.style.cssText = `
+                color:#cdb5ff;
+                font-size:12px;
+                font-weight:700;
+                margin-bottom:5px;
+            `;
+
+
+            const valueEl =
+                document.createElement(
+                    "div"
+                );
+
+
+            valueEl.textContent =
+                value;
+
+
+            valueEl.style.cssText = `
+                color:#ffffff;
+                font-size:13px;
+                line-height:1.5;
+                white-space:pre-wrap;
+            `;
+
+
+            row.appendChild(
+                labelEl
+            );
+
+
+            row.appendChild(
+                valueEl
+            );
+
+
+            wrapper.appendChild(
+                row
+            );
+        }
+    );
+
+
+    if (!hasContent) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+
+        empty.textContent =
+            "No creative brief was saved for this order.";
+
+
+        empty.style.cssText = `
+            padding:14px;
+            border-radius:12px;
+            background:rgba(255,255,255,0.03);
+            color:#8f8f9d;
+            font-size:13px;
+        `;
+
+
+        wrapper.appendChild(
+            empty
+        );
+    }
+
+
+    detailVideos.insertAdjacentElement(
+        "afterend",
+        wrapper
     );
 }
 
@@ -3020,6 +4264,10 @@ async function submitOrder() {
         return;
     }
 
+    if (typeof saveCreativeBrief === "function") {
+        saveCreativeBrief();
+    }
+
     const selectedVideoFiles = Array.from(
         window.GGHQ_SELECTED_VIDEO_FILES || []
     );
@@ -3323,48 +4571,30 @@ async function renderOrders() {
     }
 }
 
-/* ---------- CLEAN REVIEW ---------- */
+/* ---------- BETTER REVIEW ---------- */
 
 function updateReview() {
-    const service = currentOrder.service === "reel-editing" ? "Reel Editing" : currentOrder.service === "transformation" ? "Transformation Reel" : "—";
-    const plan = currentOrder.plan === "premium" ? "Premium" : "Standard";
+    const service = currentOrder.service === "reel-editing"
+        ? "Reel Editing"
+        : currentOrder.service === "transformation"
+            ? "Transformation Reel"
+            : "—";
+    const plan = currentOrder.plan === "premium"
+        ? "Premium"
+        : "Standard";
+
     setText("reviewService", service);
     setText("reviewPlan", plan);
-    setText("reviewClient", currentOrder.clientName || "—");
-    setText("reviewGym", currentOrder.gymName || "—");
-    setText("reviewInstagram", currentOrder.instagram || "—");
-    const videos = window.GGHQ_SELECTED_VIDEO_FILES || [];
-    setText("reviewVideos", videos.length + " video(s)");
+    setText("reviewClient", currentOrder.clientName);
+    setText("reviewGym", currentOrder.gymName);
+    setText("reviewInstagram", currentOrder.instagram);
+    setText(
+        "reviewVideos",
+        (window.GGHQ_SELECTED_VIDEO_FILES || []).length + " video(s)"
+    );
 
-    const reel = window.GGHQ_REFERENCE_REEL_FILE || null;
-    const audio = window.GGHQ_SONG_FILE || null;
-    const videoEl = document.getElementById("reviewVideos");
-    if (videoEl) {
-        const container = videoEl.parentElement?.parentElement || videoEl.parentElement;
-        if (container) {
-            container.querySelectorAll("[data-gghq-reference-row]").forEach(el => el.remove());
-            const makeRow = (label, file) => {
-                const row = document.createElement("div");
-                row.setAttribute("data-gghq-reference-row", "1");
-                row.style.cssText = "display:flex;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08);";
-                const left = document.createElement("span"); left.textContent = label; left.style.color = "#8f8f9d";
-                const right = document.createElement("strong"); right.textContent = file ? "✓ " + file.name : "Not added"; right.style.cssText = "color:#fff;text-align:right;max-width:62%;overflow-wrap:anywhere;";
-                row.append(left, right); return row;
-            };
-            const anchor = videoEl.parentElement || videoEl;
-            container.insertBefore(makeRow("Reference Reel", reel), anchor);
-            container.insertBefore(makeRow("Song / Audio", audio), anchor);
-            Array.from(container.children).forEach(el => {
-                if (el.hasAttribute("data-gghq-reference-row")) return;
-                if ((el.textContent || "").trim().startsWith("Editing Instructions")) el.remove();
-            });
-        }
-    }
-    document.getElementById("gghqCreativeBrief")?.remove();
-    document.getElementById("gghqReviewCreativeBrief")?.remove();
-    document.getElementById("gghqOrderCreativeBrief")?.remove();
+    gghqEnsureReferenceInputs();
 }
-
 
 /* ---------- RESET ORDER: do not leave old reference files behind ---------- */
 
@@ -3381,9 +4611,6 @@ startOrder = function () {
 /* ---------- INITIALIZE V2 ---------- */
 
 function gghqInitializeV2() {
-    document.getElementById("gghqCreativeBrief")?.remove();
-    document.getElementById("gghqReviewCreativeBrief")?.remove();
-    document.getElementById("gghqOrderCreativeBrief")?.remove();
     gghqEnsureReferenceInputs();
     restoreSession();
 
@@ -3408,263 +4635,103 @@ if (document.readyState === "loading") {
    END GGHQ V2 PRODUCTION PATCH
    ========================================================= */
 
-
 /* =========================================================
-   GGHQ FINAL CUSTOMER-FLOW PATCH
-   1. Hide Main Goal section (plan already determines service)
-   2. Hide old Creative Brief / editing-instructions UI
-   3. Keep ONE Reference Files box with real file pickers
-   4. Show immediate ✓ selected status + original filename
-   5. Keep Raw Video upload untouched
-   6. Review shows ONE Reference Reel row + ONE Song/Audio row
+   GGHQ CUSTOMER FLOW — SURGICAL FIX
+   Original application/upload/auth/order code is preserved.
+   Only obsolete customer-facing UI/navigation is changed.
    ========================================================= */
 
-(function gghqInstallFinalCustomerPatch() {
-    const HIDDEN_CLASS = "gghq-legacy-hidden";
+function gghqPrepareCustomerProjectScreen() {
+    const screen = document.getElementById("order-project");
+    if (!screen) return;
 
-    function hideElement(el) {
-        if (!el || el === document.body) return;
-        el.classList.add(HIDDEN_CLASS);
-    }
+    const legacyBrief = document.getElementById("gghqCreativeBrief");
+    if (legacyBrief) legacyBrief.remove();
 
-    function findCardForText(root, text) {
-        if (!root) return null;
-        const nodes = Array.from(root.querySelectorAll("h1,h2,h3,h4,h5,h6,label,p,span,div"));
-        const target = nodes.find(el => {
-            const value = (el.textContent || "").replace(/\s+/g, " ").trim();
-            return value === text || value.startsWith(text);
-        });
-        if (!target) return null;
+    const goal = document.getElementById("projectGoal");
+    if (goal) {
+        let candidate = goal.parentElement;
 
-        const referenceBox = document.getElementById("gghqReferenceFilesBox");
-        if (referenceBox && referenceBox.contains(target)) return null;
+        for (let i = 0; i < 5 && candidate && candidate !== screen; i++) {
+            const text = (candidate.textContent || "")
+                .replace(/\s+/g, " ")
+                .trim();
 
-        let p = target;
-        for (let i = 0; i < 8 && p && p !== root; i++, p = p.parentElement) {
-            const cls = String(p.className || "").toLowerCase();
-            const tag = p.tagName.toLowerCase();
             if (
-                tag === "section" || tag === "article" ||
-                cls.includes("card") || cls.includes("panel") ||
-                cls.includes("glass") || cls.includes("form")
-            ) return p;
-        }
-
-        p = target.parentElement;
-        for (let i = 0; i < 5 && p && p !== root; i++, p = p.parentElement) {
-            const textLen = (p.textContent || "").trim().length;
-            if (textLen > 30 && textLen < 3500 && p.children.length >= 1) return p;
-        }
-        return target.parentElement || target;
-    }
-
-    function hideLegacyProjectSections() {
-        const screen = document.getElementById("order-project");
-        if (!screen) return;
-
-        [
-            "Main Goal",
-            "How Should We Edit It?",
-            "Creative Brief",
-            "Tell us exactly how you want your video edited."
-        ].forEach(text => {
-            const card = findCardForText(screen, text);
-            if (card && !card.id?.includes("gghqReferenceFilesBox")) hideElement(card);
-        });
-
-        // Hide old standalone reference cards, but NEVER hide our controlled box.
-        ["Choose Reference Reel", "Choose Song / Audio"].forEach(text => {
-            const card = findCardForText(screen, text);
-            if (card && !card.id?.includes("gghqReferenceFilesBox")) hideElement(card);
-        });
-    }
-
-    function fileStatus(file, label) {
-        if (!file) {
-            return `<div class="gghq-file-status" style="margin-top:12px;padding:9px 12px;border-radius:12px;color:#888;font-size:13px;">Not added</div>`;
-        }
-        const size = typeof formatFileSize === "function"
-            ? formatFileSize(file.size)
-            : ((file.size / (1024 * 1024)).toFixed(1) + " MB");
-        return `<div class="gghq-file-status" style="margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(145,92,255,.10);border:1px solid rgba(145,92,255,.25);color:#d8c8ff;font-size:13px;line-height:1.45;"><strong style="color:#fff;">✓ ${escapeHTML(label)} added</strong><br><span>${escapeHTML(file.name)} — ${escapeHTML(size)}</span></div>`;
-    }
-
-    function renderReferenceStatus() {
-        const reel = document.getElementById("referenceReelSelected");
-        const song = document.getElementById("songSelected");
-        if (reel) reel.innerHTML = fileStatus(window.GGHQ_REFERENCE_REEL_FILE || null, "Reference Reel");
-        if (song) song.innerHTML = fileStatus(window.GGHQ_SONG_FILE || null, "Song / Audio");
-    }
-
-    // Replace the previous reference-box builder so it cannot leave only "Not added" text.
-    gghqEnsureReferenceInputs = function () {
-        const screen = document.getElementById("order-project");
-        if (!screen) return;
-
-        let box = document.getElementById("gghqReferenceFilesBox");
-        if (!box) {
-            box = document.createElement("div");
-            box.id = "gghqReferenceFilesBox";
-            box.style.cssText = "margin-top:20px;padding:18px;border-radius:18px;background:rgba(145,92,255,0.07);border:1px solid rgba(145,92,255,0.30);";
-            screen.appendChild(box);
-        }
-
-        // Repair an already-existing broken box from an earlier JS version.
-        if (!box.querySelector("#referenceReelFile") || !box.querySelector("#songFile")) {
-            box.innerHTML = `
-                <div style="font-size:16px;font-weight:800;margin-bottom:6px;color:#fff;">Reference Files</div>
-                <div style="font-size:12px;color:#999;margin-bottom:14px;line-height:1.5;">Optional: upload one reference reel and one song/audio file for this order.</div>
-                <div style="display:grid;gap:12px;">
-                    <label style="display:block;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);cursor:pointer;">
-                        <strong style="display:block;color:#fff;margin-bottom:5px;">🎬 Reference Reel</strong>
-                        <span style="font-size:12px;color:#999;">Choose a video</span>
-                        <input id="referenceReelFile" type="file" accept="video/*" style="display:block;margin-top:10px;width:100%;">
-                    </label>
-                    <label style="display:block;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);cursor:pointer;">
-                        <strong style="display:block;color:#fff;margin-bottom:5px;">🎵 Song / Audio</strong>
-                        <span style="font-size:12px;color:#999;">Choose an audio file</span>
-                        <input id="songFile" type="file" accept="audio/*" style="display:block;margin-top:10px;width:100%;">
-                    </label>
-                </div>
-                <div id="referenceReelSelected"></div>
-                <div id="songSelected"></div>
-            `;
-        }
-
-        const reelInput = document.getElementById("referenceReelFile");
-        const songInput = document.getElementById("songFile");
-
-        if (reelInput && reelInput.dataset.gghqBound !== "1") {
-            reelInput.dataset.gghqBound = "1";
-            reelInput.addEventListener("change", function () {
-                const file = this.files?.[0] || null;
-                if (!file) return;
-                if (!file.type.startsWith("video/")) {
-                    this.value = "";
-                    showToast("Please select a video", "!");
-                    return;
-                }
-                window.GGHQ_REFERENCE_REEL_FILE = file;
-                currentOrder.referenceReel = { name:file.name, size:file.size, type:file.type, lastModified:file.lastModified };
-                renderReferenceStatus();
-                showToast("Reference reel added ✓", "✓");
-            });
-        }
-
-        if (songInput && songInput.dataset.gghqBound !== "1") {
-            songInput.dataset.gghqBound = "1";
-            songInput.addEventListener("change", function () {
-                const file = this.files?.[0] || null;
-                if (!file) return;
-                if (!file.type.startsWith("audio/")) {
-                    this.value = "";
-                    showToast("Please select an audio file", "!");
-                    return;
-                }
-                window.GGHQ_SONG_FILE = file;
-                currentOrder.song = { name:file.name, size:file.size, type:file.type, lastModified:file.lastModified };
-                renderReferenceStatus();
-                showToast("Song / audio added ✓", "✓");
-            });
-        }
-
-        renderReferenceStatus();
-        hideLegacyProjectSections();
-    };
-
-    function hideOldReviewRows() {
-        const videoEl = document.getElementById("reviewVideos");
-        if (!videoEl) return null;
-        const container = videoEl.parentElement?.parentElement || videoEl.parentElement;
-        if (!container) return null;
-
-        Array.from(container.children).forEach(el => {
-            if (el.hasAttribute("data-gghq-reference-row")) return;
-            const t = (el.textContent || "").replace(/\s+/g, " ").trim();
-            if (
-                t === "Reference Reel" || t.startsWith("Reference Reel ") ||
-                t === "Song / Audio" || t.startsWith("Song / Audio ") ||
-                t.startsWith("Editing Instructions")
+                /main goal/i.test(text) &&
+                /select your goal/i.test(text) &&
+                !/reference reel/i.test(text) &&
+                !/song\s*\/\s*audio/i.test(text)
             ) {
-                el.style.display = "none";
+                candidate.style.display = "none";
+                break;
             }
-        });
-        return container;
+
+            candidate = candidate.parentElement;
+        }
+
+        goal.style.display = "none";
     }
 
-    // One clean review renderer; keep the original service/plan/client/gym/Instagram/video rows.
-    updateReview = function () {
-        const service = currentOrder.service === "reel-editing" ? "Reel Editing" : currentOrder.service === "transformation" ? "Transformation Reel" : "—";
-        const plan = currentOrder.plan === "premium" ? "Premium" : "Standard";
-        setText("reviewService", service);
-        setText("reviewPlan", plan);
-        setText("reviewClient", currentOrder.clientName || "—");
-        setText("reviewGym", currentOrder.gymName || "—");
-        setText("reviewInstagram", currentOrder.instagram || "—");
-        const videos = window.GGHQ_SELECTED_VIDEO_FILES || [];
-        setText("reviewVideos", videos.length + " video(s)");
+    gghqEnsureReferenceInputs();
+    renderReferenceReel();
+    renderSong();
+}
 
-        const container = hideOldReviewRows();
-        if (!container) return;
+/* Use the existing static Review rows instead of creating duplicate rows. */
+function gghqSetReviewRow(labelText, value) {
+    const review = document.getElementById("order-review");
+    if (!review) return;
 
-        container.querySelectorAll("[data-gghq-reference-row]").forEach(el => el.remove());
+    const wanted = labelText.toLowerCase();
 
-        const makeRow = (label, file) => {
-            const row = document.createElement("div");
-            row.setAttribute("data-gghq-reference-row", "1");
-            row.style.cssText = "display:flex;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08);";
-            const left = document.createElement("span");
-            left.textContent = label;
-            left.style.color = "#8f8f9d";
-            const right = document.createElement("strong");
-            right.textContent = file ? "✓ " + file.name : "Not added";
-            right.style.cssText = "color:#fff;text-align:right;max-width:62%;overflow-wrap:anywhere;";
-            row.append(left, right);
-            return row;
-        };
+    const label = Array.from(review.querySelectorAll("*")).find(el =>
+        el.children.length === 0 &&
+        (el.textContent || "").trim().toLowerCase() === wanted
+    );
 
-        const reel = window.GGHQ_REFERENCE_REEL_FILE || null;
-        const audio = window.GGHQ_SONG_FILE || null;
-        const videoRow = videoEl.parentElement || videoEl;
-        container.insertBefore(makeRow("Reference Reel", reel), videoRow);
-        container.insertBefore(makeRow("Song / Audio", audio), videoRow);
+    if (!label || !label.parentElement) return;
 
-        document.getElementById("gghqCreativeBrief")?.remove();
-        document.getElementById("gghqReviewCreativeBrief")?.remove();
-        document.getElementById("gghqOrderCreativeBrief")?.remove();
-    };
+    const row = label.parentElement;
+    const children = Array.from(row.children);
 
-    const originalShowScreen = showScreen;
-    showScreen = function (id) {
-        originalShowScreen(id);
-        if (id === "order-project") {
-            setTimeout(() => {
-                gghqEnsureReferenceInputs();
-                hideLegacyProjectSections();
-            }, 0);
-        }
-        if (id === "order-review") {
-            setTimeout(() => updateReview(), 0);
-        }
-    };
+    if (children.length >= 2) {
+        children[children.length - 1].textContent =
+            value || "Not added";
+    }
+}
 
-    // Global observer catches legacy sections rendered by the HTML after navigation.
-    const observer = new MutationObserver(() => {
-        const project = document.getElementById("order-project");
-        if (project?.classList.contains("active-screen")) {
-            gghqEnsureReferenceInputs();
-            hideLegacyProjectSections();
-        }
-    });
-    observer.observe(document.body, { childList:true, subtree:true });
+function gghqUpdateReferenceRowsInReview() {
+    const reel = window.GGHQ_REFERENCE_REEL_FILE || null;
+    const audio = window.GGHQ_SONG_FILE || null;
 
-    const style = document.createElement("style");
-    style.textContent = `.${HIDDEN_CLASS}{display:none !important;}`;
-    document.head.appendChild(style);
+    gghqSetReviewRow(
+        "Reference Reel",
+        reel ? "✓ " + reel.name : "Not added"
+    );
 
-    // Initial pass.
-    setTimeout(() => {
-        gghqEnsureReferenceInputs();
-        hideLegacyProjectSections();
-    }, 0);
-})();
+    gghqSetReviewRow(
+        "Song / Audio",
+        audio ? "✓ " + audio.name : "Not added"
+    );
+}
+
+/* Wrap the final V2 definitions without deleting the originals. */
+const gghqMasterOriginalUpdateReview = updateReview;
+updateReview = function () {
+    gghqMasterOriginalUpdateReview();
+    setTimeout(gghqUpdateReferenceRowsInReview, 0);
+};
+
+const gghqMasterOriginalShowScreen = showScreen;
+showScreen = function (id) {
+    gghqMasterOriginalShowScreen(id);
+
+    if (id === "order-project") {
+        setTimeout(gghqPrepareCustomerProjectScreen, 0);
+    }
+
+    if (id === "order-review") {
+        setTimeout(gghqUpdateReferenceRowsInReview, 0);
+    }
+};
