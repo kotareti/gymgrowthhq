@@ -244,8 +244,14 @@ function showScreen(id) {
 
         ensureCreativeBriefFields();
 
+        if (typeof gghqEnsureReferenceInputs === "function") {
+            gghqEnsureReferenceInputs();
+        }
+
         setTimeout(() => {
             restoreCreativeBriefFields();
+            if (typeof renderReferenceReel === "function") renderReferenceReel();
+            if (typeof renderSong === "function") renderSong();
         }, 50);
     }
 }
@@ -385,55 +391,16 @@ function updateAccountUI() {
    ========================================================= */
 
 function saveClientProfile() {
-
     if (!currentUser) return;
 
-    const users =
-        getUsers();
-
-    const index =
-        users.findIndex(
-            user =>
-                user.id ===
-                currentUser.id
-        );
-
-    if (index === -1) return;
-
-    const user =
-        users[index];
-
-    user.name =
-        currentOrder.clientName ||
-        user.name;
-
-    user.gymName =
-        currentOrder.gymName ||
-        user.gymName ||
-        "";
-
-    user.instagram =
-        currentOrder.instagram ||
-        user.instagram ||
-        "";
-
-    users[index] =
-        user;
-
-    saveUsers(users);
-
     currentUser.name =
-        user.name;
-
+        currentOrder.clientName || currentUser.name || "Client";
     currentUser.gymName =
-        user.gymName;
-
+        currentOrder.gymName || currentUser.gymName || "";
     currentUser.instagram =
-        user.instagram;
+        currentOrder.instagram || currentUser.instagram || "";
 
-    saveSession(
-        currentUser
-    );
+    saveSession(currentUser);
 }
 
 
@@ -935,6 +902,12 @@ function saveStepOne() {
 
     if (currentUser) {
         saveClientProfile();
+        // Best-effort persistence to Supabase Auth metadata.
+        gghqUpdateAuthMetadata({
+            full_name: currentUser.name || "Client",
+            gym_name: currentUser.gymName || "",
+            instagram: currentUser.instagram || ""
+        });
     }
 
     return true;
@@ -3922,6 +3895,27 @@ async function gghqSupabaseRequest(path, options = {}) {
     return data;
 }
 
+async function gghqUpdateAuthMetadata(fields) {
+    const session = gghqGetAuthSession();
+    const token = session?.access_token || currentUser?.accessToken;
+    if (!token) return;
+
+    try {
+        const user = await gghqSupabaseRequest("/auth/v1/user", {
+            method: "PUT",
+            headers: gghqAuthHeaders(token, true),
+            body: JSON.stringify({ data: fields })
+        });
+
+        if (user?.id) {
+            currentUser = gghqUserFromAuth(user, token);
+            saveSession(currentUser);
+        }
+    } catch (error) {
+        console.warn("Profile metadata update skipped:", error);
+    }
+}
+
 /* ---------- AUTH: REAL SUPABASE AUTH ---------- */
 
 async function createAccount() {
@@ -4200,7 +4194,7 @@ function renderReferenceReel() {
     if (!container) return;
     const file = window.GGHQ_REFERENCE_REEL_FILE;
     container.innerHTML = file
-        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatFileSize(file.size)}</div>`
+        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatVideoSize(file.size)}</div>`
         : "";
 }
 
@@ -4209,7 +4203,7 @@ function renderSong() {
     if (!container) return;
     const file = window.GGHQ_SONG_FILE;
     container.innerHTML = file
-        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatFileSize(file.size)}</div>`
+        ? `<div style="margin-top:12px;color:#bda8ff;font-size:12px;">✓ ${escapeHTML(file.name)} — ${formatVideoSize(file.size)}</div>`
         : "";
 }
 
@@ -4230,6 +4224,16 @@ function gghqUniquePart() {
 async function gghqUploadFile(file, orderRef, folder) {
     if (!file || !currentUser?.id) {
         throw new Error("User session is missing.");
+    }
+
+    const maxBytes = folder === "audio"
+        ? 50 * 1024 * 1024
+        : 500 * 1024 * 1024;
+
+    if (file.size > maxBytes) {
+        throw new Error(
+            `${file.name} is too large. Maximum allowed is ${folder === "audio" ? "50MB" : "500MB"}.`
+        );
     }
 
     const path = [
@@ -4535,7 +4539,11 @@ async function gghqFetchMyOrders() {
             status: row.order_status || "pending",
             deliveryStatus: row.order_status === "completed"
                 ? "Completed"
-                : "Editing in Progress",
+                : row.order_status === "cancelled"
+                    ? "Cancelled"
+                    : row.order_status === "processing"
+                        ? "Processing"
+                        : "Editing in Progress",
             finalVideo: row.final_video_url || "",
             createdAt: row.created_at
         };
@@ -4656,6 +4664,8 @@ startOrder = function () {
     currentOrder.referenceReel = null;
     currentOrder.song = null;
     gghqEnsureReferenceInputs();
+    renderReferenceReel();
+    renderSong();
 };
 
 /* ---------- INITIALIZE V2 ---------- */
@@ -4680,6 +4690,10 @@ if (document.readyState === "loading") {
 } else {
     gghqInitializeV2();
 }
+
+window.addEventListener("unhandledrejection", event => {
+    console.error("Unhandled promise rejection:", event.reason);
+});
 
 /* =========================================================
    END GGHQ V2 PRODUCTION PATCH
