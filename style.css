@@ -1,2359 +1,286 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="theme-color"
-        content="#08090d"
-    >
-
-    <title>Gym Growth HQ</title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-
-
-<body>
-
-<div class="app">
-
-
-<!-- =====================================================
-     HEADER
-     ===================================================== -->
-
-<header class="top-bar">
-
-    <button
-        class="brand-button"
-        type="button"
-        data-screen="home"
-    >
-
-        <div class="brand-logo">
-
-            <img
-                src="gym-growth-hq-logo.png"
-                alt="Gym Growth HQ"
-            >
-
-        </div>
-
-        <div class="brand-text">
-
-            <span class="brand-name">
-                Gym Growth HQ
-            </span>
-
-            <span class="brand-tagline">
-                Content • Growth • Reels
-            </span>
-
-        </div>
-
-    </button>
-
-
-    <button
-        id="accountHeaderButton"
-        class="account-header-button"
-        type="button"
-        data-screen="account"
-        style="display:none;"
-    >
-
-        <span
-            id="headerAccountInitial"
-            class="account-initial"
-        >
-            ?
-        </span>
-
-        <span
-            id="headerAccountName"
-            class="account-header-name"
-        >
-            Account
-        </span>
-
-    </button>
-
-</header>
-
-
-<main class="app-content">
-
-
-<!-- =====================================================
-     HOME
-     ===================================================== -->
-
-<section
-    id="home"
-    class="app-screen active-screen"
->
-
-    <div class="screen-inner">
-
-
-        <div
-            id="loggedInHomeCard"
-            class="logged-in-home-card"
-            style="display:none;"
-        >
-
-            <div
-                id="homeAccountInitial"
-                class="account-initial large"
-            >
-                ?
-            </div>
-
-
-            <div class="logged-in-home-info">
-
-                <span class="logged-in-label">
-                    LOGGED IN
-                </span>
-
-                <strong id="homeAccountName">
-                    Account
-                </strong>
-
-                <small id="homeAccountEmail">
-                    —
-                </small>
-
-            </div>
-
-
-            <button
-                class="account-open-button"
-                type="button"
-                data-screen="account"
-            >
-                →
-            </button>
-
-        </div>
-
-
-        <span class="eyebrow">
-            GYM GROWTH HQ
-        </span>
-
-
-        <h1>
-            Grow Your Gym
-            <span>With Better Reels.</span>
-        </h1>
-
-
-        <p>
-            Professional short-form content
-            designed for gyms and fitness brands.
-        </p>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="services"
-        >
-            Explore Services
-            <span>→</span>
-        </button>
-
-
-        <button
-            id="homeAccountButton"
-            class="outline-button full-button"
-            type="button"
-            data-screen="login"
-        >
-            👤 Login / Create Account
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     SERVICES
-     ===================================================== -->
-
-<section
-    id="services"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="home"
-        >
-            ← Home
-        </button>
-
-
-        <span class="eyebrow">
-            OUR SERVICES
-        </span>
-
-
-        <h2>
-            Choose a
-            <span>Service.</span>
-        </h2>
-
-
-        <p>
-            Select the service you need.
-        </p>
-
-
-        <div class="service-list">
-
-
-            <article class="service-card">
-
-                <div class="service-icon">
-                    🎬
-                </div>
-
-                <h3>
-                    Reel Editing
-                </h3>
-
-                <p>
-                    Professional editing for gym reels.
-                </p>
-
-                <button
-                    class="primary-button full-button"
-                    type="button"
-                    data-detail="reel-editing"
-                >
-                    Choose Reel Editing
-                    <span>→</span>
-                </button>
-
-            </article>
-
-
-            <article class="service-card">
-
-                <div class="service-icon">
-                    🔥
-                </div>
-
-                <h3>
-                    Transformation Reel
-                </h3>
-
-                <p>
-                    High-impact before and after reels.
-                </p>
-
-                <button
-                    class="primary-button full-button"
-                    type="button"
-                    data-detail="transformation"
-                >
-                    Choose Transformation
-                    <span>→</span>
-                </button>
-
-            </article>
-
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     REEL EDITING
-     ===================================================== -->
-
-<section
-    id="reel-editing"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="services"
-        >
-            ← Services
-        </button>
-
-
-        <span class="eyebrow">
-            SERVICE DETAILS
-        </span>
-
-
-        <div class="large-detail-icon">
-            🎬
-        </div>
-
-
-        <h2>
-            Reel Editing
-        </h2>
-
-
-        <p>
-            Professional short-form editing
-            for your gym content.
-        </p>
-
-
-        <div class="detail-card">
-
-            <h3>
-                What You Get
-            </h3>
-
-            <ul>
-
-                <li>✓ Clean professional cuts</li>
-                <li>✓ Music and beat matching</li>
-                <li>✓ Captions</li>
-                <li>✓ Instagram-ready format</li>
-
-            </ul>
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="pricing"
-            data-service="reel-editing"
-        >
-            View Pricing
-            <span>→</span>
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     TRANSFORMATION
-     ===================================================== -->
-
-<section
-    id="transformation"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="services"
-        >
-            ← Services
-        </button>
-
-
-        <span class="eyebrow">
-            SERVICE DETAILS
-        </span>
-
-
-        <div class="large-detail-icon">
-            🔥
-        </div>
-
-
-        <h2>
-            Transformation Reel
-        </h2>
-
-
-        <p>
-            Powerful before-and-after
-            transformation content.
-        </p>
-
-
-        <div class="detail-card">
-
-            <h3>
-                What You Get
-            </h3>
-
-            <ul>
-
-                <li>✓ Before and after structure</li>
-                <li>✓ Strong visual pacing</li>
-                <li>✓ Music and beat matching</li>
-                <li>✓ Instagram-ready format</li>
-
-            </ul>
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="pricing"
-            data-service="transformation"
-        >
-            View Pricing
-            <span>→</span>
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     PRICING
-     ===================================================== -->
-
-<section
-    id="pricing"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="services"
-        >
-            ← Services
-        </button>
-
-
-        <span class="eyebrow">
-            PRICING
-        </span>
-
-
-        <h2>
-            Choose Your
-            <span>Plan.</span>
-        </h2>
-
-
-        <p>
-            Select a plan to see complete details.
-        </p>
-
-
-        <div class="pricing-list">
-
-
-            <article class="pricing-card">
-
-                <span class="plan-label">
-                    REEL EDITING
-                </span>
-
-                <h3>
-                    Standard Reel
-                </h3>
-
-                <div class="price">
-                    ₹199
-                    <small>/ reel</small>
-                </div>
-
-                <p>
-                    Professional editing
-                    for regular gym reels.
-                </p>
-
-                <button
-                    class="primary-button full-button"
-                    type="button"
-                    data-plan-detail="reel-editing"
-                >
-                    View Plan Details
-                    <span>→</span>
-                </button>
-
-            </article>
-
-
-            <article class="pricing-card">
-
-                <span class="plan-label">
-                    TRANSFORMATION
-                </span>
-
-                <h3>
-                    Transformation Reel
-                </h3>
-
-                <div class="price">
-                    ₹299
-                    <small>/ reel</small>
-                </div>
-
-                <p>
-                    Designed for transformation stories.
-                </p>
-
-                <button
-                    class="primary-button full-button"
-                    type="button"
-                    data-plan-detail="transformation"
-                >
-                    View Plan Details
-                    <span>→</span>
-                </button>
-
-            </article>
-
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     PLAN DETAILS - REEL EDITING
-     ===================================================== -->
-
-<section
-    id="plan-reel-editing"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="pricing"
-        >
-            ← Pricing
-        </button>
-
-
-        <span class="eyebrow">
-            PLAN DETAILS
-        </span>
-
-
-        <h2>
-            Standard Reel
-        </h2>
-
-
-        <div class="price">
-            ₹199
-            <small>/ reel</small>
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Included
-            </h3>
-
-            <ul>
-
-                <li>✓ Professional editing</li>
-                <li>✓ Beat matching</li>
-                <li>✓ Captions</li>
-                <li>✓ Vertical export</li>
-
-            </ul>
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="login"
-            data-plan="reel-editing"
-        >
-            Start Order
-            <span>→</span>
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     PLAN DETAILS - TRANSFORMATION
-     ===================================================== -->
-
-<section
-    id="plan-transformation"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="pricing"
-        >
-            ← Pricing
-        </button>
-
-
-        <span class="eyebrow">
-            PLAN DETAILS
-        </span>
-
-
-        <h2>
-            Transformation Reel
-        </h2>
-
-
-        <div class="price">
-            ₹299
-            <small>/ reel</small>
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Included
-            </h3>
-
-            <ul>
-
-                <li>✓ Before & after structure</li>
-                <li>✓ Strong pacing</li>
-                <li>✓ Music matching</li>
-                <li>✓ Vertical export</li>
-
-            </ul>
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="login"
-            data-plan="transformation"
-        >
-            Start Order
-            <span>→</span>
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     LOGIN
-     ===================================================== -->
-
-<section
-    id="login"
-    class="app-screen"
->
-
-    <div class="screen-inner auth-screen">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="home"
-        >
-            ← Home
-        </button>
-
-
-        <span class="eyebrow">
-            CLIENT ACCOUNT
-        </span>
-
-
-        <h2>
-            Welcome
-            <span>Back.</span>
-        </h2>
-
-
-        <p>
-            Login to continue with your order.
-        </p>
-
-
-        <div class="auth-card">
-
-
-            <div class="form-group">
-
-                <label for="loginEmail">
-                    Email
-                </label>
-
-                <input
-                    id="loginEmail"
-                    type="email"
-                    placeholder="you@example.com"
-                    autocomplete="email"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="loginPassword">
-                    Password
-                </label>
-
-                <input
-                    id="loginPassword"
-                    type="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                >
-
-            </div>
-
-
-            <button
-                id="loginButton"
-                class="primary-button full-button"
-                type="button"
-            >
-                Login
-                <span>→</span>
-            </button>
-
-
-            <div class="auth-divider">
-                <span>OR</span>
-            </div>
-
-
-            <button
-                id="goToSignup"
-                class="outline-button full-button"
-                type="button"
-            >
-                Create New Account
-                <span>→</span>
-            </button>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     SIGNUP
-     ===================================================== -->
-
-<section
-    id="signup"
-    class="app-screen"
->
-
-    <div class="screen-inner auth-screen">
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="login"
-        >
-            ← Login
-        </button>
-
-
-        <span class="eyebrow">
-            CLIENT ACCOUNT
-        </span>
-
-
-        <h2>
-            Create Your
-            <span>Account.</span>
-        </h2>
-
-
-        <p>
-            Create an account to manage your orders.
-        </p>
-
-
-        <div class="auth-card">
-
-
-            <div class="form-group">
-
-                <label for="signupName">
-                    Your Name
-                </label>
-
-                <input
-                    id="signupName"
-                    type="text"
-                    placeholder="Enter your name"
-                    autocomplete="name"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="signupEmail">
-                    Email
-                </label>
-
-                <input
-                    id="signupEmail"
-                    type="email"
-                    placeholder="you@example.com"
-                    autocomplete="email"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="signupPassword">
-                    Password
-                </label>
-
-                <input
-                    id="signupPassword"
-                    type="password"
-                    placeholder="Create a password"
-                    autocomplete="new-password"
-                >
-
-            </div>
-
-
-            <button
-                id="signupButton"
-                class="primary-button full-button"
-                type="button"
-            >
-                Create Account
-                <span>→</span>
-            </button>
-
-
-            <button
-                id="goToLogin"
-                class="back-text-button"
-                type="button"
-            >
-                Already have an account? Login
-            </button>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     ORDER 1 - CLIENT DETAILS
-     ===================================================== -->
-
-<section
-    id="order"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <span class="eyebrow">
-            ORDER • 01 / 05
-        </span>
-
-
-        <h2>
-            Your
-            <span>Details.</span>
-        </h2>
-
-
-        <p>
-            Tell us who we are creating for.
-        </p>
-
-
-        <div class="form-group">
-
-            <label for="clientName">
-                Your Name
-            </label>
-
-            <input
-                id="clientName"
-                type="text"
-                placeholder="Enter your name"
-            >
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label for="gymName">
-                Gym Name
-            </label>
-
-            <input
-                id="gymName"
-                type="text"
-                placeholder="Enter your gym name"
-            >
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label for="instagramHandle">
-                Instagram Profile Link
-            </label>
-
-            <input
-                id="instagramHandle"
-                type="url"
-                placeholder="https://instagram.com/yourgym"
-                inputmode="url"
-            >
-
-            <small>
-                We use your Instagram profile to understand
-                your current content, style and topics.
-            </small>
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-order-next="2"
-        >
-            Continue
-            <span>→</span>
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     ORDER 2 - CREATIVE BRIEF
-     ===================================================== -->
-
-<section
-    id="order-project"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <span class="eyebrow">
-            ORDER • 02 / 05
-        </span>
-
-
-        <h2>
-            Tell Us Your
-            <span>Vision.</span>
-        </h2>
-
-
-        <p>
-            Give us the reference and instructions
-            for your reel. You only need to explain
-            the editing once.
-        </p>
-
-
-        <!-- MAIN GOAL -->
-
-        <div class="form-group">
-
-            <label for="projectGoal">
-                Main Goal
-            </label>
-
-            <select id="projectGoal">
-
-                <option value="">
-                    Select your goal
-                </option>
-
-                <option value="growth">
-                    Grow Instagram reach
-                </option>
-
-                <option value="engagement">
-                    Increase engagement
-                </option>
-
-                <option value="transformation">
-                    Show a transformation
-                </option>
-
-                <option value="other">
-                    Something else
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- REFERENCE REEL -->
-
-        <div class="detail-card">
-
-            <h3>
-                🔥 Reference Reel
-            </h3>
-
-            <p>
-                Saw a reel you really liked?
-                Upload it here and we'll use it
-                as your editing reference.
-            </p>
-
-
-            <label
-                class="upload-button"
-                for="referenceReelFile"
-            >
-                Choose Reference Reel
-            </label>
-
-
-            <input
-                id="referenceReelFile"
-                type="file"
-                accept="video/*"
-                hidden
-            >
-
-
-            <div
-                id="referenceReelSelected"
-                class="selected-files"
-            ></div>
-
-        </div>
-
-
-        <!-- SONG -->
-
-        <div class="detail-card">
-
-            <h3>
-                🎵 Song / Audio
-            </h3>
-
-            <p>
-                Don't worry about knowing the song name.
-                Just select the audio file from your phone.
-            </p>
-
-
-            <label
-                class="upload-button"
-                for="songFile"
-            >
-                Choose Song / Audio
-            </label>
-
-
-            <input
-                id="songFile"
-                type="file"
-                accept="audio/*"
-                hidden
-            >
-
-
-            <div
-                id="songSelected"
-                class="selected-files"
-            ></div>
-
-        </div>
-
-
-        <!-- EDITING INSTRUCTIONS - ASK ONCE -->
-
-        <div class="detail-card">
-
-            <h3>
-                🎬 How Should We Edit It?
-            </h3>
-
-            <p>
-                Explain everything here once:
-                cuts, pacing, transitions, captions,
-                effects, hook, style and anything else.
-            </p>
-
-
-            <div class="form-group">
-
-                <label for="editingInstructions">
-                    Editing Instructions
-                </label>
-
-                <textarea
-                    id="editingInstructions"
-                    rows="8"
-                    placeholder="Example: Use the reference reel style, keep the first shot as the hook, fast cuts on the beat, add clean captions, use energetic pacing..."
-                ></textarea>
-
-            </div>
-
-        </div>
-
-
-        <!-- OPTIONAL HOOK -->
-
-        <div class="form-group">
-
-            <label for="projectHook">
-                Hook / On-screen Text (Optional)
-            </label>
-
-            <input
-                id="projectHook"
-                type="text"
-                placeholder="Example: 30 days. One transformation."
-            >
-
-        </div>
-
-
-        <!-- OPTIONAL CTA -->
-
-        <div class="form-group">
-
-            <label for="projectCTA">
-                CTA (Optional)
-            </label>
-
-            <input
-                id="projectCTA"
-                type="text"
-                placeholder="Example: Join us today"
-            >
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-order-next="3"
-        >
-            Continue
-            <span>→</span>
-        </button>
-
-
-        <button
-            class="back-text-button"
-            type="button"
-            data-order-back="1"
-        >
-            ← Back
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     ORDER 3 - RAW VIDEO UPLOAD
-     ===================================================== -->
-
-<section
-    id="order-upload"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <span class="eyebrow">
-            ORDER • 03 / 05
-        </span>
-
-
-        <h2>
-            Upload Your
-            <span>Video.</span>
-        </h2>
-
-
-        <p>
-            Send us the raw footage you want us to edit.
-        </p>
-
-
-        <div class="upload-box">
-
-            <div class="upload-icon">
-                🎥
-            </div>
-
-
-            <h3>
-                Upload Raw Footage
-            </h3>
-
-
-            <p>
-                Choose the video files from your phone.
-            </p>
-
-
-            <label
-                class="upload-button"
-                for="videoFiles"
-            >
-                Choose Videos
-            </label>
-
-
-            <input
-                id="videoFiles"
-                type="file"
-                accept="video/*"
-                multiple
-                hidden
-            >
-
-
-            <div
-                id="selectedFiles"
-                class="selected-files"
-            ></div>
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-order-next="4"
-        >
-            Continue
-            <span>→</span>
-        </button>
-
-
-        <button
-            class="back-text-button"
-            type="button"
-            data-order-back="2"
-        >
-            ← Back
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     ORDER 4 - SPECIAL INSTRUCTIONS
-     ===================================================== -->
-
-<section
-    id="order-instructions"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <span class="eyebrow">
-            ORDER • 04 / 05
-        </span>
-
-
-        <h2>
-            Final
-            <span>Notes.</span>
-        </h2>
-
-
-        <p>
-            Anything important we should know
-            before we start editing?
-        </p>
-
-
-        <div class="form-group">
-
-            <label for="specialInstructions">
-                Additional Notes (Optional)
-            </label>
-
-            <textarea
-                id="specialInstructions"
-                rows="7"
-                placeholder="Example: Please avoid this clip, keep the logo visible, don't use heavy effects..."
-            ></textarea>
-
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-order-next="5"
-        >
-            Review Order
-            <span>→</span>
-        </button>
-
-
-        <button
-            class="back-text-button"
-            type="button"
-            data-order-back="3"
-        >
-            ← Back
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     ORDER 5 - REVIEW
-     ===================================================== -->
-
-<section
-    id="order-review"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-        <span class="eyebrow">
-            ORDER • 05 / 05
-        </span>
-
-
-        <h2>
-            Review Your
-            <span>Order.</span>
-        </h2>
-
-
-        <p>
-            Check everything once before submitting.
-        </p>
-
-
-        <div class="review-card">
-
-
-            <div class="review-row">
-
-                <span>
-                    Service
-                </span>
-
-                <strong id="reviewService">
-                    —
-                </strong>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <span>
-                    Plan
-                </span>
-
-                <strong id="reviewPlan">
-                    —
-                </strong>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <span>
-                    Client
-                </span>
-
-                <strong id="reviewClient">
-                    —
-                </strong>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <span>
-                    Gym
-                </span>
-
-                <strong id="reviewGym">
-                    —
-                </strong>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <span>
-                    Instagram
-                </span>
-
-                <strong id="reviewInstagram">
-                    —
-                </strong>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <span>
-                    Reference Reel
-                </span>
-
-                <strong id="reviewReference">
-                    —
-                </strong>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <span>
-                    Song / Audio
-                </span>
-
-                <strong id="reviewSong">
-                    —
-                </strong>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <span>
-                    Raw Videos
-                </span>
-
-                <strong id="reviewVideos">
-                    —
-                </strong>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <span>
-                    Editing Instructions
-                </span>
-
-                <strong id="reviewEditingInstructions">
-                    —
-                </strong>
-
-            </div>
-
-
-        </div>
-
-
-        <button
-            class="submit-button full-button"
-            type="button"
-            id="submitOrderButton"
-        >
-            SUBMIT ORDER
-            <span>✓</span>
-        </button>
-
-
-        <button
-            class="back-text-button"
-            type="button"
-            data-order-back="4"
-        >
-            ← Back
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     ORDER SUCCESS
-     ===================================================== -->
-
-<section
-    id="order-success"
-    class="app-screen"
->
-
-    <div class="screen-inner success-screen">
-
-        <div class="success-icon">
-            ✓
-        </div>
-
-
-        <span class="eyebrow">
-            ORDER RECEIVED
-        </span>
-
-
-        <h2>
-            You're
-            <span>All Set.</span>
-        </h2>
-
-
-        <p>
-            Your order has been saved to your account.
-        </p>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="account"
-        >
-            View My Account
-            <span>→</span>
-        </button>
-
-
-        <button
-            class="back-text-button"
-            type="button"
-            data-screen="home"
-        >
-            Back to Home
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     MY ACCOUNT
-     ===================================================== -->
-
-<section
-    id="account"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="home"
-        >
-            ← Home
-        </button>
-
-
-        <span class="eyebrow">
-            MY ACCOUNT
-        </span>
-
-
-        <h2>
-            Your
-            <span>Account.</span>
-        </h2>
-
-
-        <div class="account-profile-card">
-
-
-            <div
-                id="accountInitial"
-                class="account-initial account-profile-initial"
-            >
-                ?
-            </div>
-
-
-            <div class="account-profile-info">
-
-                <h3 id="accountName">
-                    Account
-                </h3>
-
-
-                <p id="accountEmail">
-                    —
-                </p>
-
-
-                <span class="account-status">
-                    ● Logged in
-                </span>
-
-            </div>
-
-        </div>
-
-
-
-        <div class="account-menu">
-
-
-            <button
-                class="account-menu-item"
-                type="button"
-                data-screen="orders"
-            >
-
-                <span class="account-menu-icon">
-                    📦
-                </span>
-
-
-                <span class="account-menu-text">
-
-                    <strong>
-                        My Orders
-                    </strong>
-
-                    <small>
-                        View your orders and video delivery
-                    </small>
-
-                </span>
-
-
-                <span class="account-menu-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-
-            <button
-                class="account-menu-item"
-                type="button"
-                data-screen="services"
-            >
-
-                <span class="account-menu-icon">
-                    🎬
-                </span>
-
-
-                <span class="account-menu-text">
-
-                    <strong>
-                        New Order
-                    </strong>
-
-                    <small>
-                        Start another project
-                    </small>
-
-                </span>
-
-
-                <span class="account-menu-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-
-            <button
-                class="account-menu-item"
-                type="button"
-                data-screen="support"
-            >
-
-                <span class="account-menu-icon">
-                    💬
-                </span>
-
-
-                <span class="account-menu-text">
-
-                    <strong>
-                        Support
-                    </strong>
-
-                    <small>
-                        Get help with your order
-                    </small>
-
-                </span>
-
-
-                <span class="account-menu-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-
-            <button
-                id="logoutButton"
-                class="account-menu-item logout-item"
-                type="button"
-            >
-
-                <span class="account-menu-icon">
-                    🚪
-                </span>
-
-
-                <span class="account-menu-text">
-
-                    <strong>
-                        Logout
-                    </strong>
-
-                    <small>
-                        Sign out of your account
-                    </small>
-
-                </span>
-
-
-                <span class="account-menu-arrow">
-                    →
-                </span>
-
-            </button>
-
-
-        </div>
-
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     MY ORDERS
-     ===================================================== -->
-
-<section
-    id="orders"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="account"
-        >
-            ← My Account
-        </button>
-
-
-        <span class="eyebrow">
-            MY ORDERS
-        </span>
-
-
-        <h2>
-            Your
-            <span>Orders.</span>
-        </h2>
-
-
-        <p>
-            View your projects and delivery status.
-        </p>
-
-
-        <div
-            id="ordersList"
-            class="orders-list"
-        >
-        </div>
-
-
-        <button
-            class="primary-button full-button"
-            type="button"
-            data-screen="services"
-        >
-            Create New Order
-            <span>→</span>
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     ORDER DETAILS
-     ===================================================== -->
-
-<section
-    id="order-details"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="orders"
-        >
-            ← My Orders
-        </button>
-
-
-        <span class="eyebrow">
-            ORDER DETAILS
-        </span>
-
-
-        <h2>
-            Order
-            <span id="detailOrderNumber">
-                #001
-            </span>
-        </h2>
-
-
-        <div class="order-status-card">
-
-            <span>
-                STATUS
-            </span>
-
-            <strong id="detailOrderStatus">
-                Submitted
-            </strong>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Service
-            </h3>
-
-            <p id="detailService">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Plan
-            </h3>
-
-            <p id="detailPlan">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Client
-            </h3>
-
-            <p id="detailClient">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Gym
-            </h3>
-
-            <p id="detailGym">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Instagram
-            </h3>
-
-            <p id="detailInstagram">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Project Goal
-            </h3>
-
-            <p id="detailGoal">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Reference Reel
-            </h3>
-
-            <p id="detailReference">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Song / Audio
-            </h3>
-
-            <p id="detailSong">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Videos
-            </h3>
-
-            <p id="detailVideos">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Editing Instructions
-            </h3>
-
-            <p id="detailEditingInstructions">
-                —
-            </p>
-
-        </div>
-
-
-        <div class="detail-card">
-
-            <h3>
-                Additional Notes
-            </h3>
-
-            <p id="detailInstructions">
-                —
-            </p>
-
-        </div>
-
-
-        <button
-            id="openVideoDeliveryButton"
-            class="primary-button full-button"
-            type="button"
-            data-screen="video-delivery"
-        >
-            🎬 Check Video Delivery
-            <span>→</span>
-        </button>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     VIDEO DELIVERY
-     ===================================================== -->
-
-<section
-    id="video-delivery"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="order-details"
-        >
-            ← Order Details
-        </button>
-
-
-        <span class="eyebrow">
-            VIDEO DELIVERY
-        </span>
-
-
-        <h2>
-            Your Video is
-            <span id="deliveryTitle">
-                Being Edited.
-            </span>
-        </h2>
-
-
-        <p id="deliverySubtitle">
-            We'll make your finished video
-            available here when it is ready.
-        </p>
-
-
-        <div
-            id="videoProcessingCard"
-            class="video-status-card"
-        >
-
-            <div class="video-status-icon">
-                🎬
-            </div>
-
-
-            <h3>
-                Editing in Progress
-            </h3>
-
-
-            <p>
-                Our editor is working on your video.
-                You can check this page anytime.
-            </p>
-
-
-            <div class="status-pill">
-                🟡 In Progress
-            </div>
-
-        </div>
-
-
-        <div
-            id="videoReadyCard"
-            class="video-ready-card"
-            style="display:none;"
-        >
-
-            <div class="video-status-icon">
-                🎉
-            </div>
-
-
-            <h3>
-                Your Video is Ready!
-            </h3>
-
-
-            <p>
-                Your edited video is ready
-                to watch and download.
-            </p>
-
-
-            <div class="video-preview">
-
-                <video
-                    id="finalVideoPlayer"
-                    controls
-                    playsinline
-                    preload="metadata"
-                >
-                    Your browser does not support
-                    video playback.
-                </video>
-
-            </div>
-
-
-            <a
-                id="downloadVideoButton"
-                class="primary-button full-button"
-                href="#"
-                download
-            >
-                ⬇ Download Video
-            </a>
-
-
-            <div class="delivery-note">
-
-                <span>
-                    ✓
-                </span>
-
-                <p>
-                    Keep this video saved after downloading it.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     SUPPORT
-     ===================================================== -->
-
-<section
-    id="support"
-    class="app-screen"
->
-
-    <div class="screen-inner">
-
-
-        <button
-            class="back-button"
-            type="button"
-            data-screen="account"
-        >
-            ← My Account
-        </button>
-
-
-        <span class="eyebrow">
-            SUPPORT
-        </span>
-
-
-        <h2>
-            Need
-            <span>Help?</span>
-        </h2>
-
-
-        <p>
-            We're here to help with your project.
-        </p>
-
-
-        <div class="support-card">
-
-            <h3>
-                Contact Us
-            </h3>
-
-            <p>
-                Get help with your order or project.
-            </p>
-
-        </div>
-
-
-        <div class="support-card">
-
-            <h3>
-                Delivery
-            </h3>
-
-            <p>
-                Your finished video will appear
-                in the Video Delivery section.
-            </p>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     TOAST
-     ===================================================== -->
-
-<div
-    id="toast"
-    class="toast"
-    aria-hidden="true"
->
-
-    <span id="toastIcon">
-        ✓
-    </span>
-
-    <span id="toastMessage">
-        Done
-    </span>
-
-</div>
-
-
-
-<!-- =====================================================
-     FLOATING HOME
-     ===================================================== -->
-
-<button
-    id="floatingHomeButton"
-    class="floating-home-button"
-    type="button"
-    data-screen="home"
-    aria-label="Home"
->
-    ↑
-</button>
-
-
-</main>
-
-</div>
-
-
-<script src="script.js?v=20260810"></script>
-
-</body>
-
-        </html>
+/* =========================================================
+   GYM GROWTH HQ
+   FINAL STYLE.CSS
+   ========================================================= */
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+    min-height:100vh;
+    background:#08090d;
+    color:#fff;
+    font-family:"Inter",sans-serif;
+    overflow-x:hidden;
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+button,a{-webkit-tap-highlight-color:transparent}
+input,textarea,select{
+    width:100%;
+    border:1px solid rgba(255,255,255,.10);
+    outline:none;
+    color:#fff;
+    background:#11131a;
+    border-radius:14px;
+    padding:15px 16px;
+}
+input:focus,textarea:focus,select:focus{
+    border-color:rgba(145,92,255,.8);
+    box-shadow:0 0 0 3px rgba(145,92,255,.10);
+}
+textarea{resize:vertical;min-height:110px}
+option{background:#11131a;color:#fff}
+
+.app{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 50% -10%,rgba(145,92,255,.12),transparent 38%),
+      #08090d;
+}
+.top-bar{
+    position:sticky;top:0;z-index:1000;
+    width:100%;min-height:70px;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 18px;
+    background:rgba(8,9,13,.92);
+    border-bottom:1px solid rgba(255,255,255,.06);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+}
+.brand-button{
+    display:flex;align-items:center;gap:11px;
+    border:0;background:transparent;color:#fff;text-align:left;
+}
+.brand-logo{
+    width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+    border-radius:12px;overflow:hidden;background:#14151d;
+    border:1px solid rgba(145,92,255,.30);
+}
+.brand-logo img{width:100%;height:100%;object-fit:cover}
+.brand-text{display:flex;flex-direction:column}
+.brand-name{font-family:"Manrope",sans-serif;font-size:15px;font-weight:800;line-height:1.1}
+.brand-tagline{margin-top:4px;color:#777783;font-size:9px;font-weight:600;letter-spacing:.7px}
+.account-header-button{
+    display:none;align-items:center;gap:8px;
+    padding:7px 10px 7px 7px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:30px;background:rgba(255,255,255,.04);color:#fff;
+}
+.account-header-name{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:700}
+.account-initial{
+    width:34px;height:34px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    background:linear-gradient(135deg,#915cff,#6840d8);
+    color:#fff;font-size:14px;font-weight:800;
+}
+.account-initial.large{width:48px;height:48px;font-size:18px}
+
+.app-content{width:100%;min-height:calc(100vh - 70px)}
+.app-screen{display:none;width:100%;min-height:calc(100vh - 70px)}
+.app-screen.active-screen{display:block}
+.screen-inner{width:min(100%,620px);margin:0 auto;padding:38px 20px 90px}
+.auth-screen{padding-top:28px}
+
+.eyebrow{display:inline-block;margin-bottom:12px;color:#a57cff;font-size:10px;font-weight:800;letter-spacing:1.7px}
+h1,h2,h3{font-family:"Manrope",sans-serif}
+h1{max-width:560px;font-size:clamp(38px,10vw,64px);line-height:1.02;letter-spacing:-2.2px;font-weight:800}
+h2{font-size:clamp(32px,8vw,50px);line-height:1.05;letter-spacing:-1.7px;font-weight:800}
+h1 span,h2 span{display:block;color:#a57cff}
+.screen-inner>p{margin-top:15px;max-width:520px;color:#8f8f9d;font-size:14px;line-height:1.65}
+
+.primary-button,.outline-button,.submit-button{
+    min-height:52px;display:flex;align-items:center;justify-content:center;gap:10px;
+    border-radius:15px;padding:14px 18px;font-weight:800;font-size:14px;
+    transition:transform .18s ease,opacity .18s ease,box-shadow .18s ease;
+    text-decoration:none;
+}
+.primary-button{
+    border:0;background:linear-gradient(135deg,#9b67ff,#7041dc);color:#fff;
+    box-shadow:0 12px 30px rgba(115,70,220,.20);
+}
+.primary-button:hover{transform:translateY(-1px)}
+.primary-button:active,.outline-button:active,.submit-button:active{transform:scale(.98)}
+.outline-button{border:1px solid rgba(145,92,255,.45);background:rgba(145,92,255,.06);color:#d8c8ff}
+.submit-button{border:0;background:linear-gradient(135deg,#8f5cff,#673bd2);color:#fff}
+.full-button{width:100%}
+#homeAccountButton{margin-top:12px}
+.back-button{
+    display:inline-flex;align-items:center;gap:7px;margin-bottom:34px;
+    border:0;background:transparent;color:#9696a4;font-size:13px;font-weight:700;
+}
+.back-button:hover{color:#fff}
+.back-text-button{
+    display:block;margin:16px auto 0;border:0;background:transparent;color:#898996;
+    font-size:13px;font-weight:700;
+}
+.back-text-button:hover{color:#cdb5ff}
+
+#home .screen-inner{min-height:calc(100vh - 70px);display:flex;flex-direction:column;justify-content:center}
+#home .primary-button{margin-top:30px}
+#home .outline-button{margin-top:10px}
+
+.logged-in-home-card{
+    display:none;align-items:center;gap:12px;margin-bottom:34px;padding:14px;
+    border-radius:18px;background:rgba(255,255,255,.035);
+    border:1px solid rgba(145,92,255,.20);
+}
+.logged-in-home-info{min-width:0;flex:1;display:flex;flex-direction:column}
+.logged-in-label{margin-bottom:3px;color:#a57cff;font-size:8px;font-weight:800;letter-spacing:1.2px}
+.logged-in-home-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.logged-in-home-info small{margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#777783;font-size:11px}
+.account-open-button{
+    width:38px;height:38px;border:1px solid rgba(255,255,255,.08);border-radius:50%;
+    background:rgba(255,255,255,.04);color:#fff;font-size:18px;
+}
+
+.service-list,.pricing-list{display:grid;gap:15px;margin-top:30px}
+.service-card,.pricing-card,.detail-card,.auth-card,.support-card,.review-card,.order-status-card,.video-status-card,.video-ready-card{
+    border-radius:20px;
+    background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+    border:1px solid rgba(255,255,255,.075);
+    box-shadow:0 18px 50px rgba(0,0,0,.15);
+}
+.service-card{padding:21px}
+.service-icon{width:48px;height:48px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border-radius:15px;background:rgba(145,92,255,.12);font-size:23px}
+.service-card h3{font-size:20px}
+.service-card p{margin:8px 0 18px;color:#858592;font-size:13px;line-height:1.5}
+
+.large-detail-icon{width:64px;height:64px;display:flex;align-items:center;justify-content:center;margin:4px 0 20px;border-radius:20px;background:rgba(145,92,255,.12);border:1px solid rgba(145,92,255,.20);font-size:30px}
+.detail-card{margin-top:18px;padding:20px}
+.detail-card h3{margin-bottom:13px;font-size:16px}
+.detail-card p{color:#a2a2af;font-size:13px;line-height:1.6}
+.detail-card ul{list-style:none}
+.detail-card li{padding:8px 0;color:#a7a7b4;font-size:13px}
+.detail-card+.primary-button{margin-top:20px}
+
+.pricing-card{padding:22px}
+.plan-label{color:#a57cff;font-size:9px;font-weight:800;letter-spacing:1.2px}
+.pricing-card h3{margin-top:8px;font-size:20px}
+.price{margin-top:15px;color:#fff;font-family:"Manrope",sans-serif;font-size:35px;font-weight:800}
+.price small{color:#7d7d8a;font-family:"Inter",sans-serif;font-size:11px;font-weight:600}
+.pricing-card>p{margin:9px 0 18px;color:#858592;font-size:13px;line-height:1.5}
+
+.form-group{margin-top:18px}
+.form-group label{display:block;margin-bottom:8px;color:#c6c6d0;font-size:12px;font-weight:700}
+.auth-card{margin-top:25px;padding:20px}
+.auth-card .primary-button{margin-top:20px}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:#5d5d68;font-size:10px;font-weight:800}
+.auth-divider::before,.auth-divider::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.07)}
+
+.upload-box{margin-top:24px;padding:25px 18px;text-align:center;border-radius:20px;background:rgba(145,92,255,.045);border:1px dashed rgba(145,92,255,.45)}
+.upload-icon{font-size:34px;margin-bottom:10px}
+.upload-box h3{font-size:18px}
+.upload-box p{margin:7px 0 17px;color:#858592;font-size:12px}
+.upload-button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:12px 18px;border-radius:13px;background:rgba(145,92,255,.15);border:1px solid rgba(145,92,255,.40);color:#d9caff;font-size:13px;font-weight:800;cursor:pointer}
+
+.review-card{margin-top:24px;padding:18px}
+.review-row{display:flex;justify-content:space-between;gap:20px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.review-row:last-child{border-bottom:0}
+.review-row span{color:#777783;font-size:12px}
+.review-row strong{max-width:60%;overflow-wrap:anywhere;text-align:right;color:#fff;font-size:12px}
+
+.success-screen{min-height:calc(100vh - 70px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.success-icon{width:75px;height:75px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;border-radius:50%;background:rgba(70,220,130,.12);border:1px solid rgba(70,220,130,.35);color:#63e293;font-size:35px;font-weight:800}
+.success-screen .primary-button{margin-top:30px}
+
+.account-profile-card{display:flex;align-items:center;gap:14px;margin-top:25px;padding:18px;border-radius:20px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)}
+.account-profile-initial{width:55px;height:55px;font-size:21px}
+.account-profile-info{min-width:0}
+.account-profile-info h3{font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.account-profile-info p{margin-top:4px;color:#777783;font-size:11px}
+.account-status{display:inline-block;margin-top:7px;color:#63df91;font-size:10px;font-weight:700}
+.account-menu{display:grid;gap:10px;margin-top:18px}
+.account-menu-item{width:100%;display:flex;align-items:center;gap:13px;padding:15px;border:1px solid rgba(255,255,255,.065);border-radius:17px;background:rgba(255,255,255,.025);color:#fff;text-align:left}
+.account-menu-icon{width:40px;height:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(145,92,255,.10);font-size:18px}
+.account-menu-text{min-width:0;flex:1;display:flex;flex-direction:column}
+.account-menu-text strong{font-size:13px}
+.account-menu-text small{margin-top:4px;color:#73737f;font-size:10px}
+.account-menu-arrow{color:#858591;font-size:18px}
+.logout-item{border-color:rgba(255,80,100,.12)}
+.logout-item .account-menu-icon{background:rgba(255,80,100,.08)}
+
+.orders-list{display:grid;gap:11px;margin-top:25px;margin-bottom:20px}
+.order-history-card{width:100%;display:flex;align-items:center;gap:12px;padding:15px;border:1px solid rgba(255,255,255,.07);border-radius:17px;background:rgba(255,255,255,.025);color:#fff;text-align:left}
+.order-history-icon{width:42px;height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(145,92,255,.10)}
+.order-history-info{min-width:0;flex:1;display:flex;flex-direction:column}
+.order-history-info strong{font-size:13px}
+.order-history-info small{margin-top:4px;color:#777783;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-status-small{margin-top:6px;color:#63df91;font-size:9px;font-weight:700}
+.empty-state{padding:35px 20px;text-align:center;border-radius:18px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06)}
+.empty-icon{margin-bottom:10px;font-size:30px}
+.empty-state h3{font-size:18px}
+.empty-state p{margin-top:7px;color:#777783;font-size:12px}
+
+.order-status-card{display:flex;align-items:center;justify-content:space-between;margin-top:22px;padding:16px 18px}
+.order-status-card span{color:#777783;font-size:9px;font-weight:800;letter-spacing:1px}
+.order-status-card strong{color:#63df91;font-size:12px}
+
+.video-status-card,.video-ready-card{margin-top:25px;padding:25px 20px;text-align:center}
+.video-status-icon{margin-bottom:13px;font-size:35px}
+.video-status-card h3,.video-ready-card h3{font-size:20px}
+.video-status-card p,.video-ready-card p{margin-top:8px;color:#858592;font-size:12px;line-height:1.6}
+.status-pill{display:inline-block;margin-top:16px;padding:8px 12px;border-radius:999px;background:rgba(255,193,7,.10);border:1px solid rgba(255,193,7,.20);color:#ffd45a;font-size:10px;font-weight:800}
+.video-preview{margin-top:18px;overflow:hidden;border-radius:16px;background:#000}
+.video-preview video{display:block;width:100%;max-height:520px;background:#000}
+.delivery-note{display:flex;align-items:flex-start;gap:8px;margin-top:15px;text-align:left}
+.delivery-note>span{color:#63df91}
+.delivery-note p{margin:0;color:#777783;font-size:11px;line-height:1.5}
+
+.support-card{margin-top:15px;padding:20px}
+.support-card h3{font-size:17px}
+.support-card p{margin-top:7px;color:#858592;font-size:12px;line-height:1.6}
+
+.toast{
+    position:fixed;left:50%;bottom:24px;z-index:3000;
+    transform:translate(-50%,20px);
+    display:flex;align-items:center;gap:9px;
+    min-width:180px;max-width:calc(100% - 32px);
+    padding:12px 15px;border-radius:14px;
+    background:#181922;border:1px solid rgba(255,255,255,.10);
+    box-shadow:0 15px 40px rgba(0,0,0,.35);
+    color:#fff;font-size:12px;font-weight:700;
+    opacity:0;pointer-events:none;
+    transition:.22s ease;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast span:first-child{color:#a57cff}
+
+.floating-home-button{
+    position:fixed;right:18px;bottom:18px;z-index:900;
+    width:46px;height:46px;border:1px solid rgba(145,92,255,.35);border-radius:50%;
+    background:rgba(17,19,26,.90);color:#fff;font-size:20px;
+    box-shadow:0 12px 30px rgba(0,0,0,.25);
+    backdrop-filter:blur(12px);
+}
+
+#gghqCreativeBrief{
+    margin-top:24px;padding:18px;border-radius:18px;
+    background:rgba(145,92,255,.07);
+    border:1px solid rgba(145,92,255,.30);
+}
+#gghqCreativeBrief h3{margin:0 0 8px;color:#fff;font-size:18px}
+#gghqCreativeBrief p{margin:0 0 18px;color:#8f8f9d;font-size:13px;line-height:1.5}
+#gghqCreativeBrief label{display:block;margin:14px 0 8px;color:#cdb5ff;font-size:12px;font-weight:700}
+#gghqCreativeBrief label:first-of-type{margin-top:0}
+#gghqCreativeBrief .gghq-file-button{
+    display:flex;align-items:center;justify-content:center;
+    min-height:48px;padding:12px;margin-bottom:8px;border-radius:13px;
+    background:rgba(145,92,255,.14);border:1px solid rgba(145,92,255,.40);
+    color:#d9caff;font-size:13px;font-weight:800;cursor:pointer;
+}
+#gghqSongName,#gghqReferenceName{margin-bottom:10px;color:#8f8f9d;font-size:12px}
+
+.gghq-video-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.gghq-video-card{position:relative;overflow:hidden;border-radius:16px;background:#111118;border:2px solid rgba(139,92,246,.75);box-shadow:0 6px 18px rgba(0,0,0,.22)}
+.gghq-video-card video{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;background:#08080c}
+.gghq-video-card-name{padding:9px;color:#ddd;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gghq-remove-video{position:absolute;right:7px;top:7px;width:28px;height:28px;border:0;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;font-weight:800}
+
+@media(max-width:480px){
+    .top-bar{padding:10px 14px}
+    .screen-inner{padding:30px 16px 80px}
+    h1{font-size:42px}
+    h2{font-size:34px}
+    .gghq-video-gallery{grid-template-columns:1fr}
+    }
